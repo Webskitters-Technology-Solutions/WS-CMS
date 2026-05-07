@@ -8,7 +8,7 @@
   "homepage": "https://www.webskitters.com",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "corepack pnpm --parallel dev:api dev:web dev:admin",
+    "dev": "corepack pnpm -r --parallel --filter @wts-cms/api --filter @wts-cms/web --filter @wts-cms/admin dev",
     "dev:api": "corepack pnpm --filter @wts-cms/api dev",
     "dev:web": "corepack pnpm --filter @wts-cms/web dev",
     "dev:admin": "corepack pnpm --filter @wts-cms/admin dev",
@@ -22,6 +22,7 @@
     "test": "corepack pnpm --filter @wts-cms/api test",
     "test:api": "corepack pnpm --filter @wts-cms/api test",
     "test:e2e": "playwright test",
+    "test:full": "corepack pnpm headers:check && corepack pnpm typecheck && corepack pnpm lint && corepack pnpm test && corepack pnpm build && corepack pnpm test:e2e",
     "seed": "corepack pnpm --filter @wts-cms/api seed",
     "backup": "tsx scripts/backup.ts",
     "restore": "tsx scripts/restore.ts",

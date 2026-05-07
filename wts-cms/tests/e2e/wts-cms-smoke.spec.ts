@@ -16,36 +16,114 @@
  */
 import { expect, test } from "@playwright/test";
 
+const webUrl = process.env.WTS_E2E_WEB_URL || "http://localhost:3000";
+const adminUrl = process.env.WTS_E2E_ADMIN_URL || "http://localhost:3001";
+const apiUrl = process.env.WTS_E2E_API_URL || "http://localhost:4000";
+
+async function expectNoHorizontalOverflow(page: any, label: string) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+  expect(overflow, `${label} should not have horizontal overflow`).toBe(false);
+}
+
+async function login(page: any) {
+  await page.goto(`${adminUrl}/login`);
+  await page.getByLabel("Email").fill("admin@webskitters.com");
+  await page.getByLabel("Password").fill("ChangeMe@12345");
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/dashboard/);
+}
+
 test("public WTS CMS home renders Webskitters content", async ({ page }) => {
-  await page.goto(process.env.WTS_E2E_WEB_URL || "http://localhost:3000");
+  await page.goto(webUrl);
   await expect(page.getByRole("heading", { name: /WTS CMS/i }).first()).toBeVisible();
   await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
+  await expectNoHorizontalOverflow(page, "home");
 });
 
 test("admin login page renders Webskitters branding", async ({ page }) => {
-  await page.goto(process.env.WTS_E2E_ADMIN_URL || "http://localhost:3001/login");
+  await page.goto(`${adminUrl}/login`);
   await expect(page.getByText("WTS CMS").first()).toBeVisible();
   await expect(page.getByText(/Webskitters Technology Solutions/i).first()).toBeVisible();
+  await expectNoHorizontalOverflow(page, "admin login");
 });
 
 test("public visual QA covers core WTS CMS content routes", async ({ page }) => {
-  const baseUrl = process.env.WTS_E2E_WEB_URL || "http://localhost:3000";
   for (const path of ["/", "/contact-us", "/gallery", "/blog/welcome-to-wts-cms"]) {
-    await page.goto(`${baseUrl}${path}`);
+    await page.goto(`${webUrl}${path}`);
     await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
-    expect(overflow, `${path} should not have horizontal overflow`).toBe(false);
+    await expectNoHorizontalOverflow(page, path);
     await page.screenshot({ fullPage: true });
   }
 });
 
 test("public mobile navigation and block pages stay responsive", async ({ page }) => {
-  const baseUrl = process.env.WTS_E2E_WEB_URL || "http://localhost:3000";
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${baseUrl}/about-us`);
+  await page.goto(`${webUrl}/about-us`);
   await expect(page.getByRole("heading", { name: /CMS foundation/i }).first()).toBeVisible();
   await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
-  expect(overflow).toBe(false);
+  await expectNoHorizontalOverflow(page, "mobile about");
   await page.screenshot({ fullPage: true });
+});
+
+test("API exposes health, readiness, and security headers", async ({ request }) => {
+  const health = await request.get(`${apiUrl}/health`);
+  expect(health.ok()).toBe(true);
+  expect(health.headers()["content-security-policy"]).toContain("default-src 'self'");
+  expect(health.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(health.headers()["x-frame-options"]).toBe("DENY");
+
+  const ready = await request.get(`${apiUrl}/ready`);
+  expect(ready.ok()).toBe(true);
+
+  const denied = await request.post(`${apiUrl}/api/auth/login`, {
+    headers: { Origin: "https://evil.example" },
+    data: { email: "admin@webskitters.com", password: "ChangeMe@12345" }
+  });
+  expect(denied.status()).toBe(403);
+});
+
+test("public SEO endpoints and metadata render correctly", async ({ page, request }) => {
+  const sitemap = await request.get(`${webUrl}/sitemap.xml`);
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).toContain("/contact-us");
+
+  const robots = await request.get(`${webUrl}/robots.txt`);
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain("User-agent");
+
+  await page.goto(`${webUrl}/blog/welcome-to-wts-cms`);
+  await expect(page.locator("link[rel='canonical']")).toHaveAttribute("href", /\/blog\/welcome-to-wts-cms/);
+  await expect(page.locator("script[type='application/ld+json']").first()).toBeAttached();
+  await expectNoHorizontalOverflow(page, "blog detail SEO");
+});
+
+test("admin authenticated journey covers dashboard, pages, import export, and editor responsiveness", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Mobile authenticated route coverage is handled by the dedicated responsive admin test.");
+  await login(page);
+  await expect(page.locator("main h1", { hasText: "Dashboard" })).toBeVisible();
+  await expectNoHorizontalOverflow(page, "admin dashboard");
+
+  await page.goto(`${adminUrl}/pages`);
+  await expect(page.locator("main h1", { hasText: "Pages" })).toBeVisible();
+  await expect(page.getByText("Home").first()).toBeVisible();
+  await page.getByRole("button", { name: "Edit page" }).first().click();
+  await expect(page.getByText(/WTS CMS Page Studio/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Draft preview/i })).toBeVisible();
+  await expectNoHorizontalOverflow(page, "page editor");
+
+  await page.goto(`${adminUrl}/import-export`);
+  await expect(page.locator("main h1", { hasText: "Import Export" })).toBeVisible();
+  await page.getByRole("button", { name: /Generate export/i }).click();
+  await expect(page.getByText(/Export generated/i)).toBeVisible();
+  await expectNoHorizontalOverflow(page, "import export");
+});
+
+test("admin mobile pages remain usable without horizontal overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page);
+  for (const path of ["/dashboard", "/pages", "/blogs", "/menus", "/roles", "/seo-settings"]) {
+    await page.goto(`${adminUrl}${path}`);
+    await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
+    await expectNoHorizontalOverflow(page, `admin mobile ${path}`);
+  }
 });

@@ -24,6 +24,7 @@ const envSchema = z.object({
   WTS_CMS_BRAND_NAME: z.string().default("WTS CMS"),
   WTS_CMS_POWERED_BY: z.string().default("Webskitters Technology Solutions Pvt. Ltd."),
   API_PORT: z.coerce.number().int().positive().default(4000),
+  TRUST_PROXY: z.coerce.number().int().min(0).default(0),
   MONGO_URI: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(16),
   JWT_REFRESH_SECRET: z.string().min(16),

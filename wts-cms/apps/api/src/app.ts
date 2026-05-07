@@ -18,6 +18,8 @@ import path from "node:path";
 import compression from "compression";
 import cors from "cors";
 import express from "express";
+import slowDown from "express-slow-down";
+import hpp from "hpp";
 import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -48,12 +50,16 @@ import { tagsRouter } from "./modules/tags/tags.routes.js";
 import { usersRouter } from "./modules/users/users.routes.js";
 import { errorHandler, notFound } from "./middleware/error-handler.js";
 import { requestId } from "./middleware/request-id.js";
+import { mutationOriginGuard, noStoreApiResponses, publicContentCache } from "./middleware/security.js";
 import { ok, fail } from "./utils/api-response.js";
 
 export function createApp() {
   const app = express();
 
   app.disable("x-powered-by");
+  if (env.TRUST_PROXY > 0) {
+    app.set("trust proxy", env.TRUST_PROXY);
+  }
   app.use(requestId);
   app.use((req, res, next) => {
     const startedAt = Date.now();
@@ -73,29 +79,55 @@ export function createApp() {
   });
   app.use(
     helmet({
-      contentSecurityPolicy: false,
-      hsts: env.NODE_ENV === "production",
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          defaultSrc: ["'self'"],
+          baseUri: ["'self'"],
+          connectSrc: ["'self'", ...env.CORS_ORIGINS],
+          fontSrc: ["'self'", "data:"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"],
+          imgSrc: ["'self'", "data:", "blob:", "https:"],
+          objectSrc: ["'none'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          upgradeInsecureRequests: env.NODE_ENV === "production" ? [] : null
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: { policy: "same-origin" },
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      dnsPrefetchControl: { allow: false },
+      hsts: env.NODE_ENV === "production" ? { maxAge: 15552000, includeSubDomains: true, preload: true } : false,
       frameguard: { action: "deny" },
       referrerPolicy: { policy: "strict-origin-when-cross-origin" }
     })
   );
   app.use((_req, res, next) => {
     res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
     next();
   });
   app.use(
     cors({
+      methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Authorization", "Content-Type", "X-Request-ID"],
+      exposedHeaders: ["X-Request-ID", "RateLimit-Limit", "RateLimit-Remaining", "RateLimit-Reset"],
+      maxAge: 600,
       origin(origin, callback) {
         if (!origin || env.CORS_ORIGINS.includes(origin)) {
           callback(null, true);
           return;
         }
-        callback(new Error("CORS origin denied"));
+        callback(null, false);
       },
       credentials: true
     })
   );
-  app.use(compression());
+  app.use(noStoreApiResponses);
+  app.use(mutationOriginGuard);
+  app.use(compression({ threshold: 1024 }));
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000,
@@ -105,10 +137,28 @@ export function createApp() {
       handler: (_req, res) => fail(res, 429, "Too many requests, please try again later.", "RATE_LIMITED")
     })
   );
+  app.use(
+    slowDown({
+      windowMs: 15 * 60 * 1000,
+      delayAfter: env.NODE_ENV === "development" ? 1000 : 150,
+      delayMs: () => (env.NODE_ENV === "development" ? 0 : 125)
+    })
+  );
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+  app.use(hpp());
   app.use(mongoSanitize());
-  app.use("/uploads", express.static(path.resolve(env.UPLOAD_DIR)));
+  app.use(
+    "/uploads",
+    express.static(path.resolve(env.UPLOAD_DIR), {
+      immutable: true,
+      maxAge: "30d",
+      setHeaders(res) {
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      }
+    })
+  );
 
   app.get("/health", (_req, res) =>
     ok(res, {
@@ -151,8 +201,8 @@ export function createApp() {
   app.use("/api/notifications", notificationsRouter);
   app.use("/api/sessions", sessionsRouter);
   app.use("/api/search", searchRouter);
-  app.use("/api/public", publicRouter);
-  app.use("/api/seo", seoRouter);
+  app.use("/api/public", publicContentCache, publicRouter);
+  app.use("/api/seo", publicContentCache, seoRouter);
 
   app.use(notFound);
   app.use(errorHandler);

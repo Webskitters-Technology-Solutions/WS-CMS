@@ -48,6 +48,7 @@ Change the default password immediately after first login.
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
+- `pnpm test:full`
 - `pnpm seed`
 - `pnpm db:import-demo`
 - `pnpm db:export-demo`
@@ -71,7 +72,7 @@ pnpm podman:down
 
 ## Security Notes
 
-The API includes Helmet, CORS allowlisting, rate limiting, MongoDB sanitisation, strict body limits, Zod validation, JWT access and refresh tokens, bcrypt password hashing, RBAC middleware, upload MIME and size limits, safe CMS HTML sanitisation, audit logs, request IDs, and production-safe error responses.
+The API includes Helmet, CSP, CORS allowlisting, rate limiting, request slow-down, HTTP parameter pollution protection, origin checks for mutating browser requests, MongoDB sanitisation, strict body limits, Zod validation, JWT access and refresh tokens, bcrypt password hashing, RBAC middleware, upload MIME and size limits, safe CMS HTML sanitisation, audit logs, request IDs, and production-safe error responses.
 
 ## SEO Notes
 
@@ -84,6 +85,10 @@ The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-
 ## New CMS Features
 
 WTS CMS includes database-driven contact forms, form submissions, admin notifications, session revocation, global admin search, versioned visual content blocks, media folder search, media picker editing, admin import/export, production storage placeholders, production Podman reverse-proxy files, and Playwright E2E visual smoke tests.
+
+## Testing And Performance
+
+Use `pnpm test:full` for the complete local quality gate. See `docs/testing.md` for unit and E2E coverage and `docs/performance.md` for speed optimisation notes.
 
 ## Content Import Export
 

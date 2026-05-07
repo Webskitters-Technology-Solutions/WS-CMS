@@ -43,7 +43,7 @@ function serializeUser(user: any, role: any) {
   };
 }
 
-async function issueTokens(user: any, role: any, replaceRefreshTokenIndex?: number) {
+async function issueTokens(user: any, role: any) {
   const permissions = role?.permissions ?? [];
   const accessToken = signAccessToken({
     sub: user._id.toString(),
@@ -52,15 +52,7 @@ async function issueTokens(user: any, role: any, replaceRefreshTokenIndex?: numb
   });
   const refreshToken = signRefreshToken({ sub: user._id.toString() });
   const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
-  const refreshTokenHashes = [...(user.refreshTokenHashes || [])];
-  if (typeof replaceRefreshTokenIndex === "number" && replaceRefreshTokenIndex >= 0) {
-    refreshTokenHashes[replaceRefreshTokenIndex] = refreshTokenHash;
-  } else {
-    refreshTokenHashes.push(refreshTokenHash);
-  }
-  user.refreshTokenHashes = refreshTokenHashes.slice(-10);
-  await user.save();
-  return { accessToken, refreshToken, permissions };
+  return { accessToken, refreshToken, refreshTokenHash, permissions };
 }
 
 authRouter.post(
@@ -77,8 +69,15 @@ authRouter.post(
     }
     const role = await RoleModel.findById(user.role);
     const tokens = await issueTokens(user, role);
-    user.lastLoginAt = new Date();
-    await user.save();
+    const lastLoginAt = new Date();
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $set: { lastLoginAt },
+        $push: { refreshTokenHashes: { $each: [tokens.refreshTokenHash], $slice: -10 } }
+      }
+    );
+    user.lastLoginAt = lastLoginAt;
     req.user = { id: user._id.toString(), roleSlug: role?.slug ?? "", permissions: tokens.permissions };
     await audit(req, "login", "auth", user._id.toString());
     return ok(res, {
@@ -106,7 +105,15 @@ authRouter.post(
       return fail(res, 401, "Invalid refresh token", "INVALID_REFRESH_TOKEN");
     }
     const role = await RoleModel.findById(user.role);
-    const tokens = await issueTokens(user, role, matchedIndex);
+    const tokens = await issueTokens(user, role);
+    await UserModel.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          [`refreshTokenHashes.${matchedIndex}`]: tokens.refreshTokenHash
+        }
+      }
+    );
     return ok(res, {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,

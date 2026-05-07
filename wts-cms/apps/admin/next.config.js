@@ -14,17 +14,46 @@
  *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
  * ================================================================
  */
+const isProduction = process.env.NODE_ENV === "production";
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+const apiOrigin = new URL(apiBaseUrl).origin;
+
+const csp = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  `connect-src 'self' ${apiOrigin}`,
+  "font-src 'self' data:",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "img-src 'self' data: blob: https:",
+  "object-src 'none'",
+  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
+  "style-src 'self' 'unsafe-inline'",
+  "upgrade-insecure-requests"
+].join("; ");
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" }
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
+  ...(isProduction ? [{ key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains; preload" }] : [])
 ];
 
 const nextConfig = {
   poweredByHeader: false,
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react"]
+  },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/_next/static/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/(.*)", headers: securityHeaders }
+    ];
   }
 };
 

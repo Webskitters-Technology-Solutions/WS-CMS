@@ -29,11 +29,16 @@
   box-sizing: border-box;
 }
 
+html {
+  max-width: 100%;
+}
+
 body {
   margin: 0;
   background: var(--admin-bg);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
@@ -68,6 +73,7 @@ textarea {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  min-width: 0;
 }
 
 .sidebar {
@@ -166,6 +172,21 @@ button,
 table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.panel,
+.card,
+.toolbar,
+.topbar,
+.cms-editor-card,
+.cms-panel-card,
+.dashboard-panel,
+.dashboard-chart-card,
+.role-editor-card,
+.role-matrix-card,
+.menu-editor-card,
+.menu-builder-card {
+  min-width: 0;
 }
 
 td,
@@ -2849,6 +2870,7 @@ pre {
     overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar a {
@@ -2869,6 +2891,7 @@ pre {
 
   .main {
     padding: 14px;
+    width: 100%;
   }
 
   .topbar,
@@ -2991,11 +3014,18 @@ pre {
   }
 
   .role-matrix {
-    min-width: 760px;
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
   }
 
   .page-table {
-    min-width: 780px;
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-quill-shell .ql-toolbar.ql-snow {
@@ -3020,6 +3050,13 @@ pre {
   .cms-title-field {
     font-size: 28px;
   }
+
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 480px) {
@@ -3041,6 +3078,13 @@ pre {
 
   .cms-panel-tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar,
+  .panel,
+  .card,
+  .login-panel {
+    width: 100%;
   }
 
   .admin-editor-topline {
