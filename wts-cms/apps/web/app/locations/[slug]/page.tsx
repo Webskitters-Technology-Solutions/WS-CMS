@@ -19,13 +19,19 @@ import { SafeHtml } from "../../../components/SafeHtml";
 import { apiGet } from "../../../lib/api";
 import { toMetadata } from "../../../lib/seo";
 
-export async function generateMetadata({ params }: any) {
-  const [location, settings] = await Promise.all([apiGet<any>(`/api/public/locations/${params.slug}`), apiGet<any>("/api/public/settings")]);
+interface LocationDetailProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: LocationDetailProps) {
+  const { slug } = await params;
+  const [location, settings] = await Promise.all([apiGet<any>(`/api/public/locations/${slug}`), apiGet<any>("/api/public/settings")]);
   return toMetadata(location, settings);
 }
 
-export default async function LocationDetailPage({ params }: any) {
-  const location = await apiGet<any>(`/api/public/locations/${params.slug}`);
+export default async function LocationDetailPage({ params }: LocationDetailProps) {
+  const { slug } = await params;
+  const location = await apiGet<any>(`/api/public/locations/${slug}`);
   if (!location) {
     notFound();
   }

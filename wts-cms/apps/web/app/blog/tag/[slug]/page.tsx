@@ -18,16 +18,22 @@ import Link from "next/link";
 import { apiGet } from "../../../../lib/api";
 import { toMetadata } from "../../../../lib/seo";
 
-export async function generateMetadata({ params }: any) {
+interface TagPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: TagPageProps) {
+  const { slug } = await params;
   const [data, settings] = await Promise.all([
-    apiGet<any>(`/api/public/blogs/tag/${params.slug}`),
+    apiGet<any>(`/api/public/blogs/tag/${slug}`),
     apiGet<any>("/api/public/settings")
   ]);
   return toMetadata(data?.tag, settings);
 }
 
-export default async function TagPage({ params }: any) {
-  const data = await apiGet<any>(`/api/public/blogs/tag/${params.slug}`);
+export default async function TagPage({ params }: TagPageProps) {
+  const { slug } = await params;
+  const data = await apiGet<any>(`/api/public/blogs/tag/${slug}`);
   return (
     <section className="container page">
       <h1>{data?.tag?.name || "Blog Tag"}</h1>

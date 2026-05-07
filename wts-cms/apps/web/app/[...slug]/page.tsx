@@ -21,7 +21,11 @@ import { SafeHtml } from "../../components/SafeHtml";
 import { apiGet } from "../../lib/api";
 import { toMetadata } from "../../lib/seo";
 
-async function getPage(params: any) {
+interface DynamicPageProps {
+  params: Promise<{ slug?: string[] }>;
+}
+
+async function getPage(params: { slug?: string[] }) {
   const path = `/${(params.slug || []).join("/")}`;
   const resolved = await apiGet<any>(`/api/public/redirects/resolve?path=${encodeURIComponent(path)}`);
   if (resolved?.redirect) {
@@ -30,13 +34,14 @@ async function getPage(params: any) {
   return apiGet<any>(`/api/public/pages/by-path?path=${encodeURIComponent(path)}`);
 }
 
-export async function generateMetadata({ params }: any) {
-  const [page, settings] = await Promise.all([getPage(params), apiGet<any>("/api/public/settings")]);
+export async function generateMetadata({ params }: DynamicPageProps) {
+  const resolvedParams = await params;
+  const [page, settings] = await Promise.all([getPage(resolvedParams), apiGet<any>("/api/public/settings")]);
   return toMetadata(page, settings);
 }
 
-export default async function DynamicPage({ params }: any) {
-  const page = await getPage(params);
+export default async function DynamicPage({ params }: DynamicPageProps) {
+  const page = await getPage(await params);
   if (!page) {
     notFound();
   }

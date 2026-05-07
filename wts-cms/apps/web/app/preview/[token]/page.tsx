@@ -22,16 +22,22 @@ import { SocialShare } from "../../../components/SocialShare";
 import { apiGet } from "../../../lib/api";
 import { toMetadata } from "../../../lib/seo";
 
-export async function generateMetadata({ params }: any) {
+interface PreviewPageProps {
+  params: Promise<{ token: string }>;
+}
+
+export async function generateMetadata({ params }: PreviewPageProps) {
+  const { token } = await params;
   const [preview, settings] = await Promise.all([
-    apiGet<any>(`/api/public/preview/${params.token}`),
+    apiGet<any>(`/api/public/preview/${token}`),
     apiGet<any>("/api/public/settings")
   ]);
   return toMetadata(preview?.entity, settings);
 }
 
-export default async function PreviewPage({ params }: any) {
-  const preview = await apiGet<any>(`/api/public/preview/${params.token}`);
+export default async function PreviewPage({ params }: PreviewPageProps) {
+  const { token } = await params;
+  const preview = await apiGet<any>(`/api/public/preview/${token}`);
   const entity = preview?.entity;
   if (!entity) {
     notFound();

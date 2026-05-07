@@ -22,14 +22,19 @@ import { SocialShare } from "../../../components/SocialShare";
 import { apiGet } from "../../../lib/api";
 import { toMetadata } from "../../../lib/seo";
 
-export async function generateMetadata({ params }: any) {
-  const slug = params.slug;
+interface BlogDetailProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: BlogDetailProps) {
+  const { slug } = await params;
   const [blog, settings] = await Promise.all([apiGet<any>(`/api/public/blogs/${slug}`), apiGet<any>("/api/public/settings")]);
   return toMetadata(blog, settings);
 }
 
-export default async function BlogDetailPage({ params }: any) {
-  const blog = await apiGet<any>(`/api/public/blogs/${params.slug}`);
+export default async function BlogDetailPage({ params }: BlogDetailProps) {
+  const { slug } = await params;
+  const blog = await apiGet<any>(`/api/public/blogs/${slug}`);
   if (!blog) {
     notFound();
   }

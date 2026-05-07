@@ -18,16 +18,22 @@ import Link from "next/link";
 import { apiGet } from "../../../../lib/api";
 import { toMetadata } from "../../../../lib/seo";
 
-export async function generateMetadata({ params }: any) {
+interface CategoryPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: CategoryPageProps) {
+  const { slug } = await params;
   const [data, settings] = await Promise.all([
-    apiGet<any>(`/api/public/blogs/category/${params.slug}`),
+    apiGet<any>(`/api/public/blogs/category/${slug}`),
     apiGet<any>("/api/public/settings")
   ]);
   return toMetadata(data?.category, settings);
 }
 
-export default async function CategoryPage({ params }: any) {
-  const data = await apiGet<any>(`/api/public/blogs/category/${params.slug}`);
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = await params;
+  const data = await apiGet<any>(`/api/public/blogs/category/${slug}`);
   return (
     <section className="container page">
       <h1>{data?.category?.name || "Blog Category"}</h1>
