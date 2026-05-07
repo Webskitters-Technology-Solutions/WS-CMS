@@ -24,6 +24,8 @@
     "seed": "corepack pnpm --filter @wts-cms/api seed",
     "backup": "tsx scripts/backup.ts",
     "restore": "tsx scripts/restore.ts",
+    "db:export-demo": "tsx scripts/export-demo-database.ts",
+    "db:import-demo": "tsx scripts/import-demo-database.ts",
     "headers:check": "tsx scripts/check-headers.ts",
     "podman:up": "podman compose -f infra/podman/podman-compose.yml up -d",
     "podman:down": "podman compose -f infra/podman/podman-compose.yml down",

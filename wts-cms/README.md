@@ -21,6 +21,7 @@ cd wts-cms
 pnpm install
 cp .env.example .env
 pnpm seed
+pnpm db:import-demo
 pnpm dev
 ```
 
@@ -48,6 +49,8 @@ Change the default password immediately after first login.
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm seed`
+- `pnpm db:import-demo`
+- `pnpm db:export-demo`
 - `pnpm headers:check`
 - `pnpm podman:up`
 - `pnpm podman:down`
@@ -70,6 +73,10 @@ The API includes Helmet, CORS allowlisting, rate limiting, MongoDB sanitisation,
 ## SEO Notes
 
 WTS CMS supports editable metadata, canonical URLs, robots index/follow controls, Open Graph fields, JSON-LD validation, dynamic sitemap, editable robots.txt, GTM, semantic headings, blog table of contents, social sharing, location pages, and noindex sitemap exclusion.
+
+## Demo Database
+
+The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-demo-database.json`. Restore it with `pnpm db:import-demo` to load the committed Webskitters demo content, pages, blogs, menus, settings, users, roles, and permissions.
 
 ## Folder Structure
 

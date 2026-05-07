@@ -8,7 +8,7 @@ Website: https://www.webskitters.com
 
 # Deployment
 
-Configure environment variables from `.env.example`, install with `pnpm install`, build with `pnpm build`, seed with `pnpm seed`, and run each app with its package `start` script.
+Configure environment variables from `.env.example`, install with `pnpm install`, build with `pnpm build`, seed with `pnpm seed` or restore the committed demo database with `pnpm db:import-demo`, and run each app with its package `start` script.
 
 Podman local development:
 
