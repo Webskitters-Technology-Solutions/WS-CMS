@@ -35,12 +35,16 @@ export default async function BlogDetailPage({ params }: any) {
   }
   const url = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}${blog.permalink}`;
   return (
-    <article className="container page">
+    <article className="container page blog-detail">
       <JsonLd schemaJson={blog.seo?.schemaJson} />
-      <h1>{blog.h1}</h1>
-      <p className="meta">{blog.authorName} · {blog.readingTime} min read</p>
+      <header className="blog-header">
+        <span className="section-kicker">WTS CMS article</span>
+        <h1>{blog.h1}</h1>
+        <p className="meta">{blog.authorName} · {blog.readingTime} min read</p>
+        {blog.excerpt ? <p>{blog.excerpt}</p> : null}
+      </header>
       {blog.tableOfContents?.length ? (
-        <nav className="card">
+        <nav className="toc-card">
           {blog.tableOfContents.map((item: any) => <a key={item.anchor} href={`#${item.anchor}`}>{item.text}</a>)}
         </nav>
       ) : null}

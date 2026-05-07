@@ -43,10 +43,15 @@ export default async function BlogListingPage() {
   const blogs = (await apiGet<any[]>("/api/public/blogs")) || [];
   return (
     <section className="container page">
-      <h1>WTS CMS Blog</h1>
-      <div className="grid">
+      <header className="page-header">
+        <span className="section-kicker">Webskitters insights</span>
+        <h1>WTS CMS Blog</h1>
+        <p>Practical CMS, SEO, RBAC, and content delivery guidance for Webskitters starter projects.</p>
+      </header>
+      <div className="blog-grid">
         {blogs.map((blog) => (
-          <article className="card" key={blog.id || blog.permalink}>
+          <article className="blog-card" key={blog.id || blog.permalink}>
+            {blog.featuredImage ? <img src={blog.featuredImage} alt={blog.featuredImageAlt || blog.title} loading="lazy" /> : null}
             <h2><Link href={blog.permalink}>{blog.title}</Link></h2>
             <p className="meta">{blog.authorName} · {blog.readingTime} min read</p>
             <p>{blog.excerpt}</p>

@@ -36,12 +36,22 @@ export default async function HomePage() {
     );
   }
   return (
-    <article className="container page">
+    <article className="page page-canvas">
       <JsonLd schemaJson={page.seo?.schemaJson} />
-      <h1>{page.h1}</h1>
-      <p className="meta">{page.excerpt}</p>
-      <SafeHtml html={page.content} />
-      <BlockRenderer blocks={page.blocks} />
+      {page.blocks?.length ? (
+        <BlockRenderer blocks={page.blocks} />
+      ) : (
+        <section className="container page-header">
+          <h1>{page.h1}</h1>
+          <p>{page.excerpt}</p>
+          <SafeHtml html={page.content} />
+        </section>
+      )}
+      {page.blocks?.length && page.content ? (
+        <section className="container editorial-section">
+          <SafeHtml html={page.content} />
+        </section>
+      ) : null}
     </article>
   );
 }

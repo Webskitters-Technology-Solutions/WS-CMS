@@ -38,15 +38,31 @@ export default async function PreviewPage({ params }: any) {
   }
   const url = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}${entity.permalink}`;
   return (
-    <article className="container page">
-      <p className="meta">Private WTS CMS preview powered by Webskitters Technology Solutions Pvt. Ltd.</p>
+    <article className="page page-canvas">
+      <section className="container preview-ribbon">
+        Private WTS CMS preview powered by Webskitters Technology Solutions Pvt. Ltd.
+      </section>
       <JsonLd schemaJson={entity.seo?.schemaJson} />
-      <h1>{entity.h1}</h1>
-      {preview.entityType === "blog" ? <p className="meta">{entity.authorName} · {entity.readingTime} min read</p> : null}
-      <p className="meta">{entity.excerpt}</p>
-      <SafeHtml html={entity.content} />
-      <BlockRenderer blocks={entity.blocks} />
-      {preview.entityType === "blog" ? <SocialShare url={url} title={entity.title} /> : null}
+      {entity.blocks?.length ? (
+        <BlockRenderer blocks={entity.blocks} />
+      ) : (
+        <section className="container page-header">
+          <h1>{entity.h1}</h1>
+          {preview.entityType === "blog" ? <p className="meta">{entity.authorName} · {entity.readingTime} min read</p> : null}
+          <p>{entity.excerpt}</p>
+          <SafeHtml html={entity.content} />
+        </section>
+      )}
+      {entity.blocks?.length && entity.content ? (
+        <section className="container editorial-section">
+          <SafeHtml html={entity.content} />
+        </section>
+      ) : null}
+      {preview.entityType === "blog" ? (
+        <section className="container">
+          <SocialShare url={url} title={entity.title} />
+        </section>
+      ) : null}
     </article>
   );
 }

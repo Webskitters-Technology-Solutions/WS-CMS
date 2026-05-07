@@ -332,12 +332,155 @@ async function seed() {
     }
   ];
 
+  const pageBlockMap: Record<string, { content: string; blocks: any[] }> = {
+    home: {
+      content: "<p>WTS CMS is a reusable Webskitters starter for secure, SEO-ready content websites. The layout above is powered by structured database blocks.</p>",
+      blocks: [
+        {
+          id: "home-hero",
+          type: "hero",
+          title: "WTS CMS for fast, secure Webskitters launches",
+          body: "A reusable CMS starter with SEO controls, RBAC, blogs, menus, redirects, forms, media, and Podman-ready local development.",
+          mediaUrl: demoImages.dashboard
+        },
+        {
+          id: "home-capabilities",
+          type: "cards",
+          title: "Everything small CMS projects need",
+          body: "Use database-driven blocks to compose pages while keeping the API as the source of truth.",
+          items: [
+            { title: "Editorial CMS", body: "Manage pages, blogs, categories, tags, menus, media, and publishing states.", image: demoImages.cms },
+            { title: "SEO Toolkit", body: "Control metadata, canonical URLs, JSON-LD, robots, sitemap, social previews, and redirects.", image: demoImages.seo },
+            { title: "Secure Admin", body: "Use JWT auth, RBAC, audit logs, validation, security headers, and session controls.", image: demoImages.security }
+          ]
+        },
+        {
+          id: "home-cta",
+          type: "cta",
+          title: "Build the next Webskitters CMS project faster",
+          body: "Start with a lightweight architecture that is easy to customize, test, deploy, and hand over to editors."
+        }
+      ]
+    },
+    "about-us": {
+      content: "<p>WTS CMS gives Webskitters teams a consistent production-minded base without forcing heavyweight enterprise architecture.</p>",
+      blocks: [
+        {
+          id: "about-hero",
+          type: "hero",
+          title: "A CMS foundation shaped for repeatable delivery",
+          body: "WTS CMS packages the delivery patterns Webskitters teams use again and again: secure admin, content workflows, SEO controls, and public rendering.",
+          mediaUrl: demoImages.team
+        },
+        {
+          id: "about-method",
+          type: "cards",
+          title: "How the platform helps",
+          items: [
+            { title: "Reusable structure", body: "API, admin, web, shared types, docs, and Podman files live in one monorepo." },
+            { title: "Content ownership", body: "Editors can update pages, blogs, menus, settings, media, redirects, and SEO fields." },
+            { title: "Launch discipline", body: "Validation, logs, health checks, RBAC, and audit records are included from the first commit." }
+          ]
+        },
+        {
+          id: "about-faq",
+          type: "faq",
+          title: "Common implementation questions",
+          items: [
+            { title: "Is this a page builder?", body: "It is a CMS starter with structured blocks, so teams can build reusable layouts without losing API control." },
+            { title: "Can it be customized?", body: "Yes. The stack is intentionally simple: Express, MongoDB, Mongoose, Next.js, and TypeScript." }
+          ]
+        }
+      ]
+    },
+    "contact-us": {
+      content: "<p>The contact page demonstrates a backend-managed form rendered through the public WTS CMS frontend.</p>",
+      blocks: [
+        {
+          id: "contact-hero",
+          type: "hero",
+          title: "Plan a WTS CMS-powered project",
+          body: "Use the database-driven contact form to capture CMS enquiries, implementation questions, and project discovery requests.",
+          mediaUrl: demoImages.workflow
+        },
+        {
+          id: "contact-options",
+          type: "cards",
+          title: "What Webskitters can help with",
+          items: [
+            { title: "Project discovery", body: "Define pages, content workflows, SEO goals, redirects, media, and launch requirements." },
+            { title: "Implementation", body: "Customize modules, blocks, admin screens, styling, and deployment configuration." },
+            { title: "Launch support", body: "Review credentials, RBAC, sitemap, robots, health checks, and production settings." }
+          ]
+        },
+        {
+          id: "contact-form",
+          type: "form",
+          title: "Contact Webskitters",
+          body: "Submit the database-driven WTS CMS contact form.",
+          formSlug: "contact-us"
+        }
+      ]
+    },
+    gallery: {
+      content: "<p>This gallery is rendered from structured image block data and can be edited from the WTS CMS admin.</p>",
+      blocks: [
+        {
+          id: "gallery-hero",
+          type: "hero",
+          title: "A visual CMS gallery for project storytelling",
+          body: "Use gallery blocks for project highlights, interface previews, team moments, and content-rich landing pages.",
+          mediaUrl: demoImages.galleryOne
+        },
+        {
+          id: "gallery-grid",
+          type: "gallery",
+          title: "WTS CMS visual blocks",
+          body: "Responsive image sections powered by Webskitters CMS data.",
+          items: [
+            { title: "CMS strategy workshop", image: demoImages.galleryOne },
+            { title: "Dashboard interface concept", image: demoImages.galleryTwo },
+            { title: "Editorial collaboration space", image: demoImages.galleryThree },
+            { title: "Webskitters development team", image: demoImages.galleryFour },
+            { title: "Content planning meeting", image: demoImages.galleryFive },
+            { title: "Modern CMS workspace", image: demoImages.gallerySix }
+          ]
+        }
+      ]
+    },
+    team: {
+      content: "<p>The team page uses card blocks to explain the roles involved in a Webskitters CMS delivery workflow.</p>",
+      blocks: [
+        {
+          id: "team-hero",
+          type: "hero",
+          title: "Teams, roles, and responsibilities in WTS CMS",
+          body: "Map project delivery and editorial ownership to practical CMS roles, from Super Admin to Viewer.",
+          mediaUrl: demoImages.team
+        },
+        {
+          id: "team-cards",
+          type: "cards",
+          title: "Example CMS delivery roles",
+          items: [
+            { title: "Product Owner", body: "Defines structure, launch goals, approval expectations, and content ownership.", image: demoImages.galleryFive },
+            { title: "CMS Engineer", body: "Configures modules, validates security, extends the starter, and supports deployment.", image: demoImages.galleryFour },
+            { title: "SEO Editor", body: "Optimizes metadata, headings, schema, internal links, redirects, and content quality.", image: demoImages.galleryThree }
+          ]
+        }
+      ]
+    }
+  };
+
   const pagesBySlug: Record<string, any> = {};
+  await PageModel.deleteMany({ permalink: { $in: ["/home", "/untitled-page"] } });
   for (const page of pageSeeds) {
+    const blockPage = pageBlockMap[page.slug];
     pagesBySlug[page.slug] = await PageModel.findOneAndUpdate(
       { permalink: page.permalink },
       {
         ...page,
+        ...(blockPage || {}),
         status: "published",
         publishedAt: new Date(),
         template: page.slug === "home" ? "home" : "default"
