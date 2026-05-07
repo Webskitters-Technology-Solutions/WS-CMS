@@ -23,7 +23,8 @@ interface VisualBlock {
   body?: string;
   mediaUrl?: string;
   formSlug?: string;
-  items?: Array<{ title?: string; body?: string; image?: string }>;
+  schemaVersion?: number;
+  items?: Array<{ title?: string; body?: string; image?: string; imageAlt?: string }>;
 }
 
 export function BlockRenderer({ blocks }: { blocks?: VisualBlock[] }) {
@@ -74,7 +75,7 @@ export function BlockRenderer({ blocks }: { blocks?: VisualBlock[] }) {
               <div className="block-card-grid">
                 {(block.items?.length ? block.items : [{ title: block.title, body: block.body, image: block.mediaUrl }]).map((item, itemIndex) => (
                   <article className="block-card" key={`${key}-${itemIndex}`}>
-                    {item.image ? <img src={item.image} alt={item.title || "WTS CMS card"} loading="lazy" /> : null}
+                    {item.image ? <img src={item.image} alt={item.imageAlt || item.title || "WTS CMS card"} loading="lazy" /> : null}
                     <h3>{item.title || "WTS CMS feature"}</h3>
                     {item.body ? <p>{item.body}</p> : null}
                   </article>
@@ -95,7 +96,7 @@ export function BlockRenderer({ blocks }: { blocks?: VisualBlock[] }) {
                 {(block.items?.length ? block.items : [{ image: block.mediaUrl, title: block.title }]).map((item, itemIndex) =>
                   item.image ? (
                     <figure key={`${key}-${itemIndex}`}>
-                      <img src={item.image} alt={item.title || block.title || "WTS CMS gallery image"} loading="lazy" />
+                      <img src={item.image} alt={item.imageAlt || item.title || block.title || "WTS CMS gallery image"} loading="lazy" />
                       {item.title ? <figcaption>{item.title}</figcaption> : null}
                     </figure>
                   ) : null

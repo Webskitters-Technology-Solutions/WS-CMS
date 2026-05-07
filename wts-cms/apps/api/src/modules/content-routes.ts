@@ -86,6 +86,7 @@ async function normalizeContent(body: any, req: any, options: ContentRouteOption
     permalink,
     h1: body.h1 || title,
     content,
+    blocks: normalizeBlocks(body.blocks),
     createdBy: body.createdBy || req.user?.id,
     updatedBy: req.user?.id
   };
@@ -95,4 +96,25 @@ async function normalizeContent(body: any, req: any, options: ContentRouteOption
     normalized.authorName = body.authorName || "Webskitters Editorial Team";
   }
   return normalized;
+}
+
+function normalizeBlocks(blocks: unknown) {
+  if (!Array.isArray(blocks)) {
+    return [];
+  }
+  return blocks.map((block, index) => {
+    if (!block || typeof block !== "object") {
+      return {
+        id: `block-${index}`,
+        type: "content",
+        schemaVersion: 1
+      };
+    }
+    const value = block as Record<string, unknown>;
+    return {
+      schemaVersion: Number(value.schemaVersion || 1),
+      ...value,
+      id: String(value.id || `${value.type || "block"}-${index}`)
+    };
+  });
 }

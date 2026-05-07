@@ -4,7 +4,7 @@
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
   "poweredBy": "Webskitters Technology Solutions Pvt. Ltd.",
-  "generatedAt": "2026-05-07T20:09:41.591Z",
+  "generatedAt": "2026-05-07T21:28:25.477Z",
   "format": "portable-mongodb-json-fixture",
   "notes": [
     "Committed WTS CMS demo database content powered by Webskitters.",
@@ -21,7 +21,7 @@
         "description": "read permission for auth in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -32,7 +32,7 @@
         "description": "create permission for users in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -43,7 +43,7 @@
         "description": "read permission for users in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -54,7 +54,7 @@
         "description": "update permission for users in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -65,7 +65,7 @@
         "description": "delete permission for users in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -76,7 +76,7 @@
         "description": "create permission for roles in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -87,7 +87,7 @@
         "description": "read permission for roles in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -98,7 +98,7 @@
         "description": "update permission for roles in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -109,7 +109,7 @@
         "description": "delete permission for roles in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -120,7 +120,7 @@
         "description": "read permission for permissions in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -131,7 +131,7 @@
         "description": "create permission for pages in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -142,7 +142,7 @@
         "description": "read permission for pages in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -153,7 +153,7 @@
         "description": "update permission for pages in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -164,7 +164,7 @@
         "description": "delete permission for pages in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -175,7 +175,7 @@
         "description": "publish permission for pages in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -186,7 +186,7 @@
         "description": "create permission for blogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -197,7 +197,7 @@
         "description": "read permission for blogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -208,7 +208,7 @@
         "description": "update permission for blogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -219,7 +219,7 @@
         "description": "delete permission for blogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -230,7 +230,7 @@
         "description": "publish permission for blogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -241,7 +241,7 @@
         "description": "create permission for categories in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -252,7 +252,7 @@
         "description": "read permission for categories in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -263,7 +263,7 @@
         "description": "update permission for categories in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -274,7 +274,7 @@
         "description": "delete permission for categories in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -285,7 +285,7 @@
         "description": "create permission for tags in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -296,7 +296,7 @@
         "description": "read permission for tags in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -307,7 +307,7 @@
         "description": "update permission for tags in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -318,7 +318,7 @@
         "description": "delete permission for tags in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -329,7 +329,7 @@
         "description": "create permission for menus in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -340,7 +340,7 @@
         "description": "read permission for menus in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -351,7 +351,7 @@
         "description": "update permission for menus in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -362,7 +362,7 @@
         "description": "delete permission for menus in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -373,7 +373,7 @@
         "description": "create permission for media in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -384,7 +384,7 @@
         "description": "read permission for media in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -395,7 +395,7 @@
         "description": "update permission for media in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -406,7 +406,7 @@
         "description": "delete permission for media in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -417,7 +417,7 @@
         "description": "create permission for redirects in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -428,7 +428,7 @@
         "description": "read permission for redirects in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -439,7 +439,7 @@
         "description": "update permission for redirects in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -450,7 +450,7 @@
         "description": "delete permission for redirects in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -461,7 +461,7 @@
         "description": "read permission for settings in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -472,7 +472,7 @@
         "description": "update permission for settings in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -483,7 +483,7 @@
         "description": "read permission for seo in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -494,7 +494,7 @@
         "description": "update permission for seo in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -505,7 +505,7 @@
         "description": "create permission for locations in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -516,7 +516,7 @@
         "description": "read permission for locations in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -527,7 +527,7 @@
         "description": "update permission for locations in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -538,7 +538,7 @@
         "description": "delete permission for locations in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -549,7 +549,7 @@
         "description": "read permission for auditLogs in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.126Z",
-        "updatedAt": "2026-05-07T20:09:40.875Z",
+        "updatedAt": "2026-05-07T21:28:18.419Z",
         "__v": 0
       },
       {
@@ -561,7 +561,7 @@
         "description": "create permission for forms in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "forms",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a2",
@@ -572,7 +572,7 @@
         "description": "read permission for forms in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "forms",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a3",
@@ -583,7 +583,7 @@
         "description": "update permission for forms in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "forms",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a4",
@@ -594,7 +594,7 @@
         "description": "delete permission for forms in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "forms",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a5",
@@ -605,7 +605,7 @@
         "description": "read permission for notifications in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "notifications",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a6",
@@ -616,7 +616,7 @@
         "description": "update permission for notifications in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "notifications",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a7",
@@ -627,7 +627,7 @@
         "description": "read permission for sessions in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "sessions",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a8",
@@ -638,7 +638,7 @@
         "description": "update permission for sessions in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "sessions",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       },
       {
         "_id": "69fcede50bbf3efc0e3f17a9",
@@ -649,7 +649,7 @@
         "description": "read permission for search in WTS CMS powered by Webskitters.",
         "isSystem": true,
         "resource": "search",
-        "updatedAt": "2026-05-07T20:09:40.875Z"
+        "updatedAt": "2026-05-07T21:28:18.419Z"
       }
     ],
     "roles": [
@@ -720,7 +720,7 @@
         ],
         "isSystem": true,
         "createdAt": "2026-05-07T10:43:37.600Z",
-        "updatedAt": "2026-05-07T20:09:40.890Z",
+        "updatedAt": "2026-05-07T21:28:18.434Z",
         "__v": 0
       },
       {
@@ -788,7 +788,7 @@
         ],
         "isSystem": true,
         "createdAt": "2026-05-07T10:44:07.348Z",
-        "updatedAt": "2026-05-07T20:09:40.892Z",
+        "updatedAt": "2026-05-07T21:28:18.438Z",
         "__v": 0
       },
       {
@@ -837,7 +837,7 @@
         ],
         "isSystem": true,
         "createdAt": "2026-05-07T10:44:07.349Z",
-        "updatedAt": "2026-05-07T20:09:40.893Z",
+        "updatedAt": "2026-05-07T21:28:18.439Z",
         "__v": 0
       },
       {
@@ -859,7 +859,7 @@
         ],
         "isSystem": true,
         "createdAt": "2026-05-07T10:44:07.350Z",
-        "updatedAt": "2026-05-07T20:09:40.894Z",
+        "updatedAt": "2026-05-07T21:28:18.439Z",
         "__v": 0
       },
       {
@@ -890,7 +890,7 @@
         ],
         "isSystem": true,
         "createdAt": "2026-05-07T10:44:07.350Z",
-        "updatedAt": "2026-05-07T20:09:40.894Z",
+        "updatedAt": "2026-05-07T21:28:18.439Z",
         "__v": 0
       }
     ],
@@ -900,7 +900,7 @@
         "firstName": "Webskitters",
         "lastName": "Admin",
         "email": "admin@webskitters.com",
-        "passwordHash": "$2a$12$WEuKGQ7Lkh9pI31lAxIksu2VszR7pUNetE5rqFDvTHjoU6ZOF5G/2",
+        "passwordHash": "$2a$12$nw6Aqzu6wGHZv4oWJ1T3BOQQ6EkVmsgerz3vXHKWW17dEtDkroPgu",
         "avatar": "",
         "role": "69fc6cd983281c539c7b6ec9",
         "status": "active",
@@ -908,8 +908,8 @@
         "lastLoginAt": "2026-05-07T20:00:51.525Z",
         "refreshTokenHashes": [],
         "createdAt": "2026-05-07T10:44:07.565Z",
-        "updatedAt": "2026-05-07T20:09:41.093Z",
-        "__v": 3
+        "updatedAt": "2026-05-07T21:28:18.641Z",
+        "__v": 4
       }
     ],
     "settings": [
@@ -938,7 +938,7 @@
         "footerText": "Powered by Webskitters Technology Solutions Pvt. Ltd.",
         "poweredByText": "Powered by Webskitters Technology Solutions Pvt. Ltd.",
         "createdAt": "2026-05-07T10:44:07.567Z",
-        "updatedAt": "2026-05-07T20:09:41.095Z",
+        "updatedAt": "2026-05-07T21:28:18.643Z",
         "__v": 0
       }
     ],
@@ -954,7 +954,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "WTS CMS dashboard analytics powered by Webskitters",
-        "publishedAt": "2026-05-07T20:09:41.098Z",
+        "publishedAt": "2026-05-07T21:28:18.645Z",
         "seo": {
           "metaTitle": "WTS CMS | Powered by Webskitters",
           "metaDescription": "WTS CMS is a lightweight, SEO-ready CMS platform powered by Webskitters Technology Solutions Pvt. Ltd.",
@@ -973,17 +973,20 @@
         "bannerImage": "",
         "bannerImageAlt": "",
         "createdAt": "2026-05-07T10:44:07.576Z",
-        "updatedAt": "2026-05-07T20:09:41.098Z",
+        "updatedAt": "2026-05-07T21:28:18.645Z",
         "__v": 0,
         "blocks": [
           {
+            "schemaVersion": 1,
             "id": "home-hero",
             "type": "hero",
             "title": "WTS CMS for fast, secure Webskitters launches",
             "body": "A reusable CMS starter with SEO controls, RBAC, blogs, menus, redirects, forms, media, and Podman-ready local development.",
-            "mediaUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80"
+            "mediaUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80",
+            "items": null
           },
           {
+            "schemaVersion": 1,
             "id": "home-capabilities",
             "type": "cards",
             "title": "Everything small CMS projects need",
@@ -992,25 +995,30 @@
               {
                 "title": "Editorial CMS",
                 "body": "Manage pages, blogs, categories, tags, menus, media, and publishing states.",
-                "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80"
+                "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+                "imageAlt": "Editorial CMS"
               },
               {
                 "title": "SEO Toolkit",
                 "body": "Control metadata, canonical URLs, JSON-LD, robots, sitemap, social previews, and redirects.",
-                "image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80"
+                "image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80",
+                "imageAlt": "SEO Toolkit"
               },
               {
                 "title": "Secure Admin",
                 "body": "Use JWT auth, RBAC, audit logs, validation, security headers, and session controls.",
-                "image": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80"
+                "image": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80",
+                "imageAlt": "Secure Admin"
               }
             ]
           },
           {
+            "schemaVersion": 1,
             "id": "home-cta",
             "type": "cta",
             "title": "Build the next Webskitters CMS project faster",
-            "body": "Start with a lightweight architecture that is easy to customize, test, deploy, and hand over to editors."
+            "body": "Start with a lightweight architecture that is easy to customize, test, deploy, and hand over to editors.",
+            "items": null
           }
         ]
       },
@@ -1025,7 +1033,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Webskitters team planning a WTS CMS project",
-        "publishedAt": "2026-05-07T20:09:41.099Z",
+        "publishedAt": "2026-05-07T21:28:18.646Z",
         "seo": {
           "metaTitle": "About WTS CMS | Powered by Webskitters",
           "metaDescription": "Learn how WTS CMS helps Webskitters teams launch secure, SEO-ready content websites faster.",
@@ -1044,47 +1052,56 @@
         "bannerImage": "",
         "bannerImageAlt": "",
         "createdAt": "2026-05-07T10:44:07.578Z",
-        "updatedAt": "2026-05-07T20:09:41.099Z",
+        "updatedAt": "2026-05-07T21:28:18.646Z",
         "__v": 0,
         "blocks": [
           {
+            "schemaVersion": 1,
             "id": "about-hero",
             "type": "hero",
             "title": "A CMS foundation shaped for repeatable delivery",
             "body": "WTS CMS packages the delivery patterns Webskitters teams use again and again: secure admin, content workflows, SEO controls, and public rendering.",
-            "mediaUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80"
+            "mediaUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
+            "items": null
           },
           {
+            "schemaVersion": 1,
             "id": "about-method",
             "type": "cards",
             "title": "How the platform helps",
             "items": [
               {
                 "title": "Reusable structure",
-                "body": "API, admin, web, shared types, docs, and Podman files live in one monorepo."
+                "body": "API, admin, web, shared types, docs, and Podman files live in one monorepo.",
+                "imageAlt": "Reusable structure"
               },
               {
                 "title": "Content ownership",
-                "body": "Editors can update pages, blogs, menus, settings, media, redirects, and SEO fields."
+                "body": "Editors can update pages, blogs, menus, settings, media, redirects, and SEO fields.",
+                "imageAlt": "Content ownership"
               },
               {
                 "title": "Launch discipline",
-                "body": "Validation, logs, health checks, RBAC, and audit records are included from the first commit."
+                "body": "Validation, logs, health checks, RBAC, and audit records are included from the first commit.",
+                "imageAlt": "Launch discipline"
               }
             ]
           },
           {
+            "schemaVersion": 1,
             "id": "about-faq",
             "type": "faq",
             "title": "Common implementation questions",
             "items": [
               {
                 "title": "Is this a page builder?",
-                "body": "It is a CMS starter with structured blocks, so teams can build reusable layouts without losing API control."
+                "body": "It is a CMS starter with structured blocks, so teams can build reusable layouts without losing API control.",
+                "imageAlt": "Is this a page builder?"
               },
               {
                 "title": "Can it be customized?",
-                "body": "Yes. The stack is intentionally simple: Express, MongoDB, Mongoose, Next.js, and TypeScript."
+                "body": "Yes. The stack is intentionally simple: Express, MongoDB, Mongoose, Next.js, and TypeScript.",
+                "imageAlt": "Can it be customized?"
               }
             ]
           }
@@ -1101,7 +1118,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "WTS CMS implementation discussion",
-        "publishedAt": "2026-05-07T20:09:41.100Z",
+        "publishedAt": "2026-05-07T21:28:18.647Z",
         "seo": {
           "metaTitle": "Contact WTS CMS | Powered by Webskitters",
           "metaDescription": "Contact Webskitters Technology Solutions Pvt. Ltd. about WTS CMS implementation and project planning.",
@@ -1120,41 +1137,49 @@
         "bannerImage": "",
         "bannerImageAlt": "",
         "createdAt": "2026-05-07T13:04:28.717Z",
-        "updatedAt": "2026-05-07T20:09:41.100Z",
+        "updatedAt": "2026-05-07T21:28:18.647Z",
         "__v": 0,
         "blocks": [
           {
+            "schemaVersion": 1,
             "id": "contact-hero",
             "type": "hero",
             "title": "Plan a WTS CMS-powered project",
             "body": "Use the database-driven contact form to capture CMS enquiries, implementation questions, and project discovery requests.",
-            "mediaUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80"
+            "mediaUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80",
+            "items": null
           },
           {
+            "schemaVersion": 1,
             "id": "contact-options",
             "type": "cards",
             "title": "What Webskitters can help with",
             "items": [
               {
                 "title": "Project discovery",
-                "body": "Define pages, content workflows, SEO goals, redirects, media, and launch requirements."
+                "body": "Define pages, content workflows, SEO goals, redirects, media, and launch requirements.",
+                "imageAlt": "Project discovery"
               },
               {
                 "title": "Implementation",
-                "body": "Customize modules, blocks, admin screens, styling, and deployment configuration."
+                "body": "Customize modules, blocks, admin screens, styling, and deployment configuration.",
+                "imageAlt": "Implementation"
               },
               {
                 "title": "Launch support",
-                "body": "Review credentials, RBAC, sitemap, robots, health checks, and production settings."
+                "body": "Review credentials, RBAC, sitemap, robots, health checks, and production settings.",
+                "imageAlt": "Launch support"
               }
             ]
           },
           {
+            "schemaVersion": 1,
             "id": "contact-form",
             "type": "form",
             "title": "Contact Webskitters",
             "body": "Submit the database-driven WTS CMS contact form.",
-            "formSlug": "contact-us"
+            "formSlug": "contact-us",
+            "items": null
           }
         ]
       },
@@ -1169,7 +1194,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80",
         "featuredImageAlt": "WTS CMS office gallery",
-        "publishedAt": "2026-05-07T20:09:41.101Z",
+        "publishedAt": "2026-05-07T21:28:18.648Z",
         "seo": {
           "metaTitle": "WTS CMS Gallery | Powered by Webskitters",
           "metaDescription": "Browse a responsive WTS CMS demo gallery with Webskitters project visuals and CMS-ready image layouts.",
@@ -1190,17 +1215,20 @@
         "bannerImage": "",
         "bannerImageAlt": "",
         "createdAt": "2026-05-07T13:04:28.718Z",
-        "updatedAt": "2026-05-07T20:09:41.101Z",
+        "updatedAt": "2026-05-07T21:28:18.648Z",
         "__v": 0,
         "blocks": [
           {
+            "schemaVersion": 1,
             "id": "gallery-hero",
             "type": "hero",
             "title": "A visual CMS gallery for project storytelling",
             "body": "Use gallery blocks for project highlights, interface previews, team moments, and content-rich landing pages.",
-            "mediaUrl": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80"
+            "mediaUrl": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80",
+            "items": null
           },
           {
+            "schemaVersion": 1,
             "id": "gallery-grid",
             "type": "gallery",
             "title": "WTS CMS visual blocks",
@@ -1208,27 +1236,33 @@
             "items": [
               {
                 "title": "CMS strategy workshop",
-                "image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "CMS strategy workshop"
               },
               {
                 "title": "Dashboard interface concept",
-                "image": "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Dashboard interface concept"
               },
               {
                 "title": "Editorial collaboration space",
-                "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Editorial collaboration space"
               },
               {
                 "title": "Webskitters development team",
-                "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Webskitters development team"
               },
               {
                 "title": "Content planning meeting",
-                "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Content planning meeting"
               },
               {
                 "title": "Modern CMS workspace",
-                "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Modern CMS workspace"
               }
             ]
           }
@@ -1245,7 +1279,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "WTS CMS demo team",
-        "publishedAt": "2026-05-07T20:09:41.101Z",
+        "publishedAt": "2026-05-07T21:28:18.649Z",
         "seo": {
           "metaTitle": "WTS CMS Team | Powered by Webskitters",
           "metaDescription": "Meet the example Webskitters delivery roles for WTS CMS projects and editorial workflows.",
@@ -1264,17 +1298,20 @@
         "bannerImage": "",
         "bannerImageAlt": "",
         "createdAt": "2026-05-07T13:04:28.718Z",
-        "updatedAt": "2026-05-07T20:09:41.101Z",
+        "updatedAt": "2026-05-07T21:28:18.649Z",
         "__v": 0,
         "blocks": [
           {
+            "schemaVersion": 1,
             "id": "team-hero",
             "type": "hero",
             "title": "Teams, roles, and responsibilities in WTS CMS",
             "body": "Map project delivery and editorial ownership to practical CMS roles, from Super Admin to Viewer.",
-            "mediaUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80"
+            "mediaUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
+            "items": null
           },
           {
+            "schemaVersion": 1,
             "id": "team-cards",
             "type": "cards",
             "title": "Example CMS delivery roles",
@@ -1282,17 +1319,20 @@
               {
                 "title": "Product Owner",
                 "body": "Defines structure, launch goals, approval expectations, and content ownership.",
-                "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "Product Owner"
               },
               {
                 "title": "CMS Engineer",
                 "body": "Configures modules, validates security, extends the starter, and supports deployment.",
-                "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "CMS Engineer"
               },
               {
                 "title": "SEO Editor",
                 "body": "Optimizes metadata, headings, schema, internal links, redirects, and content quality.",
-                "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80"
+                "image": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80",
+                "imageAlt": "SEO Editor"
               }
             ]
           }
@@ -1311,7 +1351,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Welcome to WTS CMS",
-        "publishedAt": "2026-05-07T20:09:41.105Z",
+        "publishedAt": "2026-05-07T21:28:18.652Z",
         "seo": {
           "metaTitle": "Welcome to WTS CMS | WTS CMS",
           "metaDescription": "A guided tour of the Webskitters-powered CMS starter and the problems it solves.",
@@ -1338,18 +1378,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d68f0"
+            "_id": "69fd03f28a6b2bd345e73e89"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d68f1"
+            "_id": "69fd03f28a6b2bd345e73e8a"
           }
         ],
         "createdAt": "2026-05-07T10:44:07.582Z",
-        "updatedAt": "2026-05-07T20:09:41.105Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.652Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "welcome-to-wts-cms-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "welcome-to-wts-cms-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6edf",
@@ -1362,7 +1431,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Why Small Projects Need a Real CMS Foundation",
-        "publishedAt": "2026-05-06T20:09:41.107Z",
+        "publishedAt": "2026-05-06T21:28:18.653Z",
         "seo": {
           "metaTitle": "Why Small Projects Need a Real CMS Foundation | WTS CMS",
           "metaDescription": "Smaller websites still need clean publishing, SEO, roles, and redirects from day one.",
@@ -1389,18 +1458,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d68f5"
+            "_id": "69fd03f28a6b2bd345e73e8e"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d68f6"
+            "_id": "69fd03f28a6b2bd345e73e8f"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.724Z",
-        "updatedAt": "2026-05-07T20:09:41.107Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.653Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "why-small-projects-need-a-real-cms-foundation-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "why-small-projects-need-a-real-cms-foundation-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee0",
@@ -1413,7 +1511,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "SEO Checklist for WTS CMS Launches",
-        "publishedAt": "2026-05-05T20:09:41.108Z",
+        "publishedAt": "2026-05-05T21:28:18.654Z",
         "seo": {
           "metaTitle": "SEO Checklist for WTS CMS Launches | WTS CMS",
           "metaDescription": "A practical launch checklist for metadata, schema, canonical tags, robots, and sitemap coverage.",
@@ -1440,18 +1538,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d68fa"
+            "_id": "69fd03f28a6b2bd345e73e93"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d68fb"
+            "_id": "69fd03f28a6b2bd345e73e94"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.725Z",
-        "updatedAt": "2026-05-07T20:09:41.108Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.654Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "seo-checklist-for-wts-cms-launches-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "seo-checklist-for-wts-cms-launches-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee1",
@@ -1464,7 +1591,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "RBAC That Editors Can Understand",
-        "publishedAt": "2026-05-04T20:09:41.108Z",
+        "publishedAt": "2026-05-04T21:28:18.655Z",
         "seo": {
           "metaTitle": "RBAC That Editors Can Understand | WTS CMS",
           "metaDescription": "How WTS CMS maps permissions to real editorial responsibilities without making the UI confusing.",
@@ -1491,18 +1618,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d68ff"
+            "_id": "69fd03f28a6b2bd345e73e98"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d6900"
+            "_id": "69fd03f28a6b2bd345e73e99"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.725Z",
-        "updatedAt": "2026-05-07T20:09:41.108Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.655Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "rbac-that-editors-can-understand-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "rbac-that-editors-can-understand-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee2",
@@ -1515,7 +1671,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80",
         "featuredImageAlt": "Building Menus That Scale With Content",
-        "publishedAt": "2026-05-03T20:09:41.109Z",
+        "publishedAt": "2026-05-03T21:28:18.655Z",
         "seo": {
           "metaTitle": "Building Menus That Scale With Content | WTS CMS",
           "metaDescription": "Design navigation structures for headers, footers, sidebars, and campaign pages.",
@@ -1542,18 +1698,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d6904"
+            "_id": "69fd03f28a6b2bd345e73e9d"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d6905"
+            "_id": "69fd03f28a6b2bd345e73e9e"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.726Z",
-        "updatedAt": "2026-05-07T20:09:41.109Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.655Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "building-menus-that-scale-with-content-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "building-menus-that-scale-with-content-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee3",
@@ -1566,7 +1751,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Content Workflows for Webskitters Teams",
-        "publishedAt": "2026-05-02T20:09:41.110Z",
+        "publishedAt": "2026-05-02T21:28:18.656Z",
         "seo": {
           "metaTitle": "Content Workflows for Webskitters Teams | WTS CMS",
           "metaDescription": "A repeatable page, blog, review, and publish workflow for Webskitters delivery teams.",
@@ -1593,18 +1778,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d6909"
+            "_id": "69fd03f28a6b2bd345e73ea2"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d690a"
+            "_id": "69fd03f28a6b2bd345e73ea3"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.727Z",
-        "updatedAt": "2026-05-07T20:09:41.110Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.656Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "content-workflows-for-webskitters-teams-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "content-workflows-for-webskitters-teams-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee4",
@@ -1617,7 +1831,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Redirects and Slug Changes Without SEO Loss",
-        "publishedAt": "2026-05-01T20:09:41.110Z",
+        "publishedAt": "2026-05-01T21:28:18.656Z",
         "seo": {
           "metaTitle": "Redirects and Slug Changes Without SEO Loss | WTS CMS",
           "metaDescription": "Use WTS CMS redirects to protect rankings when published URLs change.",
@@ -1646,18 +1860,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d690e"
+            "_id": "69fd03f28a6b2bd345e73ea7"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d690f"
+            "_id": "69fd03f28a6b2bd345e73ea8"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.728Z",
-        "updatedAt": "2026-05-07T20:09:41.110Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.657Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "redirects-and-slug-changes-without-seo-loss-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "redirects-and-slug-changes-without-seo-loss-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       },
       {
         "_id": "69fc8ddc83281c539c7b6ee5",
@@ -1670,7 +1913,7 @@
         "status": "published",
         "featuredImage": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80",
         "featuredImageAlt": "Production Readiness for a Lightweight CMS",
-        "publishedAt": "2026-04-30T20:09:41.111Z",
+        "publishedAt": "2026-04-30T21:28:18.657Z",
         "seo": {
           "metaTitle": "Production Readiness for a Lightweight CMS | WTS CMS",
           "metaDescription": "Health checks, logs, validation, upload controls, and Podman local development in WTS CMS.",
@@ -1698,18 +1941,47 @@
             "level": 2,
             "text": "Platform context",
             "anchor": "platform-context",
-            "_id": "69fcf1859489d6ed947d6913"
+            "_id": "69fd03f28a6b2bd345e73eac"
           },
           {
             "level": 2,
             "text": "Webskitters workflow",
             "anchor": "webskitters-workflow",
-            "_id": "69fcf1859489d6ed947d6914"
+            "_id": "69fd03f28a6b2bd345e73ead"
           }
         ],
         "createdAt": "2026-05-07T13:04:28.728Z",
-        "updatedAt": "2026-05-07T20:09:41.111Z",
-        "__v": 0
+        "updatedAt": "2026-05-07T21:28:18.657Z",
+        "__v": 0,
+        "blocks": [
+          {
+            "schemaVersion": 1,
+            "id": "production-readiness-for-a-lightweight-cms-cta",
+            "type": "cta",
+            "title": "Use this article in a real WTS CMS workflow",
+            "body": "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            "mediaUrl": "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=1400&q=80",
+            "items": null
+          },
+          {
+            "schemaVersion": 1,
+            "id": "production-readiness-for-a-lightweight-cms-faq",
+            "type": "faq",
+            "title": "Editorial checks before publishing",
+            "items": [
+              {
+                "title": "Is the URL clean?",
+                "body": "Use lowercase descriptive slugs and keep published URL changes protected with redirects.",
+                "imageAlt": "Is the URL clean?"
+              },
+              {
+                "title": "Is SEO complete?",
+                "body": "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text.",
+                "imageAlt": "Is SEO complete?"
+              }
+            ]
+          }
+        ]
       }
     ],
     "categories": [
@@ -1733,7 +2005,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T10:44:07.579Z",
-        "updatedAt": "2026-05-07T20:09:41.102Z",
+        "updatedAt": "2026-05-07T21:28:18.649Z",
         "__v": 0
       },
       {
@@ -1756,7 +2028,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T13:04:28.720Z",
-        "updatedAt": "2026-05-07T20:09:41.103Z",
+        "updatedAt": "2026-05-07T21:28:18.650Z",
         "__v": 0
       },
       {
@@ -1779,7 +2051,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T13:04:28.720Z",
-        "updatedAt": "2026-05-07T20:09:41.103Z",
+        "updatedAt": "2026-05-07T21:28:18.650Z",
         "__v": 0
       }
     ],
@@ -1804,7 +2076,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T10:44:07.581Z",
-        "updatedAt": "2026-05-07T20:09:41.104Z",
+        "updatedAt": "2026-05-07T21:28:18.651Z",
         "__v": 0
       },
       {
@@ -1827,7 +2099,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T13:04:28.722Z",
-        "updatedAt": "2026-05-07T20:09:41.104Z",
+        "updatedAt": "2026-05-07T21:28:18.651Z",
         "__v": 0
       },
       {
@@ -1850,7 +2122,7 @@
         },
         "status": "active",
         "createdAt": "2026-05-07T13:04:28.722Z",
-        "updatedAt": "2026-05-07T20:09:41.105Z",
+        "updatedAt": "2026-05-07T21:28:18.652Z",
         "__v": 0
       }
     ],
@@ -1935,7 +2207,7 @@
         ],
         "status": "active",
         "createdAt": "2026-05-07T10:44:07.584Z",
-        "updatedAt": "2026-05-07T20:09:41.112Z",
+        "updatedAt": "2026-05-07T21:28:18.658Z",
         "__v": 0
       },
       {
@@ -2006,7 +2278,7 @@
         ],
         "status": "active",
         "createdAt": "2026-05-07T10:44:07.586Z",
-        "updatedAt": "2026-05-07T20:09:41.114Z",
+        "updatedAt": "2026-05-07T21:28:18.660Z",
         "__v": 0
       }
     ],
@@ -2057,7 +2329,7 @@
         "notificationEmail": "admin@webskitters.com",
         "status": "active",
         "successMessage": "Thank you for contacting Webskitters. The WTS CMS demo team has received your message.",
-        "updatedAt": "2026-05-07T20:09:41.113Z"
+        "updatedAt": "2026-05-07T21:28:18.659Z"
       }
     ],
     "formSubmissions": [],
@@ -2089,7 +2361,7 @@
           "schemaJson": ""
         },
         "createdAt": "2026-05-07T10:44:07.588Z",
-        "updatedAt": "2026-05-07T20:09:41.114Z",
+        "updatedAt": "2026-05-07T21:28:18.660Z",
         "__v": 0
       }
     ],

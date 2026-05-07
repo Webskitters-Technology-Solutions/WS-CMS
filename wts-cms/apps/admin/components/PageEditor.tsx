@@ -21,7 +21,9 @@ import type { ComponentType, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Archive,
+  ArrowDown,
   ArrowLeft,
+  ArrowUp,
   Calendar,
   CheckCircle2,
   Copy,
@@ -50,17 +52,21 @@ import {
 } from "lucide-react";
 import { adminApi, hasAdminSession } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
+import { MediaPicker } from "./MediaPicker";
 
 type PanelKey = "content" | "seo" | "publish" | "media" | "history";
 type PublishStatus = "draft" | "pending_review" | "approved" | "published" | "scheduled" | "archived";
+type VisualBlockItem = { title?: string; body?: string; image?: string; imageAlt?: string };
 type VisualBlock = {
   id: string;
   type: "hero" | "cards" | "cta" | "faq" | "gallery" | "form";
+  schemaVersion?: number;
+  collapsed?: boolean;
   title?: string;
   body?: string;
   mediaUrl?: string;
   formSlug?: string;
-  items?: Array<{ title?: string; body?: string; image?: string }>;
+  items?: VisualBlockItem[];
 };
 
 export interface EditablePage {
@@ -140,13 +146,43 @@ function isImageLike(value: string) {
   return /^https?:\/\//i.test(value) || /\.(jpe?g|png|webp|gif|svg)(\?.*)?$/i.test(value);
 }
 
+function normalizeVisualBlocks(value?: VisualBlock[]) {
+  return (value || []).map((block, index) => ({
+    ...block,
+    schemaVersion: 1,
+    id: block.id || `${block.type || "block"}-${Date.now()}-${index}`,
+    collapsed: false,
+    items: block.items || []
+  }));
+}
+
+function countInlineImagesWithoutAlt(value: string) {
+  return Array.from(value.matchAll(/<img\b[^>]*>/gi)).filter((match) => !/\salt=(["'])[^"']+\1/i.test(match[0])).length;
+}
+
+function extractHeadings(value: string) {
+  return Array.from(value.matchAll(/<h([2-5])[^>]*>(.*?)<\/h[2-5]>/gi)).map((match) => ({
+    level: `H${match[1]}`,
+    text: plainTextFromHtml(match[2] || "")
+  }));
+}
+
+function getKeywordDensity(text: string, keyword: string) {
+  if (!keyword.trim()) {
+    return 0;
+  }
+  const words = text.split(/\s+/).filter(Boolean).length || 1;
+  const occurrences = (text.toLowerCase().match(new RegExp(keyword.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length;
+  return Number(((occurrences / words) * 100).toFixed(2));
+}
+
 export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage | null; onBack?: () => void }) {
   const router = useRouter();
   const [title, setTitle] = useState(initialPage?.title || "");
   const [slugValue, setSlugValue] = useState(initialPage?.slug || slugify(initialPage?.title || ""));
   const [h1, setH1] = useState(initialPage?.h1 || "");
   const [content, setContent] = useState(initialPage?.content || "");
-  const [blocks, setBlocks] = useState<VisualBlock[]>(initialPage?.blocks || []);
+  const [blocks, setBlocks] = useState<VisualBlock[]>(normalizeVisualBlocks(initialPage?.blocks));
   const [excerpt, setExcerpt] = useState(initialPage?.excerpt || "");
   const [template, setTemplate] = useState(initialPage?.template || "default");
   const [order, setOrder] = useState(String(initialPage?.order ?? 0));
@@ -171,6 +207,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [draftPreviewOpen, setDraftPreviewOpen] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile");
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
 
@@ -190,6 +227,22 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
   const resolvedOgTitle = ogTitle || resolvedMetaTitle;
   const resolvedOgDescription = ogDescription || resolvedMetaDescription;
   const resolvedOgUrl = ogUrl || resolvedCanonicalUrl;
+  const headingOutline = useMemo(() => extractHeadings(content), [content]);
+  const inlineImagesMissingAlt = useMemo(() => countInlineImagesWithoutAlt(content), [content]);
+  const blockImagesMissingAlt = useMemo(
+    () =>
+      blocks.reduce((total, block) => {
+        const blockMissing = block.mediaUrl && !bannerImageAlt && block.type !== "form" ? 1 : 0;
+        const itemMissing = (block.items || []).filter((item) => item.image && !item.imageAlt).length;
+        return total + blockMissing + itemMissing;
+      }, 0),
+    [bannerImageAlt, blocks]
+  );
+  const internalLinkCount = useMemo(() => Array.from(content.matchAll(/<a\b[^>]*href=(["'])\/(?!\/)[^"']+\1/gi)).length, [content]);
+  const keywordDensity = useMemo(
+    () => getKeywordDensity(`${resolvedMetaTitle} ${resolvedMetaDescription} ${h1 || title} ${readableContent}`, focusKeyphrase),
+    [focusKeyphrase, h1, readableContent, resolvedMetaDescription, resolvedMetaTitle, title]
+  );
   const seoChecks = useMemo(() => {
     return [
       {
@@ -257,9 +310,24 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         done: isJsonValid(schemaJson)
       },
       {
+        label: "JSON-LD structure",
+        help: "Structured data should include @context and @type.",
+        done: !schemaJson.trim() || (isJsonValid(schemaJson) && schemaJson.includes('"@context"') && schemaJson.includes('"@type"'))
+      },
+      {
         label: "Image alt text",
         help: "Featured or banner images should have descriptive alt text.",
-        done: Boolean(featuredImageAlt || bannerImageAlt)
+        done: Boolean(featuredImageAlt || bannerImageAlt) && inlineImagesMissingAlt === 0 && blockImagesMissingAlt === 0
+      },
+      {
+        label: "Internal links",
+        help: "Add at least one relevant internal link on important CMS pages.",
+        done: internalLinkCount > 0
+      },
+      {
+        label: "Sitemap eligibility",
+        help: "Published indexable pages with clean canonical URLs are eligible for sitemap inclusion.",
+        done: robotsIndex && isCleanIndexablePath(permalink)
       },
       {
         label: "Indexable page",
@@ -273,7 +341,10 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
     featuredImageAlt,
     focusKeyphrase,
     h1,
+    blockImagesMissingAlt,
     ogImage,
+    inlineImagesMissingAlt,
+    internalLinkCount,
     permalink,
     readableContent,
     resolvedCanonicalUrl,
@@ -330,6 +401,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
     const nextBlock: VisualBlock = {
       id: `${type}-${Date.now()}`,
       type,
+      schemaVersion: 1,
       title: type === "form" ? "Contact Webskitters" : "New content block",
       body: "Edit this reusable WTS CMS block from the admin panel.",
       formSlug: type === "form" ? "contact-us" : undefined,
@@ -344,6 +416,69 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
 
   function removeVisualBlock(id: string) {
     setBlocks((current) => current.filter((block) => block.id !== id));
+  }
+
+  function moveVisualBlock(id: string, direction: -1 | 1) {
+    setBlocks((current) => {
+      const index = current.findIndex((block) => block.id === id);
+      const target = index + direction;
+      if (index < 0 || target < 0 || target >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const moved = next[index]!;
+      next[index] = next[target]!;
+      next[target] = moved;
+      return next;
+    });
+  }
+
+  function duplicateVisualBlock(block: VisualBlock) {
+    setBlocks((current) => [
+      ...current,
+      {
+        ...block,
+        id: `${block.type}-${Date.now()}`,
+        title: `${block.title || "Block"} copy`,
+        collapsed: false
+      }
+    ]);
+  }
+
+  function toggleVisualBlock(id: string) {
+    setBlocks((current) => current.map((block) => (block.id === id ? { ...block, collapsed: !block.collapsed } : block)));
+  }
+
+  function addBlockItem(id: string) {
+    setBlocks((current) =>
+      current.map((block) =>
+        block.id === id
+          ? {
+              ...block,
+              items: [...(block.items || []), { title: "New item", body: "Describe this item." }]
+            }
+          : block
+      )
+    );
+  }
+
+  function updateBlockItem(id: string, itemIndex: number, patch: Partial<VisualBlockItem>) {
+    setBlocks((current) =>
+      current.map((block) => {
+        if (block.id !== id) {
+          return block;
+        }
+        const items = [...(block.items || [])];
+        items[itemIndex] = { ...items[itemIndex], ...patch };
+        return { ...block, items };
+      })
+    );
+  }
+
+  function removeBlockItem(id: string, itemIndex: number) {
+    setBlocks((current) =>
+      current.map((block) => (block.id === id ? { ...block, items: (block.items || []).filter((_, index) => index !== itemIndex) } : block))
+    );
   }
 
   function resetDraft() {
@@ -446,7 +581,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         permalink,
         excerpt,
         content: content || "<p></p>",
-        blocks,
+        blocks: normalizeVisualBlocks(blocks).map(({ collapsed: _collapsed, ...block }) => block),
         status,
         template,
         order: Number(order || 0),
@@ -514,6 +649,9 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         </div>
         <div className="cms-editor-actions">
           {message ? <span className="cms-editor-message">{message}</span> : null}
+          <button className="cms-ghost-button" type="button" onClick={() => setDraftPreviewOpen(true)}>
+            <Eye size={16} /> Draft preview
+          </button>
           <button className="cms-ghost-button" type="button" onClick={previewPage}>
             <Eye size={16} /> Preview
           </button>
@@ -704,28 +842,100 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
                 {blocks.map((block, index) => (
                   <div className="cms-visual-block" key={block.id}>
                     <div className="cms-card-header">
-                      <span className="cms-kicker">{index + 1}. {block.type}</span>
-                      <button className="cms-icon-button" type="button" aria-label="Remove block" onClick={() => removeVisualBlock(block.id)}>
-                        <X size={15} />
-                      </button>
+                      <div>
+                        <span className="cms-kicker">{index + 1}. {block.type} · schema v{block.schemaVersion || 1}</span>
+                        <strong>{block.title || "Untitled block"}</strong>
+                      </div>
+                      <div className="block-row-actions">
+                        <button className="cms-icon-button" type="button" aria-label="Move block up" onClick={() => moveVisualBlock(block.id, -1)}>
+                          <ArrowUp size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Move block down" onClick={() => moveVisualBlock(block.id, 1)}>
+                          <ArrowDown size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Duplicate block" onClick={() => duplicateVisualBlock(block)}>
+                          <Copy size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Collapse block" onClick={() => toggleVisualBlock(block.id)}>
+                          <PanelRight size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Remove block" onClick={() => removeVisualBlock(block.id)}>
+                          <X size={15} />
+                        </button>
+                      </div>
                     </div>
-                    <label className="cms-field">
-                      <span>Title</span>
-                      <input value={block.title || ""} onChange={(event) => updateVisualBlock(block.id, { title: event.target.value })} />
-                    </label>
-                    <label className="cms-field">
-                      <span>Body</span>
-                      <textarea value={block.body || ""} onChange={(event) => updateVisualBlock(block.id, { body: event.target.value })} />
-                    </label>
-                    <label className="cms-field">
-                      <span>{block.type === "form" ? "Form slug" : "Media URL"}</span>
-                      <input
-                        value={block.type === "form" ? block.formSlug || "" : block.mediaUrl || ""}
-                        onChange={(event) =>
-                          updateVisualBlock(block.id, block.type === "form" ? { formSlug: event.target.value } : { mediaUrl: event.target.value })
-                        }
-                      />
-                    </label>
+                    {!block.collapsed ? (
+                      <>
+                        <label className="cms-field">
+                          <span>Title</span>
+                          <input value={block.title || ""} onChange={(event) => updateVisualBlock(block.id, { title: event.target.value })} />
+                        </label>
+                        <label className="cms-field">
+                          <span>Body</span>
+                          <textarea value={block.body || ""} onChange={(event) => updateVisualBlock(block.id, { body: event.target.value })} />
+                        </label>
+                        {block.type === "form" ? (
+                          <label className="cms-field">
+                            <span>Form slug</span>
+                            <input value={block.formSlug || ""} onChange={(event) => updateVisualBlock(block.id, { formSlug: event.target.value })} />
+                          </label>
+                        ) : (
+                          <MediaPicker
+                            value={block.mediaUrl || ""}
+                            onChange={(url) => updateVisualBlock(block.id, { mediaUrl: url })}
+                            onAltChange={(altText) => {
+                              if (!bannerImageAlt && (block.type === "hero" || block.type === "cta")) {
+                                setBannerImageAlt(altText);
+                              }
+                            }}
+                          />
+                        )}
+                        {["cards", "faq", "gallery"].includes(block.type) ? (
+                          <div className="block-item-editor">
+                            <div className="cms-card-header">
+                              <span className="cms-kicker">Nested items</span>
+                              <button className="cms-ghost-button compact" type="button" onClick={() => addBlockItem(block.id)}>
+                                <Plus size={14} /> Add item
+                              </button>
+                            </div>
+                            {(block.items || []).map((item, itemIndex) => (
+                              <div className="block-item-row" key={`${block.id}-${itemIndex}`}>
+                                <label className="cms-field">
+                                  <span>Item title</span>
+                                  <input value={item.title || ""} onChange={(event) => updateBlockItem(block.id, itemIndex, { title: event.target.value })} />
+                                </label>
+                                <label className="cms-field">
+                                  <span>Item body</span>
+                                  <textarea value={item.body || ""} onChange={(event) => updateBlockItem(block.id, itemIndex, { body: event.target.value })} />
+                                </label>
+                                {block.type === "cards" || block.type === "gallery" ? (
+                                  <>
+                                    <MediaPicker
+                                      label="Item image"
+                                      value={item.image || ""}
+                                      onChange={(url) => updateBlockItem(block.id, itemIndex, { image: url })}
+                                      onAltChange={(altText) => updateBlockItem(block.id, itemIndex, { imageAlt: altText })}
+                                    />
+                                    <label className="cms-field">
+                                      <span>Item image alt</span>
+                                      <input
+                                        value={item.imageAlt || ""}
+                                        onChange={(event) => updateBlockItem(block.id, itemIndex, { imageAlt: event.target.value })}
+                                      />
+                                    </label>
+                                  </>
+                                ) : null}
+                                <button className="cms-panel-action danger" type="button" onClick={() => removeBlockItem(block.id, itemIndex)}>
+                                  <X size={15} /> Remove item
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                      </>
+                    ) : (
+                      <p className="meta">Block collapsed. Use the expand control to edit this database-driven block.</p>
+                    )}
                   </div>
                 ))}
                 {!blocks.length ? <p className="meta">Add reusable visual blocks for hero sections, FAQs, CTAs, galleries, and contact forms.</p> : null}
@@ -789,10 +999,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
                 <span>Open Graph description</span>
                 <AdminTextEditor mode="plain" minHeight={90} value={ogDescription} onChange={setOgDescription} />
               </label>
-              <label className="cms-field">
-                <span>Open Graph image URL</span>
-                <input value={ogImage} onChange={(event) => setOgImage(event.target.value)} placeholder="/uploads/page-og.webp" />
-              </label>
+              <MediaPicker label="Open Graph image URL" value={ogImage} onChange={setOgImage} />
               <label className="cms-field">
                 <span>Open Graph URL</span>
                 <input value={ogUrl} onChange={(event) => setOgUrl(event.target.value)} placeholder={resolvedCanonicalUrl} />
@@ -818,6 +1025,28 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
                 <strong>{resolvedMetaTitle}</strong>
                 <span>{resolvedCanonicalUrl}</span>
                 <p>{resolvedMetaDescription}</p>
+              </div>
+              <div className="seo-assistant-grid">
+                <div>
+                  <span className="cms-kicker">Heading outline</span>
+                  {headingOutline.length ? (
+                    headingOutline.map((heading) => (
+                      <p className="meta" key={`${heading.level}-${heading.text}`}>
+                        {heading.level}: {heading.text}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="meta">No H2-H5 headings found yet.</p>
+                  )}
+                </div>
+                <div>
+                  <span className="cms-kicker">SEO tests</span>
+                  <p className="meta">Keyword density: {focusKeyphrase ? `${keywordDensity}%` : "set focus keyphrase"}</p>
+                  <p className="meta">Internal links: {internalLinkCount}</p>
+                  <p className="meta">Inline images missing alt: {inlineImagesMissingAlt}</p>
+                  <p className="meta">Block images missing alt: {blockImagesMissingAlt}</p>
+                  <p className="meta">{robotsIndex ? "Eligible for sitemap when published." : "Noindex pages are excluded from sitemap."}</p>
+                </div>
               </div>
               <div className="seo-analysis-group">
                 <h3>SEO analysis</h3>
@@ -863,6 +1092,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
 
           {activePanel === "media" ? (
             <PanelCard title="Media SEO" icon={Image}>
+              <MediaPicker label="Open Graph image" value={ogImage} onChange={setOgImage} />
               <label className="cms-field">
                 <span>Featured image alt</span>
                 <input value={featuredImageAlt} onChange={(event) => setFeaturedImageAlt(event.target.value)} />
@@ -908,6 +1138,27 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
           <div className="cms-panel-credit">Powered by Webskitters Technology Solutions Pvt. Ltd.</div>
         </aside>
       </section>
+      {draftPreviewOpen ? (
+        <div className="seo-preview-overlay" role="dialog" aria-modal="true" aria-label="Draft page preview">
+          <div className="seo-preview-modal draft-preview-modal">
+            <div className="seo-preview-header">
+              <div>
+                <span className="cms-kicker">Unsaved draft preview</span>
+                <h2>{title || "Untitled WTS CMS page"}</h2>
+              </div>
+              <button className="cms-icon-button" type="button" aria-label="Close draft preview" onClick={() => setDraftPreviewOpen(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <DraftPagePreview
+              blocks={blocks}
+              content={content}
+              excerpt={excerpt}
+              h1={h1 || title || "Untitled WTS CMS page"}
+            />
+          </div>
+        </div>
+      ) : null}
       {previewOpen ? (
         <div className="seo-preview-overlay" role="dialog" aria-modal="true" aria-label="Search preview">
           <div className="seo-preview-modal">
@@ -1000,5 +1251,50 @@ function PanelCard({
       </div>
       {children}
     </section>
+  );
+}
+
+function DraftPagePreview({
+  blocks,
+  content,
+  excerpt,
+  h1
+}: {
+  blocks: VisualBlock[];
+  content: string;
+  excerpt: string;
+  h1: string;
+}) {
+  return (
+    <article className="draft-page-preview">
+      <header>
+        <span className="cms-kicker">Powered by Webskitters</span>
+        <h1>{h1}</h1>
+        {excerpt ? <p>{excerpt}</p> : null}
+      </header>
+      {blocks.map((block) => (
+        <section className={`draft-block draft-block-${block.type}`} key={block.id}>
+          {block.mediaUrl ? <img src={block.mediaUrl} alt="" /> : null}
+          <div>
+            <span className="cms-kicker">{block.type}</span>
+            <h2>{block.title || "Untitled block"}</h2>
+            {block.body ? <p>{block.body}</p> : null}
+            {block.type === "form" ? <button type="button">Form: {block.formSlug || "contact-us"}</button> : null}
+          </div>
+          {block.items?.length ? (
+            <div className="draft-block-items">
+              {block.items.map((item, index) => (
+                <article key={`${block.id}-preview-${index}`}>
+                  {item.image ? <img src={item.image} alt={item.imageAlt || ""} /> : null}
+                  <strong>{item.title || "Item title"}</strong>
+                  <p>{item.body || "Item description"}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      ))}
+      {content ? <div className="draft-rich-content" dangerouslySetInnerHTML={{ __html: content }} /> : null}
+    </article>
   );
 }

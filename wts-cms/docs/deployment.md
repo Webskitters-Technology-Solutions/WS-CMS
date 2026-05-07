@@ -26,4 +26,6 @@ pnpm podman:prod:up
 pnpm podman:prod:down
 ```
 
-Production considerations: run MongoDB with persistent storage and backups, set strong JWT secrets, use HTTPS, configure trusted CORS origins, configure upload storage or object storage placeholders, enable antivirus scanning where required, set GTM only when needed, and change the default Webskitters admin password immediately.
+Production considerations: run MongoDB with persistent storage and backups, set strong JWT secrets, use HTTPS, configure trusted CORS origins, choose `STORAGE_DRIVER=local` or the S3-compatible placeholder variables (`S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`), enable `AV_SCAN_ENABLED=true` when an antivirus scanner is wired in, set GTM only when needed, and change the default Webskitters admin password immediately.
+
+Content migrations can be handled from Admin > Import Export or through `/api/import-export/export` and `/api/import-export/import`.

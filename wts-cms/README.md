@@ -83,7 +83,11 @@ The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-
 
 ## New CMS Features
 
-WTS CMS includes database-driven contact forms, form submissions, admin notifications, session revocation, global admin search, visual content blocks, media folder search, production Podman reverse-proxy files, and Playwright E2E smoke tests.
+WTS CMS includes database-driven contact forms, form submissions, admin notifications, session revocation, global admin search, versioned visual content blocks, media folder search, media picker editing, admin import/export, production storage placeholders, production Podman reverse-proxy files, and Playwright E2E visual smoke tests.
+
+## Content Import Export
+
+Use Admin > Import Export to move editable Webskitters CMS content between environments, or call `/api/import-export/export` and `/api/import-export/import` with settings permissions. Exports include pages, blogs, taxonomy, menus, redirects, forms, settings, and locations.
 
 ## Folder Structure
 

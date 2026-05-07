@@ -472,6 +472,18 @@ async function seed() {
     }
   };
 
+  const normalizeDemoBlocks = (blocks: any[]) =>
+    blocks.map((block) => ({
+      schemaVersion: 1,
+      ...block,
+      items: Array.isArray(block.items)
+        ? block.items.map((item: any) => ({
+            ...item,
+            imageAlt: item.imageAlt || item.title || block.title || "WTS CMS visual content"
+          }))
+        : block.items
+    }));
+
   const pagesBySlug: Record<string, any> = {};
   await PageModel.deleteMany({ permalink: { $in: ["/home", "/untitled-page"] } });
   for (const page of pageSeeds) {
@@ -480,7 +492,7 @@ async function seed() {
       { permalink: page.permalink },
       {
         ...page,
-        ...(blockPage || {}),
+        ...(blockPage ? { ...blockPage, blocks: normalizeDemoBlocks(blockPage.blocks) } : {}),
         status: "published",
         publishedAt: new Date(),
         template: page.slug === "home" ? "home" : "default"
@@ -575,6 +587,24 @@ async function seed() {
         h1: title,
         excerpt,
         content,
+        blocks: normalizeDemoBlocks([
+          {
+            id: `${slug}-cta`,
+            type: "cta",
+            title: "Use this article in a real WTS CMS workflow",
+            body: "Editors can update this article, SEO metadata, social preview, schema, and supporting blocks from the Webskitters admin.",
+            mediaUrl: image
+          },
+          {
+            id: `${slug}-faq`,
+            type: "faq",
+            title: "Editorial checks before publishing",
+            items: [
+              { title: "Is the URL clean?", body: "Use lowercase descriptive slugs and keep published URL changes protected with redirects." },
+              { title: "Is SEO complete?", body: "Review title length, meta description, canonical URL, JSON-LD, noindex settings, and image alt text." }
+            ]
+          }
+        ]),
         status: "published",
         authorName: "Webskitters Editorial Team",
         featuredImage: image,

@@ -21,7 +21,9 @@ import type { ComponentType, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   Archive,
+  ArrowDown,
   ArrowLeft,
+  ArrowUp,
   BookOpen,
   Calendar,
   CheckCircle2,
@@ -53,11 +55,20 @@ import {
 } from "lucide-react";
 import { adminApi, hasAdminSession } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
+import { MediaPicker } from "./MediaPicker";
 import type { BlogPost } from "./BlogsWorkspace";
 
 type PanelKey = "content" | "seo" | "publish" | "taxonomy" | "social";
 type PublishStatus = "draft" | "pending_review" | "approved" | "published" | "scheduled" | "archived";
-type BlogBlock = { id: string; type: "cta" | "faq" | "gallery"; title?: string; body?: string; mediaUrl?: string };
+type BlogBlock = {
+  id: string;
+  type: "cta" | "faq" | "gallery";
+  schemaVersion?: number;
+  collapsed?: boolean;
+  title?: string;
+  body?: string;
+  mediaUrl?: string;
+};
 
 interface TaxonomyOption {
   _id: string;
@@ -124,12 +135,34 @@ function extractToc(value: string) {
   }));
 }
 
+function normalizeBlogBlocks(value?: BlogBlock[]) {
+  return (value || []).map((block, index) => ({
+    ...block,
+    schemaVersion: 1,
+    id: block.id || `${block.type || "block"}-${Date.now()}-${index}`,
+    collapsed: false
+  }));
+}
+
+function countInlineImagesWithoutAlt(value: string) {
+  return Array.from(value.matchAll(/<img\b[^>]*>/gi)).filter((match) => !/\salt=(["'])[^"']+\1/i.test(match[0])).length;
+}
+
+function getKeywordDensity(text: string, keyword: string) {
+  if (!keyword.trim()) {
+    return 0;
+  }
+  const words = text.split(/\s+/).filter(Boolean).length || 1;
+  const occurrences = (text.toLowerCase().match(new RegExp(keyword.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length;
+  return Number(((occurrences / words) * 100).toFixed(2));
+}
+
 export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | null; onBack?: () => void }) {
   const router = useRouter();
   const [title, setTitle] = useState(initialBlog?.title || "");
   const [h1, setH1] = useState(initialBlog?.h1 || "");
   const [content, setContent] = useState(initialBlog?.content || "");
-  const [blocks, setBlocks] = useState<BlogBlock[]>((initialBlog?.blocks as BlogBlock[]) || []);
+  const [blocks, setBlocks] = useState<BlogBlock[]>(normalizeBlogBlocks(initialBlog?.blocks as BlogBlock[]));
   const [excerpt, setExcerpt] = useState(initialBlog?.excerpt || "");
   const [authorName, setAuthorName] = useState(initialBlog?.authorName || "Webskitters Editorial Team");
   const [featuredImage, setFeaturedImage] = useState(initialBlog?.featuredImage || "");
@@ -172,6 +205,13 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
   const resolvedOgTitle = ogTitle || resolvedMetaTitle;
   const resolvedOgDescription = ogDescription || resolvedMetaDescription;
   const resolvedOgUrl = ogUrl || resolvedCanonicalUrl;
+  const inlineImagesMissingAlt = useMemo(() => countInlineImagesWithoutAlt(content), [content]);
+  const blockImagesMissingAlt = useMemo(() => blocks.filter((block) => block.mediaUrl && !featuredImageAlt).length, [blocks, featuredImageAlt]);
+  const internalLinkCount = useMemo(() => Array.from(content.matchAll(/<a\b[^>]*href=(["'])\/(?!\/)[^"']+\1/gi)).length, [content]);
+  const keywordDensity = useMemo(
+    () => getKeywordDensity(`${resolvedMetaTitle} ${resolvedMetaDescription} ${h1 || title} ${readableContent}`, focusKeyphrase),
+    [focusKeyphrase, h1, readableContent, resolvedMetaDescription, resolvedMetaTitle, title]
+  );
   const seoChecks = useMemo(() => {
     return [
       {
@@ -239,6 +279,21 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
         done: isJsonValid(schemaJson)
       },
       {
+        label: "JSON-LD structure",
+        help: "Structured data should include @context and @type.",
+        done: !schemaJson.trim() || (isJsonValid(schemaJson) && schemaJson.includes('"@context"') && schemaJson.includes('"@type"'))
+      },
+      {
+        label: "Internal links",
+        help: "Add useful internal links to related CMS pages or posts.",
+        done: internalLinkCount > 0
+      },
+      {
+        label: "Image alt coverage",
+        help: "Inline images, featured images, and visual blocks should have alt text.",
+        done: featuredImageAlt.length > 0 && inlineImagesMissingAlt === 0 && blockImagesMissingAlt === 0
+      },
+      {
         label: "Indexable article",
         help: "Keep this enabled for posts that should appear in search.",
         done: robotsIndex
@@ -250,6 +305,9 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
     featuredImageAlt,
     focusKeyphrase,
     h1,
+    blockImagesMissingAlt,
+    inlineImagesMissingAlt,
+    internalLinkCount,
     ogImage,
     permalink,
     readableContent,
@@ -322,6 +380,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
       {
         id: `${type}-${Date.now()}`,
         type,
+        schemaVersion: 1,
         title: type === "cta" ? "Need a CMS starter?" : "New article block",
         body: "Edit this WTS CMS article block from the admin panel."
       }
@@ -330,6 +389,41 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
 
   function updateBlogBlock(id: string, patch: Partial<BlogBlock>) {
     setBlocks((current) => current.map((block) => (block.id === id ? { ...block, ...patch } : block)));
+  }
+
+  function removeBlogBlock(id: string) {
+    setBlocks((current) => current.filter((block) => block.id !== id));
+  }
+
+  function moveBlogBlock(id: string, direction: -1 | 1) {
+    setBlocks((current) => {
+      const index = current.findIndex((block) => block.id === id);
+      const target = index + direction;
+      if (index < 0 || target < 0 || target >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const moved = next[index]!;
+      next[index] = next[target]!;
+      next[target] = moved;
+      return next;
+    });
+  }
+
+  function duplicateBlogBlock(block: BlogBlock) {
+    setBlocks((current) => [
+      ...current,
+      {
+        ...block,
+        id: `${block.type}-${Date.now()}`,
+        title: `${block.title || "Article block"} copy`,
+        collapsed: false
+      }
+    ]);
+  }
+
+  function toggleBlogBlock(id: string) {
+    setBlocks((current) => current.map((block) => (block.id === id ? { ...block, collapsed: !block.collapsed } : block)));
   }
 
   function resetDraft() {
@@ -430,7 +524,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
         slug,
         excerpt,
         content: content || "<p></p>",
-        blocks,
+        blocks: normalizeBlogBlocks(blocks).map(({ collapsed: _collapsed, ...block }) => block),
         status,
         authorName: authorName || "Webskitters Editorial Team",
         featuredImage,
@@ -655,10 +749,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
                 <span>Author name</span>
                 <input value={authorName} onChange={(event) => setAuthorName(event.target.value)} />
               </label>
-              <label className="cms-field">
-                <span>Featured image URL</span>
-                <input value={featuredImage} onChange={(event) => setFeaturedImage(event.target.value)} placeholder="/uploads/article.webp" />
-              </label>
+              <MediaPicker label="Featured image URL" value={featuredImage} onChange={setFeaturedImage} onAltChange={setFeaturedImageAlt} />
               <label className="cms-field">
                 <span>Featured image alt</span>
                 <input value={featuredImageAlt} onChange={(event) => setFeaturedImageAlt(event.target.value)} />
@@ -672,17 +763,46 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
                 <button type="button" onClick={() => addBlogBlock("gallery")}>Gallery block</button>
               </div>
               <div className="cms-visual-block-list">
-                {blocks.map((block) => (
+                {blocks.map((block, index) => (
                   <div className="cms-visual-block" key={block.id}>
-                    <span className="cms-kicker">{block.type}</span>
-                    <label className="cms-field">
-                      <span>Title</span>
-                      <input value={block.title || ""} onChange={(event) => updateBlogBlock(block.id, { title: event.target.value })} />
-                    </label>
-                    <label className="cms-field">
-                      <span>Body</span>
-                      <textarea value={block.body || ""} onChange={(event) => updateBlogBlock(block.id, { body: event.target.value })} />
-                    </label>
+                    <div className="cms-card-header">
+                      <div>
+                        <span className="cms-kicker">{index + 1}. {block.type} · schema v{block.schemaVersion || 1}</span>
+                        <strong>{block.title || "Article block"}</strong>
+                      </div>
+                      <div className="block-row-actions">
+                        <button className="cms-icon-button" type="button" aria-label="Move block up" onClick={() => moveBlogBlock(block.id, -1)}>
+                          <ArrowUp size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Move block down" onClick={() => moveBlogBlock(block.id, 1)}>
+                          <ArrowDown size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Duplicate block" onClick={() => duplicateBlogBlock(block)}>
+                          <Copy size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Collapse block" onClick={() => toggleBlogBlock(block.id)}>
+                          <PanelRight size={15} />
+                        </button>
+                        <button className="cms-icon-button" type="button" aria-label="Remove block" onClick={() => removeBlogBlock(block.id)}>
+                          <X size={15} />
+                        </button>
+                      </div>
+                    </div>
+                    {!block.collapsed ? (
+                      <>
+                        <label className="cms-field">
+                          <span>Title</span>
+                          <input value={block.title || ""} onChange={(event) => updateBlogBlock(block.id, { title: event.target.value })} />
+                        </label>
+                        <label className="cms-field">
+                          <span>Body</span>
+                          <textarea value={block.body || ""} onChange={(event) => updateBlogBlock(block.id, { body: event.target.value })} />
+                        </label>
+                        <MediaPicker label="Block image" value={block.mediaUrl || ""} onChange={(url) => updateBlogBlock(block.id, { mediaUrl: url })} />
+                      </>
+                    ) : (
+                      <p className="meta">Block collapsed. Expand to edit the article block.</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -748,6 +868,28 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
                 <strong>{resolvedMetaTitle}</strong>
                 <span>{resolvedCanonicalUrl}</span>
                 <p>{resolvedMetaDescription}</p>
+              </div>
+              <div className="seo-assistant-grid">
+                <div>
+                  <span className="cms-kicker">Article outline</span>
+                  {tableOfContents.length ? (
+                    tableOfContents.map((item) => (
+                      <p className="meta" key={`${item.anchor}-${item.level}`}>
+                        H{item.level}: {item.text}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="meta">No H2/H3 headings found yet.</p>
+                  )}
+                </div>
+                <div>
+                  <span className="cms-kicker">SEO tests</span>
+                  <p className="meta">Keyword density: {focusKeyphrase ? `${keywordDensity}%` : "set focus keyphrase"}</p>
+                  <p className="meta">Internal links: {internalLinkCount}</p>
+                  <p className="meta">Inline images missing alt: {inlineImagesMissingAlt}</p>
+                  <p className="meta">Block images missing alt: {blockImagesMissingAlt}</p>
+                  <p className="meta">{robotsIndex ? "Eligible for sitemap when published." : "Noindex articles are excluded from sitemap."}</p>
+                </div>
               </div>
               <div className="seo-analysis-group">
                 <h3>SEO analysis</h3>
@@ -840,10 +982,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
                 <span>Open Graph description</span>
                 <AdminTextEditor mode="plain" minHeight={90} value={ogDescription} onChange={setOgDescription} />
               </label>
-              <label className="cms-field">
-                <span>Open Graph image</span>
-                <input value={ogImage} onChange={(event) => setOgImage(event.target.value)} placeholder={featuredImage || "/uploads/blog-og.webp"} />
-              </label>
+              <MediaPicker label="Open Graph image" value={ogImage} onChange={setOgImage} />
               <label className="cms-field">
                 <span>Open Graph URL</span>
                 <input value={ogUrl} onChange={(event) => setOgUrl(event.target.value)} placeholder={resolvedCanonicalUrl} />

@@ -30,6 +30,7 @@ import { auditLogsRouter } from "./modules/audit-logs/audit-logs.routes.js";
 import { blogsRouter } from "./modules/blogs/blogs.routes.js";
 import { categoriesRouter } from "./modules/categories/categories.routes.js";
 import { formsRouter } from "./modules/forms/forms.routes.js";
+import { importExportRouter } from "./modules/import-export/import-export.routes.js";
 import { locationsRouter } from "./modules/locations/locations.routes.js";
 import { mediaRouter } from "./modules/media/media.routes.js";
 import { menusRouter } from "./modules/menus/menus.routes.js";
@@ -142,6 +143,7 @@ export function createApp() {
   app.use("/api/menus", menusRouter);
   app.use("/api/media", mediaRouter);
   app.use("/api/forms", formsRouter);
+  app.use("/api/import-export", importExportRouter);
   app.use("/api/redirects", redirectsRouter);
   app.use("/api/locations", locationsRouter);
   app.use("/api/settings", settingsRouter);

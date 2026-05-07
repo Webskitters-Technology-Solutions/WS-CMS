@@ -35,6 +35,17 @@ const envSchema = z.object({
   API_BASE_URL: z.string().url().default("http://localhost:4000"),
   UPLOAD_DIR: z.string().default("uploads"),
   MAX_UPLOAD_SIZE_MB: z.coerce.number().positive().default(5),
+  STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),
+  S3_BUCKET: z.string().optional().default(""),
+  S3_REGION: z.string().optional().default(""),
+  S3_ENDPOINT: z.string().optional().default(""),
+  S3_ACCESS_KEY_ID: z.string().optional().default(""),
+  S3_SECRET_ACCESS_KEY: z.string().optional().default(""),
+  AV_SCAN_ENABLED: z
+    .string()
+    .optional()
+    .default("false")
+    .transform((value) => value === "true"),
   DEFAULT_SUPER_ADMIN_EMAIL: z.string().email().default("admin@webskitters.com"),
   DEFAULT_SUPER_ADMIN_PASSWORD: z.string().default("ChangeMe@12345"),
   DEFAULT_SUPER_ADMIN_FIRST_NAME: z.string().default("Webskitters"),

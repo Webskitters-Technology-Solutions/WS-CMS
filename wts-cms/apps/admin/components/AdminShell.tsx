@@ -23,6 +23,7 @@ import {
   Activity,
   Bell,
   BookOpen,
+  DatabaseBackup,
   FileText,
   FolderTree,
   Image,
@@ -61,6 +62,7 @@ const nav = [
   { href: "/notifications", label: "Notifications", permission: "notifications:read", icon: Bell },
   { href: "/sessions", label: "Sessions", permission: "sessions:read", icon: KeyRound },
   { href: "/site-settings", label: "Site Settings", permission: "settings:read", icon: Settings },
+  { href: "/import-export", label: "Import Export", permission: "settings:read", icon: DatabaseBackup },
   { href: "/audit-logs", label: "Audit Logs", permission: "auditLogs:read", icon: Activity }
 ];
 
