@@ -8,7 +8,7 @@ Website: https://www.webskitters.com
 
 # WTS CMS
 
-WTS CMS is an enterprise-ready lightweight CMS starter platform powered by Webskitters Technology Solutions Pvt. Ltd. It is designed for smaller Webskitters projects that need strong SEO, security, admin management, CMS pages, blogs, users, roles, permissions, RBAC, menus, redirects, locations, and Podman-based local development.
+WTS CMS is an enterprise-ready lightweight CMS starter platform powered by Webskitters Technology Solutions Pvt. Ltd. It is designed for smaller Webskitters projects that need strong SEO, security, admin management, CMS pages, blogs, users, roles, permissions, RBAC, menus, redirects, locations, forms, submissions, notifications, global search, and Podman-based local development.
 
 ## Stack
 
@@ -51,11 +51,14 @@ Change the default password immediately after first login.
 - `pnpm seed`
 - `pnpm db:import-demo`
 - `pnpm db:export-demo`
+- `pnpm test:e2e`
 - `pnpm headers:check`
 - `pnpm podman:up`
 - `pnpm podman:down`
 - `pnpm podman:logs`
 - `pnpm podman:build`
+- `pnpm podman:prod:up`
+- `pnpm podman:prod:down`
 
 ## Podman
 
@@ -76,7 +79,11 @@ WTS CMS supports editable metadata, canonical URLs, robots index/follow controls
 
 ## Demo Database
 
-The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-demo-database.json`. Restore it with `pnpm db:import-demo` to load the committed Webskitters demo content, pages, blogs, menus, settings, users, roles, and permissions.
+The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-demo-database.json`. Restore it with `pnpm db:import-demo` to load the committed Webskitters demo content, pages, blogs, menus, settings, users, roles, permissions, forms, and visual content blocks.
+
+## New CMS Features
+
+WTS CMS includes database-driven contact forms, form submissions, admin notifications, session revocation, global admin search, visual content blocks, media folder search, production Podman reverse-proxy files, and Playwright E2E smoke tests.
 
 ## Folder Structure
 

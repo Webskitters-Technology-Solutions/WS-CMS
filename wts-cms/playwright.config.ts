@@ -14,21 +14,22 @@
  *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
  * ================================================================
  */
-import type { NextFunction, Request, Response } from "express";
-import type { PermissionKey } from "@wts-cms/shared";
-import { fail } from "../utils/api-response.js";
+import { defineConfig, devices } from "@playwright/test";
 
-export function hasPermission(userPermissions: readonly string[], required: PermissionKey): boolean {
-  return userPermissions.includes(required);
-}
-
-export function requirePermission(required: PermissionKey) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || (req.user.roleSlug !== "super-admin" && !hasPermission(req.user.permissions, required))) {
-      return fail(res, 403, "You do not have permission to perform this action", "FORBIDDEN", {
-        required
-      });
+export default defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 30_000,
+  use: {
+    trace: "on-first-retry"
+  },
+  projects: [
+    {
+      name: "chromium-desktop",
+      use: { ...devices["Desktop Chrome"] }
+    },
+    {
+      name: "mobile-chrome",
+      use: { ...devices["Pixel 5"] }
     }
-    return next();
-  };
-}
+  ]
+});

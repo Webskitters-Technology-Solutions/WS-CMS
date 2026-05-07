@@ -21,6 +21,7 @@
     "typecheck": "corepack pnpm --filter @wts-cms/shared build && corepack pnpm -r typecheck",
     "test": "corepack pnpm --filter @wts-cms/api test",
     "test:api": "corepack pnpm --filter @wts-cms/api test",
+    "test:e2e": "playwright test",
     "seed": "corepack pnpm --filter @wts-cms/api seed",
     "backup": "tsx scripts/backup.ts",
     "restore": "tsx scripts/restore.ts",
@@ -31,10 +32,13 @@
     "podman:down": "podman compose -f infra/podman/podman-compose.yml down",
     "podman:logs": "podman compose -f infra/podman/podman-compose.yml logs -f",
     "podman:build": "podman compose -f infra/podman/podman-compose.yml build",
+    "podman:prod:up": "podman compose -f infra/podman/podman-compose.prod.yml up -d",
+    "podman:prod:down": "podman compose -f infra/podman/podman-compose.prod.yml down",
     "clean": "rimraf node_modules apps/*/.next apps/*/dist packages/*/dist coverage"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
+    "@playwright/test": "^1.59.1",
     "@types/node": "^22.15.3",
     "@wts-cms/shared": "workspace:*",
     "bcryptjs": "^2.4.3",

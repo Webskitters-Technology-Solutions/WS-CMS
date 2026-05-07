@@ -24,6 +24,7 @@ import {
 } from "@wts-cms/shared";
 import { hasPermission } from "../middleware/rbac.js";
 import { calculateReadingTime, tableOfContents } from "../utils/content.js";
+import { formSchema } from "../validators/cms.js";
 
 describe("WTS CMS core utilities", () => {
   it("generates safe SEO slugs", () => {
@@ -45,6 +46,16 @@ describe("WTS CMS core utilities", () => {
   it("checks RBAC permission keys", () => {
     expect(hasPermission(["pages:read"], "pages:read")).toBe(true);
     expect(hasPermission(["pages:read"], "pages:delete")).toBe(false);
+  });
+
+  it("validates dynamic Webskitters form configuration", () => {
+    expect(
+      formSchema.safeParse({
+        name: "Contact US",
+        fields: [{ id: "email", label: "Email", type: "email", required: true }],
+        status: "active"
+      }).success
+    ).toBe(true);
   });
 
   it("resolves SEO fallback metadata", () => {

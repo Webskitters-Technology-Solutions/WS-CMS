@@ -53,6 +53,15 @@ import { AdminTextEditor } from "./AdminTextEditor";
 
 type PanelKey = "content" | "seo" | "publish" | "media" | "history";
 type PublishStatus = "draft" | "pending_review" | "approved" | "published" | "scheduled" | "archived";
+type VisualBlock = {
+  id: string;
+  type: "hero" | "cards" | "cta" | "faq" | "gallery" | "form";
+  title?: string;
+  body?: string;
+  mediaUrl?: string;
+  formSlug?: string;
+  items?: Array<{ title?: string; body?: string; image?: string }>;
+};
 
 export interface EditablePage {
   _id?: string;
@@ -62,6 +71,7 @@ export interface EditablePage {
   h1?: string;
   excerpt?: string;
   content?: string;
+  blocks?: VisualBlock[];
   status?: PublishStatus;
   template?: string;
   order?: number;
@@ -136,6 +146,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
   const [slugValue, setSlugValue] = useState(initialPage?.slug || slugify(initialPage?.title || ""));
   const [h1, setH1] = useState(initialPage?.h1 || "");
   const [content, setContent] = useState(initialPage?.content || "");
+  const [blocks, setBlocks] = useState<VisualBlock[]>(initialPage?.blocks || []);
   const [excerpt, setExcerpt] = useState(initialPage?.excerpt || "");
   const [template, setTemplate] = useState(initialPage?.template || "default");
   const [order, setOrder] = useState(String(initialPage?.order ?? 0));
@@ -315,6 +326,26 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
     setContent((current) => `${current}${current ? "\n" : ""}${snippets[tag]}`);
   }
 
+  function addVisualBlock(type: VisualBlock["type"]) {
+    const nextBlock: VisualBlock = {
+      id: `${type}-${Date.now()}`,
+      type,
+      title: type === "form" ? "Contact Webskitters" : "New content block",
+      body: "Edit this reusable WTS CMS block from the admin panel.",
+      formSlug: type === "form" ? "contact-us" : undefined,
+      items: type === "cards" || type === "faq" || type === "gallery" ? [{ title: "Item title", body: "Item description" }] : []
+    };
+    setBlocks((current) => [...current, nextBlock]);
+  }
+
+  function updateVisualBlock(id: string, patch: Partial<VisualBlock>) {
+    setBlocks((current) => current.map((block) => (block.id === id ? { ...block, ...patch } : block)));
+  }
+
+  function removeVisualBlock(id: string) {
+    setBlocks((current) => current.filter((block) => block.id !== id));
+  }
+
   function resetDraft() {
     setTitle("");
     setSlugValue("");
@@ -415,6 +446,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         permalink,
         excerpt,
         content: content || "<p></p>",
+        blocks,
         status,
         template,
         order: Number(order || 0),
@@ -655,6 +687,49 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
                 <span>Menu order</span>
                 <input value={order} onChange={(event) => setOrder(event.target.value)} />
               </label>
+            </PanelCard>
+          ) : null}
+
+          {activePanel === "content" ? (
+            <PanelCard title="Visual blocks" icon={ListPlus}>
+              <div className="cms-block-actions">
+                <button type="button" onClick={() => addVisualBlock("hero")}>Hero</button>
+                <button type="button" onClick={() => addVisualBlock("cards")}>Cards</button>
+                <button type="button" onClick={() => addVisualBlock("cta")}>CTA</button>
+                <button type="button" onClick={() => addVisualBlock("faq")}>FAQ</button>
+                <button type="button" onClick={() => addVisualBlock("gallery")}>Gallery</button>
+                <button type="button" onClick={() => addVisualBlock("form")}>Form</button>
+              </div>
+              <div className="cms-visual-block-list">
+                {blocks.map((block, index) => (
+                  <div className="cms-visual-block" key={block.id}>
+                    <div className="cms-card-header">
+                      <span className="cms-kicker">{index + 1}. {block.type}</span>
+                      <button className="cms-icon-button" type="button" aria-label="Remove block" onClick={() => removeVisualBlock(block.id)}>
+                        <X size={15} />
+                      </button>
+                    </div>
+                    <label className="cms-field">
+                      <span>Title</span>
+                      <input value={block.title || ""} onChange={(event) => updateVisualBlock(block.id, { title: event.target.value })} />
+                    </label>
+                    <label className="cms-field">
+                      <span>Body</span>
+                      <textarea value={block.body || ""} onChange={(event) => updateVisualBlock(block.id, { body: event.target.value })} />
+                    </label>
+                    <label className="cms-field">
+                      <span>{block.type === "form" ? "Form slug" : "Media URL"}</span>
+                      <input
+                        value={block.type === "form" ? block.formSlug || "" : block.mediaUrl || ""}
+                        onChange={(event) =>
+                          updateVisualBlock(block.id, block.type === "form" ? { formSlug: event.target.value } : { mediaUrl: event.target.value })
+                        }
+                      />
+                    </label>
+                  </div>
+                ))}
+                {!blocks.length ? <p className="meta">Add reusable visual blocks for hero sections, FAQs, CTAs, galleries, and contact forms.</p> : null}
+              </div>
             </PanelCard>
           ) : null}
 

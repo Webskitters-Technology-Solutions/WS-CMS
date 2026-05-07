@@ -618,6 +618,34 @@ th {
   color: #b42318;
 }
 
+.cms-visual-block-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cms-visual-block {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.cms-visual-block textarea,
+pre {
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.metric {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 800;
+  color: #2563eb;
+}
+
 .cms-editor-layout {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr) 340px;

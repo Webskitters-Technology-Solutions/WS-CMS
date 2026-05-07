@@ -57,6 +57,7 @@ import type { BlogPost } from "./BlogsWorkspace";
 
 type PanelKey = "content" | "seo" | "publish" | "taxonomy" | "social";
 type PublishStatus = "draft" | "pending_review" | "approved" | "published" | "scheduled" | "archived";
+type BlogBlock = { id: string; type: "cta" | "faq" | "gallery"; title?: string; body?: string; mediaUrl?: string };
 
 interface TaxonomyOption {
   _id: string;
@@ -128,6 +129,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
   const [title, setTitle] = useState(initialBlog?.title || "");
   const [h1, setH1] = useState(initialBlog?.h1 || "");
   const [content, setContent] = useState(initialBlog?.content || "");
+  const [blocks, setBlocks] = useState<BlogBlock[]>((initialBlog?.blocks as BlogBlock[]) || []);
   const [excerpt, setExcerpt] = useState(initialBlog?.excerpt || "");
   const [authorName, setAuthorName] = useState(initialBlog?.authorName || "Webskitters Editorial Team");
   const [featuredImage, setFeaturedImage] = useState(initialBlog?.featuredImage || "");
@@ -314,6 +316,22 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
     setContent((current) => `${current}${current ? "\n" : ""}${snippets[tag]}`);
   }
 
+  function addBlogBlock(type: BlogBlock["type"]) {
+    setBlocks((current) => [
+      ...current,
+      {
+        id: `${type}-${Date.now()}`,
+        type,
+        title: type === "cta" ? "Need a CMS starter?" : "New article block",
+        body: "Edit this WTS CMS article block from the admin panel."
+      }
+    ]);
+  }
+
+  function updateBlogBlock(id: string, patch: Partial<BlogBlock>) {
+    setBlocks((current) => current.map((block) => (block.id === id ? { ...block, ...patch } : block)));
+  }
+
   function resetDraft() {
     setTitle("");
     setH1("");
@@ -412,6 +430,7 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
         slug,
         excerpt,
         content: content || "<p></p>",
+        blocks,
         status,
         authorName: authorName || "Webskitters Editorial Team",
         featuredImage,
@@ -647,6 +666,26 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
               <button className="cms-panel-action" type="button" onClick={() => insertBlock("image")}>
                 <Image size={16} /> Insert image block
               </button>
+              <div className="cms-block-actions">
+                <button type="button" onClick={() => addBlogBlock("cta")}>CTA block</button>
+                <button type="button" onClick={() => addBlogBlock("faq")}>FAQ block</button>
+                <button type="button" onClick={() => addBlogBlock("gallery")}>Gallery block</button>
+              </div>
+              <div className="cms-visual-block-list">
+                {blocks.map((block) => (
+                  <div className="cms-visual-block" key={block.id}>
+                    <span className="cms-kicker">{block.type}</span>
+                    <label className="cms-field">
+                      <span>Title</span>
+                      <input value={block.title || ""} onChange={(event) => updateBlogBlock(block.id, { title: event.target.value })} />
+                    </label>
+                    <label className="cms-field">
+                      <span>Body</span>
+                      <textarea value={block.body || ""} onChange={(event) => updateBlogBlock(block.id, { body: event.target.value })} />
+                    </label>
+                  </div>
+                ))}
+              </div>
             </PanelCard>
           ) : null}
 

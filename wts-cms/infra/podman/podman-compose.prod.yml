@@ -1,0 +1,76 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+services:
+  proxy:
+    image: docker.io/library/caddy:2-alpine
+    container_name: wts-cms-proxy
+    depends_on:
+      - web
+      - admin
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    labels:
+      io.webskitters.project: "WTS CMS"
+      io.webskitters.powered-by: "Webskitters Technology Solutions Pvt. Ltd."
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Containerfile
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      MONGO_URI: mongodb://mongo:27017/wts-cms
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+      ADMIN_SITE_URL: ${ADMIN_SITE_URL}
+      API_BASE_URL: ${API_BASE_URL}
+    depends_on:
+      - mongo
+    volumes:
+      - uploads:/app/uploads
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Containerfile
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
+      NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+    depends_on:
+      - api
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: apps/admin/Containerfile
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
+    depends_on:
+      - api
+
+  mongo:
+    image: docker.io/library/mongo:7
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+  uploads:
+  caddy-data:
+  caddy-config:

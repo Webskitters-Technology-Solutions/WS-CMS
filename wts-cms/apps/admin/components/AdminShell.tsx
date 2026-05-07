@@ -21,10 +21,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   Activity,
+  Bell,
   BookOpen,
   FileText,
   FolderTree,
   Image,
+  Inbox,
+  KeyRound,
   LayoutDashboard,
   Link2,
   ListTree,
@@ -33,6 +36,7 @@ import {
   Search,
   Settings,
   Shield,
+  SquarePen,
   Tags,
   Users
 } from "lucide-react";
@@ -46,11 +50,16 @@ const nav = [
   { href: "/tags", label: "Tags", permission: "tags:read", icon: Tags },
   { href: "/menus", label: "Menus", permission: "menus:read", icon: ListTree },
   { href: "/media", label: "Media", permission: "media:read", icon: Image },
+  { href: "/forms", label: "Forms", permission: "forms:read", icon: SquarePen },
+  { href: "/form-submissions", label: "Submissions", permission: "forms:read", icon: Inbox },
   { href: "/users", label: "Users", permission: "users:read", icon: Users },
   { href: "/roles", label: "Roles", permission: "roles:read", icon: Shield },
   { href: "/redirects", label: "Redirects", permission: "redirects:read", icon: Link2 },
   { href: "/locations", label: "Locations", permission: "locations:read", icon: MapPin },
   { href: "/seo-settings", label: "SEO Settings", permission: "seo:read", icon: Search },
+  { href: "/global-search", label: "Global Search", permission: "search:read", icon: Search },
+  { href: "/notifications", label: "Notifications", permission: "notifications:read", icon: Bell },
+  { href: "/sessions", label: "Sessions", permission: "sessions:read", icon: KeyRound },
   { href: "/site-settings", label: "Site Settings", permission: "settings:read", icon: Settings },
   { href: "/audit-logs", label: "Audit Logs", permission: "auditLogs:read", icon: Activity }
 ];

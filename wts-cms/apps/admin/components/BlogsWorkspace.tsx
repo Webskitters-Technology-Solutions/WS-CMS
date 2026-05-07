@@ -53,6 +53,7 @@ export interface BlogPost {
   tags?: string[];
   excerpt?: string;
   content?: string;
+  blocks?: Array<Record<string, unknown>>;
   featuredImage?: string;
   featuredImageAlt?: string;
   seo?: {

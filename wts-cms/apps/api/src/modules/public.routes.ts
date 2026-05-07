@@ -26,6 +26,7 @@ import {
   RedirectModel,
   TagModel
 } from "../database/models.js";
+import { publicFormsRouter } from "./forms/forms.routes.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { fail, ok } from "../utils/api-response.js";
 import { getSettings } from "./settings/settings.routes.js";
@@ -39,6 +40,8 @@ import {
 } from "./public.serializers.js";
 
 export const publicRouter = Router();
+
+publicRouter.use("/forms", publicFormsRouter);
 
 publicRouter.get("/settings", asyncHandler(async (_req, res) => ok(res, publicSettings(await getSettings()))));
 

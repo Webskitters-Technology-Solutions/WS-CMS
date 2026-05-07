@@ -16,6 +16,7 @@
  */
 import { notFound, redirect } from "next/navigation";
 import { JsonLd } from "../../components/JsonLd";
+import { BlockRenderer } from "../../components/BlockRenderer";
 import { SafeHtml } from "../../components/SafeHtml";
 import { apiGet } from "../../lib/api";
 import { toMetadata } from "../../lib/seo";
@@ -45,6 +46,7 @@ export default async function DynamicPage({ params }: any) {
       <h1>{page.h1}</h1>
       <p className="meta">{page.excerpt}</p>
       <SafeHtml html={page.content} />
+      <BlockRenderer blocks={page.blocks} />
     </article>
   );
 }

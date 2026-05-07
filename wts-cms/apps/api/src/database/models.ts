@@ -111,6 +111,7 @@ const contentBaseFields = {
   h1: { type: String, required: true },
   excerpt: { type: String, default: "" },
   content: { type: String, default: "" },
+  blocks: { type: [Schema.Types.Mixed], default: [] },
   status: {
     type: String,
     enum: ["draft", "pending_review", "approved", "published", "scheduled", "archived"],
@@ -225,10 +226,78 @@ export const MediaModel = mongoose.model(
       size: { type: Number, required: true },
       width: { type: Number },
       height: { type: Number },
+      folder: { type: String, default: "Library", index: true },
+      variants: { type: [Schema.Types.Mixed], default: [] },
       url: { type: String, required: true },
       altText: { type: String, default: "" },
       caption: { type: String, default: "" },
       uploadedBy: { type: Schema.Types.ObjectId, ref: "User", index: true }
+    },
+    { timestamps: true }
+  )
+);
+
+const formFieldSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    label: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["text", "email", "phone", "textarea", "select", "checkbox", "radio", "date", "file"],
+      default: "text"
+    },
+    required: { type: Boolean, default: false },
+    placeholder: { type: String, default: "" },
+    options: { type: [String], default: [] }
+  },
+  { _id: false }
+);
+
+export const FormModel = mongoose.model(
+  "Form",
+  new Schema(
+    {
+      name: { type: String, required: true },
+      slug: { type: String, required: true, unique: true, index: true },
+      description: { type: String, default: "" },
+      fields: { type: [formFieldSchema], default: [] },
+      status: { type: String, enum: ["active", "inactive"], default: "active", index: true },
+      notificationEmail: { type: String, default: "" },
+      successMessage: { type: String, default: "Thank you. Your submission has been received by Webskitters." },
+      honeypotField: { type: String, default: "companyWebsite" },
+      createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+      updatedBy: { type: Schema.Types.ObjectId, ref: "User" }
+    },
+    { timestamps: true }
+  )
+);
+
+export const FormSubmissionModel = mongoose.model(
+  "FormSubmission",
+  new Schema(
+    {
+      form: { type: Schema.Types.ObjectId, ref: "Form", required: true, index: true },
+      values: { type: Schema.Types.Mixed, default: {} },
+      status: { type: String, enum: ["new", "read", "archived"], default: "new", index: true },
+      ipAddress: { type: String, default: "" },
+      userAgent: { type: String, default: "" }
+    },
+    { timestamps: true }
+  )
+);
+
+export const NotificationModel = mongoose.model(
+  "Notification",
+  new Schema(
+    {
+      title: { type: String, required: true },
+      message: { type: String, default: "" },
+      type: { type: String, enum: ["info", "success", "warning", "error"], default: "info" },
+      status: { type: String, enum: ["unread", "read"], default: "unread", index: true },
+      actor: { type: Schema.Types.ObjectId, ref: "User" },
+      resource: { type: String, default: "" },
+      resourceId: { type: Schema.Types.ObjectId },
+      metadata: { type: Schema.Types.Mixed, default: {} }
     },
     { timestamps: true }
   )

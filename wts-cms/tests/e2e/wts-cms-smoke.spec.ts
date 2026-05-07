@@ -14,21 +14,16 @@
  *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
  * ================================================================
  */
-import type { NextFunction, Request, Response } from "express";
-import type { PermissionKey } from "@wts-cms/shared";
-import { fail } from "../utils/api-response.js";
+import { expect, test } from "@playwright/test";
 
-export function hasPermission(userPermissions: readonly string[], required: PermissionKey): boolean {
-  return userPermissions.includes(required);
-}
+test("public WTS CMS home renders Webskitters content", async ({ page }) => {
+  await page.goto(process.env.WTS_E2E_WEB_URL || "http://localhost:3000");
+  await expect(page.getByRole("heading", { name: /WTS CMS/i }).first()).toBeVisible();
+  await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
+});
 
-export function requirePermission(required: PermissionKey) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || (req.user.roleSlug !== "super-admin" && !hasPermission(req.user.permissions, required))) {
-      return fail(res, 403, "You do not have permission to perform this action", "FORBIDDEN", {
-        required
-      });
-    }
-    return next();
-  };
-}
+test("admin login page renders Webskitters branding", async ({ page }) => {
+  await page.goto(process.env.WTS_E2E_ADMIN_URL || "http://localhost:3001/login");
+  await expect(page.getByText("WTS CMS").first()).toBeVisible();
+  await expect(page.getByText(/Webskitters Technology Solutions/i).first()).toBeVisible();
+});

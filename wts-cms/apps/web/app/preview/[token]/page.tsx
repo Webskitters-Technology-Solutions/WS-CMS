@@ -16,6 +16,7 @@
  */
 import { notFound } from "next/navigation";
 import { JsonLd } from "../../../components/JsonLd";
+import { BlockRenderer } from "../../../components/BlockRenderer";
 import { SafeHtml } from "../../../components/SafeHtml";
 import { SocialShare } from "../../../components/SocialShare";
 import { apiGet } from "../../../lib/api";
@@ -44,6 +45,7 @@ export default async function PreviewPage({ params }: any) {
       {preview.entityType === "blog" ? <p className="meta">{entity.authorName} · {entity.readingTime} min read</p> : null}
       <p className="meta">{entity.excerpt}</p>
       <SafeHtml html={entity.content} />
+      <BlockRenderer blocks={entity.blocks} />
       {preview.entityType === "blog" ? <SocialShare url={url} title={entity.title} /> : null}
     </article>
   );

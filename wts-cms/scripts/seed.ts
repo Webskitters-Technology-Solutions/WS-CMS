@@ -21,6 +21,7 @@ import { connectDatabase, disconnectDatabase } from "../apps/api/src/database/co
 import {
   BlogModel,
   CategoryModel,
+  FormModel,
   LocationModel,
   MenuModel,
   PageModel,
@@ -35,7 +36,7 @@ const rolePermissionMap = {
   "Super Admin": PERMISSION_KEYS,
   Admin: PERMISSION_KEYS.filter((key) => !["roles:delete", "auditLogs:read"].includes(key)),
   Editor: PERMISSION_KEYS.filter((key) =>
-    /^(pages|blogs|categories|tags|menus|media|seo|settings):/.test(key)
+    /^(pages|blogs|categories|tags|menus|media|forms|seo|settings|search|notifications):/.test(key)
   ),
   Author: PERMISSION_KEYS.filter((key) => /^(blogs|media):/.test(key) || key === "auth:read"),
   Viewer: PERMISSION_KEYS.filter((key) => key.endsWith(":read") || key === "auditLogs:read")
@@ -209,6 +210,14 @@ async function seed() {
         <p>WTS CMS is intentionally lightweight. It avoids microservices and unnecessary moving parts, while still giving project teams the controls they expect in a production-ready CMS starter.</p>
         <div class="demo-callout">Every demo page here is managed as CMS content and rendered by the public Next.js frontend.</div>
       `,
+      blocks: [
+        {
+          id: "home-cta",
+          type: "cta",
+          title: "Build the next Webskitters CMS project faster",
+          body: "Use WTS CMS as a secure, SEO-ready starter with editable pages, blogs, menus, roles, forms, and redirects."
+        }
+      ],
       seo: demoSeo(BRAND.defaultTitle, BRAND.defaultDescription, "/", demoImages.dashboard)
     },
     {
@@ -262,6 +271,15 @@ async function seed() {
           <div class="demo-contact-card"><h2>Support</h2><p>Review admin roles, security settings, launch readiness, and content migration checklists.</p></div>
         </div>
       `,
+      blocks: [
+        {
+          id: "contact-form",
+          type: "form",
+          title: "Contact Webskitters",
+          body: "Submit the database-driven WTS CMS contact form.",
+          formSlug: "contact-us"
+        }
+      ],
       seo: demoSeo("Contact WTS CMS | Powered by Webskitters", "Contact Webskitters Technology Solutions Pvt. Ltd. about WTS CMS implementation and project planning.", "/contact-us", demoImages.workflow)
     },
     {
@@ -446,6 +464,26 @@ async function seed() {
         { id: "gallery", label: "Gallery", type: "page", referenceId: pagesBySlug.gallery._id, url: "/gallery", target: "self", rel: "follow", order: 4 },
         { id: "blog", label: "Blog", type: "custom", url: "/blog", target: "self", rel: "follow", order: 5 },
         { id: "contact", label: "Contact", type: "page", referenceId: pagesBySlug["contact-us"]._id, url: "/contact-us", target: "self", rel: "follow", order: 6 }
+      ]
+    },
+    { upsert: true, new: true }
+  );
+
+  await FormModel.findOneAndUpdate(
+    { slug: "contact-us" },
+    {
+      name: "Contact US",
+      slug: "contact-us",
+      description: "Default WTS CMS contact form powered by Webskitters.",
+      status: "active",
+      notificationEmail: "admin@webskitters.com",
+      successMessage: "Thank you for contacting Webskitters. The WTS CMS demo team has received your message.",
+      honeypotField: "companyWebsite",
+      fields: [
+        { id: "name", label: "Name", type: "text", required: true, placeholder: "Your name" },
+        { id: "email", label: "Email", type: "email", required: true, placeholder: "you@example.com" },
+        { id: "phone", label: "Phone", type: "phone", required: false, placeholder: "Optional phone number" },
+        { id: "message", label: "Message", type: "textarea", required: true, placeholder: "Tell us about your CMS project" }
       ]
     },
     { upsert: true, new: true }

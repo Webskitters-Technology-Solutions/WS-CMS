@@ -83,9 +83,20 @@ mediaRouter.get(
   requirePermission("media:read"),
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
+    const query: Record<string, unknown> = {};
+    if (req.query.search) {
+      query.$or = [
+        { originalName: { $regex: String(req.query.search), $options: "i" } },
+        { altText: { $regex: String(req.query.search), $options: "i" } },
+        { folder: { $regex: String(req.query.search), $options: "i" } }
+      ];
+    }
+    if (req.query.folder) {
+      query.folder = req.query.folder;
+    }
     const [items, total] = await Promise.all([
-      MediaModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
-      MediaModel.countDocuments()
+      MediaModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      MediaModel.countDocuments(query)
     ]);
     return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
   })
@@ -112,6 +123,7 @@ mediaRouter.post(
       size: optimized.size,
       width: optimized.width,
       height: optimized.height,
+      folder: req.body.folder || "Library",
       url: `/uploads/${optimized.filename}`,
       altText: req.body.altText || "",
       caption: req.body.caption || "",

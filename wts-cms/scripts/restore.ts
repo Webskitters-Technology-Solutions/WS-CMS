@@ -19,9 +19,12 @@ import { connectDatabase, disconnectDatabase } from "../apps/api/src/database/co
 import {
   BlogModel,
   CategoryModel,
+  FormModel,
+  FormSubmissionModel,
   LocationModel,
   MediaModel,
   MenuModel,
+  NotificationModel,
   PageModel,
   RedirectModel,
   RoleModel,
@@ -46,9 +49,12 @@ const collections = [
   ["tags", TagModel],
   ["menus", MenuModel],
   ["media", MediaModel],
+  ["forms", FormModel],
+  ["formSubmissions", FormSubmissionModel],
   ["redirects", RedirectModel],
   ["settings", SettingsModel],
-  ["locations", LocationModel]
+  ["locations", LocationModel],
+  ["notifications", NotificationModel]
 ] as const;
 
 await connectDatabase();

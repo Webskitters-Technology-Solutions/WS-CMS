@@ -16,6 +16,7 @@
  */
 import { notFound } from "next/navigation";
 import { JsonLd } from "../../../components/JsonLd";
+import { BlockRenderer } from "../../../components/BlockRenderer";
 import { SafeHtml } from "../../../components/SafeHtml";
 import { SocialShare } from "../../../components/SocialShare";
 import { apiGet } from "../../../lib/api";
@@ -44,6 +45,7 @@ export default async function BlogDetailPage({ params }: any) {
         </nav>
       ) : null}
       <SafeHtml html={blog.content} />
+      <BlockRenderer blocks={blog.blocks} />
       <SocialShare url={url} title={blog.title} />
     </article>
   );
