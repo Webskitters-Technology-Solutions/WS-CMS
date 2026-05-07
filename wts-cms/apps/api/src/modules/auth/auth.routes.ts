@@ -1,0 +1,159 @@
+/**
+ * ================================================================
+ *  __        __   _     ____  _  _______ _____ _____ _____ _____
+ *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
+ *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
+ *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
+ *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *
+ *  Project      : WTS CMS
+ *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
+ *  Website      : https://www.webskitters.com
+ *  Description  : Enterprise-ready lightweight CMS starter platform
+ *
+ *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
+ * ================================================================
+ */
+import bcrypt from "bcryptjs";
+import { Router } from "express";
+import { RoleModel, UserModel } from "../../database/models.js";
+import { authenticate, signAccessToken, signRefreshToken, verifyRefreshToken } from "../../middleware/auth.js";
+import { validate } from "../../middleware/validate.js";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { fail, ok } from "../../utils/api-response.js";
+import { audit } from "../audit-logs/audit.service.js";
+import { changePasswordSchema, loginSchema, refreshSchema } from "./auth.validators.js";
+
+export const authRouter = Router();
+
+function serializeUser(user: any, role: any) {
+  return {
+    id: user._id.toString(),
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: role
+      ? {
+          id: role._id.toString(),
+          name: role.name,
+          slug: role.slug
+        }
+      : null,
+    permissions: role?.permissions ?? []
+  };
+}
+
+async function issueTokens(user: any, role: any, replaceRefreshTokenIndex?: number) {
+  const permissions = role?.permissions ?? [];
+  const accessToken = signAccessToken({
+    sub: user._id.toString(),
+    roleSlug: role?.slug ?? "",
+    permissions
+  });
+  const refreshToken = signRefreshToken({ sub: user._id.toString() });
+  const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+  const refreshTokenHashes = [...(user.refreshTokenHashes || [])];
+  if (typeof replaceRefreshTokenIndex === "number" && replaceRefreshTokenIndex >= 0) {
+    refreshTokenHashes[replaceRefreshTokenIndex] = refreshTokenHash;
+  } else {
+    refreshTokenHashes.push(refreshTokenHash);
+  }
+  user.refreshTokenHashes = refreshTokenHashes.slice(-10);
+  await user.save();
+  return { accessToken, refreshToken, permissions };
+}
+
+authRouter.post(
+  "/login",
+  validate(loginSchema),
+  asyncHandler(async (req, res) => {
+    const user = await UserModel.findOne({ email: req.body.email }).select("+passwordHash");
+    if (!user || user.status !== "active") {
+      return fail(res, 401, "Invalid credentials", "INVALID_CREDENTIALS");
+    }
+    const valid = await bcrypt.compare(req.body.password, user.passwordHash);
+    if (!valid) {
+      return fail(res, 401, "Invalid credentials", "INVALID_CREDENTIALS");
+    }
+    const role = await RoleModel.findById(user.role);
+    const tokens = await issueTokens(user, role);
+    user.lastLoginAt = new Date();
+    await user.save();
+    req.user = { id: user._id.toString(), roleSlug: role?.slug ?? "", permissions: tokens.permissions };
+    await audit(req, "login", "auth", user._id.toString());
+    return ok(res, {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: serializeUser(user, role)
+    });
+  })
+);
+
+authRouter.post(
+  "/refresh",
+  validate(refreshSchema),
+  asyncHandler(async (req, res) => {
+    const payload = verifyRefreshToken(req.body.refreshToken);
+    const user = await UserModel.findById(payload.sub);
+    if (!user || user.status !== "active") {
+      return fail(res, 401, "Invalid refresh token", "INVALID_REFRESH_TOKEN");
+    }
+    const matches = await Promise.all(
+      (user.refreshTokenHashes || []).map((hash) => bcrypt.compare(req.body.refreshToken, hash))
+    );
+    const matchedIndex = matches.findIndex(Boolean);
+    if (matchedIndex === -1) {
+      return fail(res, 401, "Invalid refresh token", "INVALID_REFRESH_TOKEN");
+    }
+    const role = await RoleModel.findById(user.role);
+    const tokens = await issueTokens(user, role, matchedIndex);
+    return ok(res, {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: serializeUser(user, role)
+    });
+  })
+);
+
+authRouter.post(
+  "/logout",
+  authenticate,
+  asyncHandler(async (req, res) => {
+    await UserModel.findByIdAndUpdate(req.user?.id, { $set: { refreshTokenHashes: [] } });
+    await audit(req, "logout", "auth", req.user?.id);
+    return ok(res, {});
+  })
+);
+
+authRouter.get(
+  "/me",
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const user = await UserModel.findById(req.user?.id);
+    const role = user ? await RoleModel.findById(user.role) : null;
+    if (!user) {
+      return fail(res, 404, "User not found", "USER_NOT_FOUND");
+    }
+    return ok(res, serializeUser(user, role));
+  })
+);
+
+authRouter.post(
+  "/change-password",
+  authenticate,
+  validate(changePasswordSchema),
+  asyncHandler(async (req, res) => {
+    const user = await UserModel.findById(req.user?.id).select("+passwordHash");
+    if (!user) {
+      return fail(res, 404, "User not found", "USER_NOT_FOUND");
+    }
+    const valid = await bcrypt.compare(req.body.currentPassword, user.passwordHash);
+    if (!valid) {
+      return fail(res, 400, "Current password is incorrect", "INVALID_CURRENT_PASSWORD");
+    }
+    user.passwordHash = await bcrypt.hash(req.body.newPassword, 12);
+    user.refreshTokenHashes = [];
+    await user.save();
+    return ok(res, {});
+  })
+);

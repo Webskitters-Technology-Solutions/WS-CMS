@@ -1,0 +1,394 @@
+/**
+ * ================================================================
+ *  __        __   _     ____  _  _______ _____ _____ _____ _____
+ *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
+ *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
+ *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
+ *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *
+ *  Project      : WTS CMS
+ *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
+ *  Website      : https://www.webskitters.com
+ *  Description  : Enterprise-ready lightweight CMS starter platform
+ *
+ *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
+ * ================================================================
+ */
+:root {
+  color-scheme: light;
+  --ink: #152238;
+  --muted: #5b687a;
+  --line: #dfe5ee;
+  --brand: #0f766e;
+  --accent: #be123c;
+  --bg: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+img,
+svg,
+video,
+iframe {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header,
+.site-footer {
+  background: white;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-footer {
+  border-bottom: 0;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+.container {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.nav {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.nav-links,
+.footer-links,
+.share-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.brand {
+  font-weight: 800;
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+
+.page {
+  padding: 40px 0;
+}
+
+.hero {
+  padding: 44px 0 28px;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.05;
+  margin: 0 0 16px;
+}
+
+h2,
+h3,
+h4,
+h5 {
+  color: var(--ink);
+}
+
+.prose {
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.prose,
+.page {
+  overflow-wrap: anywhere;
+}
+
+.prose img,
+.page img {
+  border-radius: 8px;
+  display: block;
+  margin: 18px 0;
+}
+
+.prose table,
+.page table {
+  border-collapse: collapse;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.prose th,
+.prose td,
+.page th,
+.page td {
+  border: 1px solid var(--line);
+  padding: 10px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.demo-hero {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
+  margin-bottom: 28px;
+  padding: 28px;
+}
+
+.demo-hero img,
+.demo-wide-image {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  width: 100%;
+}
+
+.demo-kicker {
+  color: var(--brand);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.demo-actions,
+.demo-stat-grid,
+.demo-feature-grid,
+.demo-team-grid,
+.demo-gallery-grid,
+.demo-contact-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.demo-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.demo-button {
+  background: var(--brand);
+  border-radius: 8px;
+  color: #ffffff;
+  display: inline-flex;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+.demo-button.secondary {
+  background: #e8f6f4;
+  color: var(--brand);
+}
+
+.demo-stat-grid,
+.demo-feature-grid,
+.demo-team-grid,
+.demo-contact-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.demo-stat,
+.demo-feature,
+.demo-person,
+.demo-contact-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.demo-stat strong {
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.demo-gallery-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.demo-gallery-grid img,
+.demo-person img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  width: 100%;
+}
+
+.demo-person img {
+  aspect-ratio: 1;
+}
+
+.demo-process {
+  counter-reset: step;
+  display: grid;
+  gap: 12px;
+  padding-left: 0;
+}
+
+.demo-process li {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  list-style: none;
+  padding: 14px;
+}
+
+.demo-callout {
+  background: #e8f6f4;
+  border: 1px solid #b9e3dc;
+  border-radius: 8px;
+  color: #0f514a;
+  padding: 18px;
+}
+
+@media (max-width: 760px) {
+  .container {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .nav {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 0;
+  }
+
+  .nav-links,
+  .footer-links {
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    width: 100%;
+  }
+
+  .nav-links a,
+  .footer-links a {
+    background: #f1f5f9;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    white-space: nowrap;
+  }
+
+  .page {
+    padding: 28px 0;
+  }
+
+  .hero {
+    padding: 34px 0 24px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 12vw, 3rem);
+    line-height: 1.08;
+  }
+
+  .prose {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-hero,
+  .demo-stat-grid,
+  .demo-feature-grid,
+  .demo-team-grid,
+  .demo-gallery-grid,
+  .demo-contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-hero {
+    padding: 18px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .share-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .share-row a {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    width: min(100% - 18px, 1120px);
+  }
+
+  .nav-links,
+  .footer-links {
+    align-items: stretch;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .nav-links a,
+  .footer-links a {
+    border-radius: 8px;
+    white-space: normal;
+  }
+}

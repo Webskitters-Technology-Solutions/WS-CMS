@@ -1,0 +1,16 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+node_modules
+dist
+.next
+coverage
+.env
+.env.local
+uploads
+*.log
+*.tsbuildinfo
+.DS_Store
+mongo-data

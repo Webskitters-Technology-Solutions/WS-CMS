@@ -1,0 +1,92 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: wts-cms-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - wts-cms-mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      com.webskitters.project: "WTS CMS"
+      com.webskitters.powered-by: "Webskitters Technology Solutions Pvt. Ltd."
+      com.webskitters.website: "https://www.webskitters.com"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Containerfile
+    container_name: wts-cms-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - ../../.env.example
+    environment:
+      MONGO_URI: mongodb://mongo:27017/wts-cms
+      API_PORT: 4000
+    ports:
+      - "4000:4000"
+    volumes:
+      - ../..:/app:Z
+      - /app/node_modules
+    labels:
+      com.webskitters.project: "WTS CMS"
+      com.webskitters.powered-by: "Webskitters Technology Solutions Pvt. Ltd."
+      com.webskitters.website: "https://www.webskitters.com"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Containerfile
+    container_name: wts-cms-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    env_file:
+      - ../../.env.example
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../..:/app:Z
+      - /app/node_modules
+    labels:
+      com.webskitters.project: "WTS CMS"
+      com.webskitters.powered-by: "Webskitters Technology Solutions Pvt. Ltd."
+      com.webskitters.website: "https://www.webskitters.com"
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: apps/admin/Containerfile
+    container_name: wts-cms-admin
+    restart: unless-stopped
+    depends_on:
+      - api
+    env_file:
+      - ../../.env.example
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../..:/app:Z
+      - /app/node_modules
+    labels:
+      com.webskitters.project: "WTS CMS"
+      com.webskitters.powered-by: "Webskitters Technology Solutions Pvt. Ltd."
+      com.webskitters.website: "https://www.webskitters.com"
+
+volumes:
+  wts-cms-mongo:

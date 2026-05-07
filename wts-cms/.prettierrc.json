@@ -1,0 +1,9 @@
+{
+  "name": "wts-cms-prettier-config",
+  "author": "Webskitters Technology Solutions Pvt. Ltd.",
+  "homepage": "https://www.webskitters.com",
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "printWidth": 100
+}

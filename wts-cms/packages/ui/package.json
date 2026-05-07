@@ -1,0 +1,22 @@
+{
+  "name": "@wts-cms/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable WTS CMS UI primitives powered by Webskitters.",
+  "author": "Webskitters Technology Solutions Pvt. Ltd.",
+  "homepage": "https://www.webskitters.com",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "typescript": "^5.8.3"
+  }
+}

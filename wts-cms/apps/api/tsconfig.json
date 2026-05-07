@@ -1,0 +1,14 @@
+{
+  "name": "wts-cms-api-tsconfig",
+  "author": "Webskitters Technology Solutions Pvt. Ltd.",
+  "homepage": "https://www.webskitters.com",
+  "extends": "../../packages/config/typescript/base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"]
+}

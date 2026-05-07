@@ -1,0 +1,28 @@
+{
+  "name": "@wts-cms/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WTS CMS public website powered by Webskitters Technology Solutions Pvt. Ltd.",
+  "author": "Webskitters Technology Solutions Pvt. Ltd.",
+  "homepage": "https://www.webskitters.com",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@wts-cms/shared": "workspace:*",
+    "next": "^15.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "sanitize-html": "^2.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/sanitize-html": "^2.13.0",
+    "typescript": "^5.8.3"
+  }
+}
