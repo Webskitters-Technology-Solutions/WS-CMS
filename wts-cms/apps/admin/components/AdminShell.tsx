@@ -108,8 +108,10 @@ export function AdminShell({ title, children }: { title: string; children: React
   const [user, setUser] = useState<any>(null);
   const [sessionMessage, setSessionMessage] = useState("");
   const [openGroups, setOpenGroups] = useState<string[]>(["workspace"]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
     if (!hasAdminSession()) {
       router.replace("/login");
       return;
@@ -151,39 +153,47 @@ export function AdminShell({ title, children }: { title: string; children: React
     <div className="admin-shell">
       <aside className="sidebar">
         <h2>WTS CMS</h2>
-        <p>Powered by Webskitters Technology Solutions Pvt. Ltd.</p>
-        <nav className="sidebar-nav" aria-label="WTS CMS admin sections">
-          {navGroups.map((group) => {
-            const items = group.items.filter((item) => permissions.includes(item.permission));
-            if (items.length === 0) {
-              return null;
-            }
-            const isOpen = openGroups.includes(group.id);
-            const hasActiveItem = items.some((item) => item.href === pathname);
-            return (
-              <section className="sidebar-accordion" key={group.id}>
-                <button
-                  aria-expanded={isOpen}
-                  className={hasActiveItem ? "active" : ""}
-                  onClick={() => toggleGroup(group.id)}
-                  type="button"
-                >
-                  <span>{group.label}</span>
-                  <ChevronDown size={16} aria-hidden="true" />
-                </button>
-                <div className="sidebar-accordion-panel" hidden={!isOpen}>
-                  {items.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
-                        <Icon size={18} /> {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
+        <div className="sidebar-credit">Powered by Webskitters Technology Solutions Pvt. Ltd.</div>
+        <nav className="sidebar-nav" aria-label="WTS CMS admin sections" suppressHydrationWarning>
+          {!isHydrated ? (
+            <div className="sidebar-nav-loading" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+          ) : (
+            navGroups.map((group) => {
+              const items = group.items.filter((item) => permissions.includes(item.permission));
+              if (items.length === 0) {
+                return null;
+              }
+              const isOpen = openGroups.includes(group.id);
+              const hasActiveItem = items.some((item) => item.href === pathname);
+              return (
+                <section className="sidebar-accordion" key={group.id}>
+                  <button
+                    aria-expanded={isOpen}
+                    className={hasActiveItem ? "active" : ""}
+                    onClick={() => toggleGroup(group.id)}
+                    type="button"
+                  >
+                    <span>{group.label}</span>
+                    <ChevronDown size={16} aria-hidden="true" />
+                  </button>
+                  <div className="sidebar-accordion-panel" hidden={!isOpen}>
+                    {items.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
+                          <Icon size={18} /> {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })
+          )}
         </nav>
       </aside>
       <main className="main">
