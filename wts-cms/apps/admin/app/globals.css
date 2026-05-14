@@ -81,6 +81,10 @@ textarea {
   padding: 28px;
 }
 
+.login-panel-loading {
+  min-height: 360px;
+}
+
 .login-logo-wrap {
   align-items: center;
   display: flex;

@@ -16,15 +16,20 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("admin@webskitters.com");
   const [password, setPassword] = useState("ChangeMe@12345");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -47,6 +52,10 @@ export function LoginForm() {
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Login failed");
     }
+  }
+
+  if (!mounted) {
+    return <div className="login-panel login-panel-loading" aria-hidden="true" />;
   }
 
   return (
