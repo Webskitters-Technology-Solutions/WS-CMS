@@ -1,0 +1,13 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Webskitters-Technology-Solutions/WS-CMS/security/policy
+    about: Please report vulnerabilities privately.
+  - name: Webskitters Technology Solutions
+    url: https://www.webskitters.com
+    about: Contact Webskitters for project delivery, customization, and enterprise support.

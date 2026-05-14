@@ -1,0 +1,72 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: wts-cms
+    env:
+      NODE_ENV: test
+      MONGO_URI: mongodb://localhost:27017/wts-cms
+      JWT_ACCESS_SECRET: ci-access-secret-change-me-123
+      JWT_REFRESH_SECRET: ci-refresh-secret-change-me-123
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+      PUBLIC_SITE_URL: http://localhost:3000
+      ADMIN_SITE_URL: http://localhost:3001
+      API_BASE_URL: http://localhost:4000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_BRAND_NAME: WTS CMS
+      NEXT_PUBLIC_POWERED_BY: Webskitters
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.10.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: wts-cms/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Seed demo data
+        run: pnpm seed
+
+      - name: Run full quality gate
+        run: pnpm test:full

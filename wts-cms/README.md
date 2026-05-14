@@ -6,18 +6,33 @@ Website: https://www.webskitters.com
 ===============================================================
 -->
 
-# WTS CMS
+# WTS CMS Monorepo
 
-WTS CMS is an enterprise-ready lightweight CMS starter platform powered by Webskitters Technology Solutions Pvt. Ltd. It is designed for smaller Webskitters projects that need strong SEO, security, admin management, CMS pages, blogs, users, roles, permissions, RBAC, menus, redirects, locations, forms, submissions, notifications, global search, and Podman-based local development.
+WTS CMS is an enterprise-ready, lightweight CMS starter framework powered by Webskitters Technology Solutions Pvt. Ltd. This monorepo contains the API, public website, admin panel, shared packages, Podman infrastructure, seed scripts, tests, and technical documentation.
 
-## Stack
+Repository overview and open-source project files are available in [`../README.md`](../README.md).
 
-pnpm workspaces, Node.js, TypeScript strict mode, Express.js, MongoDB, Mongoose, Next.js App Router, React, CSS/Tailwind-ready styling, AdminMart Modernize-inspired admin layout, Zod, Helmet, Pino, JWT, bcrypt, Vitest, Podman, and Podman Compose.
+## Applications
 
-## Setup
+| App | Path | Port | Purpose |
+| --- | --- | --- | --- |
+| API | [`apps/api`](./apps/api) | `4000` | Express.js REST API, MongoDB models, auth, RBAC, CMS modules, public API |
+| Web | [`apps/web`](./apps/web) | `3000` | Public Next.js website rendered from CMS data |
+| Admin | [`apps/admin`](./apps/admin) | `3001` | Next.js CMS admin panel |
+| MongoDB | Podman service | `27017` | Local database |
+
+## Packages
+
+| Package | Purpose |
+| --- | --- |
+| [`packages/shared`](./packages/shared) | Shared types, constants, validators, slug helpers, SEO helpers |
+| [`packages/config`](./packages/config) | Shared TypeScript, ESLint, and formatting configuration |
+| [`packages/ui`](./packages/ui) | Reusable UI foundation package |
+
+## Quick Start
 
 ```bash
-cd wts-cms
+corepack enable
 pnpm install
 cp .env.example .env
 pnpm seed
@@ -25,41 +40,40 @@ pnpm db:import-demo
 pnpm dev
 ```
 
-Default admin credentials:
+Open:
+
+- Public website: [http://localhost:3000](http://localhost:3000)
+- Admin panel: [http://localhost:3001](http://localhost:3001)
+- API health: [http://localhost:4000/health](http://localhost:4000/health)
+- API readiness: [http://localhost:4000/ready](http://localhost:4000/ready)
+
+## Default Admin
 
 ```text
 Email: admin@webskitters.com
 Password: ChangeMe@12345
 ```
 
-Change the default password immediately after first login.
+Change this password immediately after first login.
 
-## Ports
+## Core Scripts
 
-- Public web: http://localhost:3000
-- Admin: http://localhost:3001
-- API: http://localhost:4000
-- MongoDB: localhost:27017
-
-## Scripts
-
-- `pnpm dev`
-- `pnpm build`
-- `pnpm lint`
-- `pnpm typecheck`
-- `pnpm test`
-- `pnpm test:full`
-- `pnpm seed`
-- `pnpm db:import-demo`
-- `pnpm db:export-demo`
-- `pnpm test:e2e`
-- `pnpm headers:check`
-- `pnpm podman:up`
-- `pnpm podman:down`
-- `pnpm podman:logs`
-- `pnpm podman:build`
-- `pnpm podman:prod:up`
-- `pnpm podman:prod:down`
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Run API, web, and admin |
+| `pnpm dev:api` | Run API only |
+| `pnpm dev:web` | Run public website only |
+| `pnpm dev:admin` | Run admin panel only |
+| `pnpm build` | Build all packages and apps |
+| `pnpm lint` | Run ESLint |
+| `pnpm typecheck` | Run TypeScript checks |
+| `pnpm test` | Run API tests |
+| `pnpm test:e2e` | Run Playwright tests |
+| `pnpm test:full` | Run the full quality gate |
+| `pnpm seed` | Seed required CMS data |
+| `pnpm db:import-demo` | Import the committed demo database fixture |
+| `pnpm db:export-demo` | Export current CMS data to the demo fixture |
+| `pnpm headers:check` | Check required Webskitters source headers |
 
 ## Podman
 
@@ -70,44 +84,86 @@ pnpm podman:logs
 pnpm podman:down
 ```
 
-## Security Notes
+Production compose helpers:
 
-The API includes Helmet, CSP, CORS allowlisting, rate limiting, request slow-down, HTTP parameter pollution protection, origin checks for mutating browser requests, MongoDB sanitisation, strict body limits, Zod validation, JWT access and refresh tokens, bcrypt password hashing, RBAC middleware, upload MIME and size limits, safe CMS HTML sanitisation, audit logs, request IDs, and production-safe error responses.
-
-## SEO Notes
-
-WTS CMS supports editable metadata, canonical URLs, robots index/follow controls, Open Graph fields, JSON-LD validation, dynamic sitemap, editable robots.txt, GTM, semantic headings, blog table of contents, social sharing, location pages, and noindex sitemap exclusion.
-
-## Demo Database
-
-The repository includes a portable MongoDB fixture at `database/mongodb/wts-cms-demo-database.json`. Restore it with `pnpm db:import-demo` to load the committed Webskitters demo content, pages, blogs, menus, settings, users, roles, permissions, forms, and visual content blocks.
-
-## New CMS Features
-
-WTS CMS includes database-driven contact forms, form submissions, admin notifications, session revocation, global admin search, versioned visual content blocks, media folder search, media picker editing, admin import/export, production storage placeholders, production Podman reverse-proxy files, and Playwright E2E visual smoke tests.
-
-## Testing And Performance
-
-Use `pnpm test:full` for the complete local quality gate. See `docs/testing.md` for unit and E2E coverage and `docs/performance.md` for speed optimisation notes.
-
-## Content Import Export
-
-Use Admin > Import Export to move editable Webskitters CMS content between environments, or call `/api/import-export/export` and `/api/import-export/import` with settings permissions. Exports include pages, blogs, taxonomy, menus, redirects, forms, settings, and locations.
-
-## Folder Structure
-
-```text
-wts-cms/
-  apps/api
-  apps/web
-  apps/admin
-  packages/shared
-  packages/config
-  packages/ui
-  infra/podman
-  scripts
-  docs
+```bash
+pnpm podman:prod:up
+pnpm podman:prod:down
 ```
 
-Powered by Webskitters Technology Solutions Pvt. Ltd.  
-https://www.webskitters.com
+## Environment
+
+Start from [`./.env.example`](./.env.example). App-specific examples are available at:
+
+- [`apps/api/.env.example`](./apps/api/.env.example)
+- [`apps/web/.env.example`](./apps/web/.env.example)
+- [`apps/admin/.env.example`](./apps/admin/.env.example)
+
+Required production values include MongoDB URI, JWT secrets, CORS origins, public site URL, admin URL, API URL, upload settings, and default super admin credentials for initial seeding.
+
+## Feature Areas
+
+- CMS page management.
+- Blog management.
+- Categories and tags.
+- Menu management.
+- Media management.
+- Redirect management.
+- Settings and SEO management.
+- Location pages.
+- Forms and submissions.
+- Notifications.
+- Sessions.
+- Global search.
+- Users, roles, permissions, and RBAC.
+- Audit logs.
+- Import and export.
+- Database backup and restore.
+
+## Documentation
+
+- [`docs/README.md`](./docs/README.md)
+- [`docs/getting-started.md`](./docs/getting-started.md)
+- [`docs/configuration.md`](./docs/configuration.md)
+- [`docs/architecture.md`](./docs/architecture.md)
+- [`docs/api.md`](./docs/api.md)
+- [`docs/admin-guide.md`](./docs/admin-guide.md)
+- [`docs/content-model.md`](./docs/content-model.md)
+- [`docs/security.md`](./docs/security.md)
+- [`docs/seo.md`](./docs/seo.md)
+- [`docs/rbac.md`](./docs/rbac.md)
+- [`docs/backup-restore.md`](./docs/backup-restore.md)
+- [`docs/deployment.md`](./docs/deployment.md)
+- [`docs/devops.md`](./docs/devops.md)
+- [`docs/testing.md`](./docs/testing.md)
+- [`docs/performance.md`](./docs/performance.md)
+- [`docs/release.md`](./docs/release.md)
+- [`docs/troubleshooting.md`](./docs/troubleshooting.md)
+
+## Quality Gate
+
+Run before merging or releasing:
+
+```bash
+pnpm test:full
+```
+
+The full gate checks source headers, type safety, linting, API tests, builds, and Playwright E2E coverage.
+
+## Open Source Project Files
+
+The repository root includes:
+
+- [`../CONTRIBUTING.md`](../CONTRIBUTING.md)
+- [`../CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md)
+- [`../SECURITY.md`](../SECURITY.md)
+- [`../SUPPORT.md`](../SUPPORT.md)
+- [`../CHANGELOG.md`](../CHANGELOG.md)
+- [`../MAINTAINERS.md`](../MAINTAINERS.md)
+- [`../LICENSE`](../LICENSE)
+
+## Webskitters Credit
+
+WTS CMS is powered by Webskitters Technology Solutions Pvt. Ltd.
+
+[https://www.webskitters.com](https://www.webskitters.com)

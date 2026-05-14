@@ -5,6 +5,7 @@
   "description": "WTS CMS public website powered by Webskitters Technology Solutions Pvt. Ltd.",
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",

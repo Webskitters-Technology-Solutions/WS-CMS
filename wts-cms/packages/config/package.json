@@ -5,6 +5,7 @@
   "description": "Shared WTS CMS configuration powered by Webskitters.",
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
+  "license": "MIT",
   "exports": {
     "./typescript/base": "./typescript/base.json"
   }

@@ -6,7 +6,7 @@
   "description": "WTS CMS - Enterprise-ready lightweight CMS starter platform powered by Webskitters.",
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "dev": "corepack pnpm -r --parallel --filter @wts-cms/api --filter @wts-cms/web --filter @wts-cms/admin dev",
     "dev:api": "corepack pnpm --filter @wts-cms/api dev",

@@ -5,6 +5,7 @@
   "description": "WTS CMS API powered by Webskitters Technology Solutions Pvt. Ltd.",
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
+  "license": "MIT",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

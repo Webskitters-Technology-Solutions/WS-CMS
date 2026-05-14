@@ -5,6 +5,7 @@
   "description": "Shared types, validators, constants, and utilities for WTS CMS powered by Webskitters.",
   "author": "Webskitters Technology Solutions Pvt. Ltd.",
   "homepage": "https://www.webskitters.com",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

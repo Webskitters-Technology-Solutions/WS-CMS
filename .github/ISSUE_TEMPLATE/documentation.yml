@@ -1,0 +1,32 @@
+# ================================================================
+# WTS CMS
+# Powered By Webskitters Technology Solutions Pvt. Ltd.
+# Website: https://www.webskitters.com
+# ================================================================
+name: Documentation
+description: Report missing, unclear, or outdated documentation.
+title: "[Docs]: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: page
+    attributes:
+      label: Document Or Section
+      description: Link or name the affected document.
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: Documentation Issue
+      description: What is missing, unclear, or incorrect?
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested Update
+      description: Share wording, examples, or commands if helpful.
+    validations:
+      required: false
