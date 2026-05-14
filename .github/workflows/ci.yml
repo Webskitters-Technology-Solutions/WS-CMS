@@ -65,6 +65,9 @@ jobs:
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Build shared workspace package
+        run: pnpm --filter @wts-cms/shared build
+
       - name: Seed demo data
         run: pnpm seed
 

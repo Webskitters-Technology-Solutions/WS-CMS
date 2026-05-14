@@ -15,12 +15,16 @@
  * ================================================================
  */
 
-# RBAC
+# Contributors
 
-System roles: Super Admin, Admin, Editor, Author, Viewer.
+WTS CMS is powered by Webskitters Technology Solutions Pvt. Ltd.
 
-Super Admin has all permissions. Admin has broad operational permissions. Editor manages content and SEO. Author manages blog and media content. Viewer receives read-oriented permissions.
+## Core Contributors
 
-Permission resources: auth, users, roles, permissions, pages, blogs, categories, tags, menus, media, redirects, settings, seo, locations, auditLogs.
+| Name | Role | Organization | Profile |
+| --- | --- | --- | --- |
+| Ayan Sarkar | CTAIO | Webskitters Technology Solutions Pvt. Ltd. | [LinkedIn](https://linkedin.com/in/ayansarkar-webskitters) |
 
-The API is the source of truth for authorisation. The admin sidebar and actions are hidden based on permissions, but the API still enforces every protected action.
+## Contribution Recognition
+
+Contributors are recognized for meaningful project work, including architecture, implementation, documentation, testing, security, SEO, DevOps, and release support.
