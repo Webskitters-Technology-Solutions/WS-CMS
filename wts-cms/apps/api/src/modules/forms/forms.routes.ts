@@ -80,7 +80,7 @@ formsRouter.patch(
   requirePermission("forms:update"),
   validate(idParamSchema, "params"),
   asyncHandler(async (req, res) => {
-    const submission = await FormSubmissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status || "read" }, { new: true });
+    const submission = await FormSubmissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status || "read" }, { returnDocument: "after" });
     return submission ? ok(res, submission) : fail(res, 404, "Submission not found", "SUBMISSION_NOT_FOUND");
   })
 );
@@ -106,7 +106,7 @@ formsRouter.patch(
       ...(req.body.slug ? { slug: createSlug(req.body.slug) } : {}),
       updatedBy: req.user?.id
     };
-    const form = await FormModel.findByIdAndUpdate(req.params.id, body, { new: true });
+    const form = await FormModel.findByIdAndUpdate(req.params.id, body, { returnDocument: "after" });
     if (!form) {
       return fail(res, 404, "Form not found", "FORM_NOT_FOUND");
     }

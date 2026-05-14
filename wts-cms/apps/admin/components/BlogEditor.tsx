@@ -29,12 +29,10 @@ import {
   CheckCircle2,
   Copy,
   Eye,
-  Facebook,
   FileText,
   Globe2,
   Heading2,
   Image,
-  Linkedin,
   Link2,
   ListChecks,
   ListPlus,
@@ -50,7 +48,6 @@ import {
   ShieldCheck,
   Smartphone,
   Tags,
-  Twitter,
   X
 } from "lucide-react";
 import { adminApi, hasAdminSession } from "../lib/api";
@@ -69,6 +66,18 @@ type BlogBlock = {
   body?: string;
   mediaUrl?: string;
 };
+
+function FacebookIcon(props: { className?: string }) {
+  return <span aria-hidden="true" className={props.className}>f</span>;
+}
+
+function LinkedInIcon(props: { className?: string }) {
+  return <span aria-hidden="true" className={props.className}>in</span>;
+}
+
+function XIcon(props: { className?: string }) {
+  return <span aria-hidden="true" className={props.className}>x</span>;
+}
 
 interface TaxonomyOption {
   _id: string;
@@ -1004,13 +1013,13 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
               </div>
               <div className="blog-share-actions">
                 <button type="button" aria-label="Facebook share preview">
-                  <Facebook size={16} />
+                  <FacebookIcon className="brand-social-icon" />
                 </button>
                 <button type="button" aria-label="X share preview">
-                  <Twitter size={16} />
+                  <XIcon className="brand-social-icon" />
                 </button>
                 <button type="button" aria-label="LinkedIn share preview">
-                  <Linkedin size={16} />
+                  <LinkedInIcon className="brand-social-icon" />
                 </button>
                 <button type="button" aria-label="Copy blog link" onClick={() => void navigator.clipboard?.writeText(permalink)}>
                   <Copy size={16} />

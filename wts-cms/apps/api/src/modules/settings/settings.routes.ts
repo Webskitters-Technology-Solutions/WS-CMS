@@ -36,7 +36,7 @@ settingsRouter.patch(
   authenticate,
   requirePermission("settings:update"),
   asyncHandler(async (req, res) => {
-    const settings = await SettingsModel.findOneAndUpdate({}, req.body, { upsert: true, new: true });
+    const settings = await SettingsModel.findOneAndUpdate({}, req.body, { upsert: true, returnDocument: "after" });
     await audit(req, "update settings", "settings", settings._id.toString());
     return ok(res, settings);
   })
@@ -46,6 +46,6 @@ export async function getSettings() {
   return SettingsModel.findOneAndUpdate(
     {},
     { $setOnInsert: { poweredByText: "Powered by Webskitters Technology Solutions Pvt. Ltd." } },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 }

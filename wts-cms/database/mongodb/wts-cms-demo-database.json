@@ -2987,7 +2987,7 @@
         "resource": "auth",
         "resourceId": "69fc6cf783281c539c7b6ece",
         "ipAddress": "::1",
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Codex/26.429.61741 Chrome/146.0.7680.179 Electron/41.2.0 Safari/537.36",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.179 Safari/537.36",
         "createdAt": "2026-05-07T12:42:48.808Z",
         "__v": 0
       },
@@ -2998,7 +2998,7 @@
         "resource": "auth",
         "resourceId": "69fc6cf783281c539c7b6ece",
         "ipAddress": "::1",
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Codex/26.429.61741 Chrome/146.0.7680.179 Electron/41.2.0 Safari/537.36",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.179 Safari/537.36",
         "createdAt": "2026-05-07T12:48:55.133Z",
         "__v": 0
       },
@@ -3075,7 +3075,7 @@
         "resource": "auth",
         "resourceId": "69fc6cf783281c539c7b6ece",
         "ipAddress": "::1",
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Codex/26.429.61741 Chrome/146.0.7680.179 Electron/41.2.0 Safari/537.36",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.179 Safari/537.36",
         "createdAt": "2026-05-07T14:11:13.156Z",
         "__v": 0
       },

@@ -51,7 +51,7 @@ type ResourceKey = keyof typeof resourceConfig;
 
 const importSchema = z.object({
   mode: z.enum(["upsert", "replace"]).default("upsert"),
-  resources: z.record(z.array(z.record(z.unknown()))).default({})
+  resources: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))).default({})
 });
 
 export const importExportRouter = Router();
@@ -119,7 +119,7 @@ importExportRouter.post(
             delete clean._id;
           }
           await model.findOneAndUpdate({ [config.uniqueKey]: uniqueValue }, clean, {
-            new: true,
+            returnDocument: "after",
             upsert: true,
             setDefaultsOnInsert: true
           });

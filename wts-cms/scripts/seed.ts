@@ -124,7 +124,7 @@ async function seed() {
         permissions,
         isSystem: true
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   }
 
@@ -140,7 +140,7 @@ async function seed() {
       status: "active",
       emailVerified: true
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   await SettingsModel.findOneAndUpdate(
@@ -173,7 +173,7 @@ async function seed() {
       footerText: "Powered by Webskitters Technology Solutions Pvt. Ltd.",
       poweredByText: "Powered by Webskitters Technology Solutions Pvt. Ltd."
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   const pageSeeds = [
@@ -497,7 +497,7 @@ async function seed() {
         publishedAt: new Date(),
         template: page.slug === "home" ? "home" : "default"
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   }
 
@@ -511,7 +511,7 @@ async function seed() {
         status: "active",
         seo: demoSeo("CMS Articles | WTS CMS", "CMS strategy and implementation posts for WTS CMS powered by Webskitters.", "/blog/category/cms")
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     ),
     seo: await CategoryModel.findOneAndUpdate(
       { slug: "seo" },
@@ -522,7 +522,7 @@ async function seed() {
         status: "active",
         seo: demoSeo("SEO Articles | WTS CMS", "SEO best practices for WTS CMS websites powered by Webskitters.", "/blog/category/seo", demoImages.seo)
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     ),
     security: await CategoryModel.findOneAndUpdate(
       { slug: "security" },
@@ -533,24 +533,24 @@ async function seed() {
         status: "active",
         seo: demoSeo("Security Articles | WTS CMS", "Security guidance for WTS CMS administration and deployments.", "/blog/category/security", demoImages.security)
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     )
   };
   const tags = {
     webskitters: await TagModel.findOneAndUpdate(
       { slug: "webskitters" },
       { name: "Webskitters", slug: "webskitters", description: "Webskitters powered content.", status: "active" },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     ),
     rbac: await TagModel.findOneAndUpdate(
       { slug: "rbac" },
       { name: "RBAC", slug: "rbac", description: "Role based access control notes.", status: "active" },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     ),
     seo: await TagModel.findOneAndUpdate(
       { slug: "seo" },
       { name: "SEO", slug: "seo", description: "Search optimization notes.", status: "active" },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     )
   };
 
@@ -619,7 +619,7 @@ async function seed() {
         tags: tagIds,
         seo: demoSeo(`${title} | WTS CMS`, excerpt, `/blog/${slug}`, image, "article")
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   }
 
@@ -639,7 +639,7 @@ async function seed() {
         { id: "contact", label: "Contact", type: "page", referenceId: pagesBySlug["contact-us"]._id, url: "/contact-us", target: "self", rel: "follow", order: 6 }
       ]
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   await FormModel.findOneAndUpdate(
@@ -659,7 +659,7 @@ async function seed() {
         { id: "message", label: "Message", type: "textarea", required: true, placeholder: "Tell us about your CMS project" }
       ]
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   await MenuModel.findOneAndUpdate(
@@ -677,7 +677,7 @@ async function seed() {
         { id: "locations", label: "Locations", type: "custom", url: "/locations", target: "self", rel: "follow", order: 5 }
       ]
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   await LocationModel.findOneAndUpdate(
@@ -692,7 +692,7 @@ async function seed() {
       address: "Kolkata, West Bengal, India",
       status: "published"
     },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" }
   );
 
   await disconnectDatabase();

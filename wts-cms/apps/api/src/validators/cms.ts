@@ -28,7 +28,7 @@ export const contentSchema = z.object({
   h1: z.string().min(1).optional(),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  blocks: z.array(z.record(z.unknown())).optional(),
+  blocks: z.array(z.record(z.string(), z.unknown())).optional(),
   status: statusSchema.optional(),
   featuredImage: z.string().optional(),
   featuredImageAlt: z.string().optional(),
@@ -88,7 +88,7 @@ export const menuSchema = z.object({
   slug: z.string().optional(),
   location: z.enum(["header", "footer", "sidebar", "custom"]),
   status: z.enum(["active", "inactive"]).optional(),
-  items: z.array(z.record(z.unknown())).default([])
+  items: z.array(z.record(z.string(), z.unknown())).default([])
 });
 
 export const mediaUpdateSchema = z.object({
@@ -101,7 +101,7 @@ export const formSchema = z.object({
   name: z.string().min(1),
   slug: z.string().optional(),
   description: z.string().optional(),
-  fields: z.array(z.record(z.unknown())).default([]),
+  fields: z.array(z.record(z.string(), z.unknown())).default([]),
   status: z.enum(["active", "inactive"]).optional(),
   notificationEmail: z.string().email().optional().or(z.literal("")),
   successMessage: z.string().optional(),
@@ -109,10 +109,10 @@ export const formSchema = z.object({
 });
 
 export const formSubmissionSchema = z.object({
-  values: z.record(z.unknown()).default({})
+  values: z.record(z.string(), z.unknown()).default({})
 });
 
-export const settingsSchema = z.record(z.unknown());
+export const settingsSchema = z.record(z.string(), z.unknown());
 
 export const locationSchema = z.object({
   name: z.string().min(1),

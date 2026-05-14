@@ -146,7 +146,7 @@ mediaRouter.patch(
   validate(idParamSchema, "params"),
   validate(mediaUpdateSchema),
   asyncHandler(async (req, res) =>
-    ok(res, await MediaModel.findByIdAndUpdate(req.params.id, req.body, { new: true }))
+    ok(res, await MediaModel.findByIdAndUpdate(req.params.id, req.body, { returnDocument: "after" }))
   )
 );
 
