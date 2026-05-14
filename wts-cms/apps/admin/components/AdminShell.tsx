@@ -152,7 +152,10 @@ export function AdminShell({ title, children }: { title: string; children: React
   return (
     <div className="admin-shell">
       <aside className="sidebar">
-        <h2>WTS CMS</h2>
+        <div className="sidebar-logo-wrap">
+          <img src="/ws-cms-logo.png" alt="WTS CMS" className="sidebar-logo" />
+        </div>
+        <h2 className="sr-only">WTS CMS</h2>
         <div className="sidebar-credit">Powered by Webskitters Technology Solutions Pvt. Ltd.</div>
         <nav className="sidebar-nav" aria-label="WTS CMS admin sections" suppressHydrationWarning>
           {!isHydrated ? (

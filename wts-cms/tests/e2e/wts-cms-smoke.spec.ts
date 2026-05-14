@@ -42,7 +42,7 @@ test("public WTS CMS home renders Webskitters content", async ({ page }) => {
 
 test("admin login page renders Webskitters branding", async ({ page }) => {
   await page.goto(`${adminUrl}/login`);
-  await expect(page.getByText("WTS CMS").first()).toBeVisible();
+  await expect(page.getByRole("img", { name: /WTS CMS/i })).toBeVisible();
   await expect(page.getByText(/Webskitters Technology Solutions/i).first()).toBeVisible();
   await expectNoHorizontalOverflow(page, "admin login");
 });

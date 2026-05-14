@@ -42,6 +42,18 @@ body {
   overflow-x: hidden;
 }
 
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 button,
 input,
 select,
@@ -69,6 +81,21 @@ textarea {
   padding: 28px;
 }
 
+.login-logo-wrap {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.login-logo {
+  display: block;
+  height: auto;
+  max-height: 82px;
+  object-fit: contain;
+  width: min(260px, 100%);
+}
+
 .admin-shell {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -89,6 +116,20 @@ textarea {
 .sidebar-nav {
   display: grid;
   gap: 8px;
+}
+
+.sidebar-logo-wrap {
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+}
+
+.sidebar-logo {
+  display: block;
+  height: auto;
+  object-fit: contain;
+  width: 100%;
 }
 
 .sidebar-credit {

@@ -36,7 +36,7 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
       <header className="site-header">
         <div className="container nav">
           <Link href="/" className="brand">
-            WTS CMS
+            <img src="/ws-cms-logo.png" alt="WTS CMS" className="brand-logo" />
           </Link>
           <nav className="nav-links">
             {(header?.items || []).map((item) => (

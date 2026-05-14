@@ -104,10 +104,19 @@ video {
 }
 
 .brand {
+  align-items: center;
   color: var(--ink);
+  display: inline-flex;
   font-size: 1.05rem;
   font-weight: 900;
   letter-spacing: 0.02em;
+}
+
+.brand-logo {
+  display: block;
+  height: 44px;
+  object-fit: contain;
+  width: 168px;
 }
 
 .nav-links,

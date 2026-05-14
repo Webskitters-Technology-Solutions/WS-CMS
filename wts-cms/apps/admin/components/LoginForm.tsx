@@ -51,7 +51,10 @@ export function LoginForm() {
 
   return (
     <form className="login-panel" onSubmit={submit}>
-      <h1>WTS CMS</h1>
+      <div className="login-logo-wrap">
+        <img src="/ws-cms-logo.png" alt="WTS CMS" className="login-logo" />
+      </div>
+      <h1 className="sr-only">WTS CMS</h1>
       <p>Powered by Webskitters Technology Solutions Pvt. Ltd.</p>
       <label className="field">
         Email
