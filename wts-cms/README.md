@@ -164,6 +164,7 @@ The full gate checks source headers, type safety, linting, API tests, builds, an
 The repository root includes:
 
 - [`../CONTRIBUTING.md`](../CONTRIBUTING.md)
+- [`../CONTRIBUTORS.md`](../CONTRIBUTORS.md)
 - [`../CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md)
 - [`../SECURITY.md`](../SECURITY.md)
 - [`../SUPPORT.md`](../SUPPORT.md)

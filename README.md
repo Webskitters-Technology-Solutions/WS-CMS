@@ -506,6 +506,7 @@ WTS CMS is released under the [`MIT License`](./LICENSE).
 Open-source project files:
 
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+- [`CONTRIBUTORS.md`](./CONTRIBUTORS.md)
 - [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md)
 - [`SECURITY.md`](./SECURITY.md)
 - [`SUPPORT.md`](./SUPPORT.md)

@@ -51,6 +51,7 @@ This directory contains the operational and technical documentation for WTS CMS.
 The repository root includes:
 
 - [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)
+- [`../../CONTRIBUTORS.md`](../../CONTRIBUTORS.md)
 - [`../../CODE_OF_CONDUCT.md`](../../CODE_OF_CONDUCT.md)
 - [`../../SECURITY.md`](../../SECURITY.md)
 - [`../../SUPPORT.md`](../../SUPPORT.md)

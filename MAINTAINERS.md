@@ -19,6 +19,12 @@
 
 WTS CMS is maintained by Webskitters Technology Solutions Pvt. Ltd.
 
+## Core Contributor
+
+| Name | Role | Organization | Profile |
+| --- | --- | --- | --- |
+| Ayan Sarkar | CTAIO | Webskitters Technology Solutions Pvt. Ltd. | [LinkedIn](https://linkedin.com/in/ayansarkar-webskitters) |
+
 ## Maintainer Responsibilities
 
 - Review issues and pull requests.
