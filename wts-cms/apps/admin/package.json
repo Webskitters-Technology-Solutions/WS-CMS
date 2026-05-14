@@ -20,7 +20,7 @@
     "quill": "^2.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^3.24.3"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.1.2",
