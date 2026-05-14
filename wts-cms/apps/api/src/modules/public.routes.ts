@@ -43,6 +43,10 @@ export const publicRouter = Router();
 
 publicRouter.use("/forms", publicFormsRouter);
 
+function parseMenuLocation(value: unknown): "header" | "footer" | "sidebar" | "custom" | undefined {
+  return value === "header" || value === "footer" || value === "sidebar" || value === "custom" ? value : undefined;
+}
+
 publicRouter.get("/settings", asyncHandler(async (_req, res) => ok(res, publicSettings(await getSettings()))));
 
 publicRouter.get(
@@ -94,7 +98,11 @@ publicRouter.get(
 
 publicRouter.get(
   "/menus/:location",
-  asyncHandler(async (req, res) => ok(res, publicMenu(await MenuModel.findOne({ location: req.params.location, status: "active" }))))
+  asyncHandler(async (req, res) => {
+    const location = parseMenuLocation(req.params.location);
+    const menu = location ? await MenuModel.findOne({ location, status: "active" }) : null;
+    return ok(res, publicMenu(menu));
+  })
 );
 
 publicRouter.get(

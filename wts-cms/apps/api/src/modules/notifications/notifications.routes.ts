@@ -28,12 +28,17 @@ export const notificationsRouter = Router();
 
 notificationsRouter.use(authenticate);
 
+function parseNotificationStatus(value: unknown): "read" | "unread" | undefined {
+  return value === "read" || value === "unread" ? value : undefined;
+}
+
 notificationsRouter.get(
   "/",
   requirePermission("notifications:read"),
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
-    const query = req.query.status ? { status: req.query.status } : {};
+    const status = parseNotificationStatus(req.query.status);
+    const query = status ? { status } : {};
     const [items, total] = await Promise.all([
       NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       NotificationModel.countDocuments(query)
@@ -46,7 +51,7 @@ notificationsRouter.patch(
   "/:id/read",
   requirePermission("notifications:update"),
   validate(idParamSchema, "params"),
-  asyncHandler(async (req, res) => ok(res, await NotificationModel.findByIdAndUpdate(req.params.id, { status: "read" }, { new: true })))
+  asyncHandler(async (req, res) => ok(res, await NotificationModel.findByIdAndUpdate(req.params.id, { status: "read" }, { returnDocument: "after" })))
 );
 
 notificationsRouter.post(

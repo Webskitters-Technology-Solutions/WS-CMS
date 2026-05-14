@@ -65,7 +65,7 @@ export function createContentRouter(options: ContentRouteOptions) {
             entityId: document._id,
             isActive: true
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: "after" }
         );
       }
       return normalized;

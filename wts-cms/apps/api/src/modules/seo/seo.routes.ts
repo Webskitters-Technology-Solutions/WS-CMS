@@ -28,13 +28,14 @@ seoRouter.get(
   asyncHandler(async (_req, res) => {
     const settings = await SettingsModel.findOne();
     const visibility = settings?.seoAdminPreferences?.contentVisibility || {};
-    const filter = { status: "published", "seo.robotsIndex": { $ne: false } };
+    const publishedIndexableFilter = { status: "published" as const, "seo.robotsIndex": { $ne: false } };
+    const activeIndexableFilter = { status: "active" as const, "seo.robotsIndex": { $ne: false } };
     const [pages, blogs, categories, tags, locations] = await Promise.all([
-      visibility.pages === false ? [] : PageModel.find(filter).select("permalink updatedAt"),
-      visibility.blogs === false ? [] : BlogModel.find(filter).select("permalink updatedAt"),
-      visibility.categories === false ? [] : CategoryModel.find({ status: "active", "seo.robotsIndex": { $ne: false } }).select("slug updatedAt"),
-      visibility.tags === false ? [] : TagModel.find({ status: "active", "seo.robotsIndex": { $ne: false } }).select("slug updatedAt"),
-      visibility.locations === false ? [] : LocationModel.find(filter).select("permalink updatedAt")
+      visibility.pages === false ? [] : PageModel.find(publishedIndexableFilter).select("permalink updatedAt"),
+      visibility.blogs === false ? [] : BlogModel.find(publishedIndexableFilter).select("permalink updatedAt"),
+      visibility.categories === false ? [] : CategoryModel.find(activeIndexableFilter).select("slug updatedAt"),
+      visibility.tags === false ? [] : TagModel.find(activeIndexableFilter).select("slug updatedAt"),
+      visibility.locations === false ? [] : LocationModel.find(publishedIndexableFilter).select("permalink updatedAt")
     ]);
     return ok(res, {
       pages,
