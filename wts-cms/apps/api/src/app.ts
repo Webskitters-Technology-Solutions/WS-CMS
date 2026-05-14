@@ -20,7 +20,6 @@ import cors from "cors";
 import express from "express";
 import slowDown from "express-slow-down";
 import hpp from "hpp";
-import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { BRAND } from "@wts-cms/shared";
@@ -50,7 +49,7 @@ import { tagsRouter } from "./modules/tags/tags.routes.js";
 import { usersRouter } from "./modules/users/users.routes.js";
 import { errorHandler, notFound } from "./middleware/error-handler.js";
 import { requestId } from "./middleware/request-id.js";
-import { mutationOriginGuard, noStoreApiResponses, publicContentCache } from "./middleware/security.js";
+import { mongoSanitizeRequest, mutationOriginGuard, noStoreApiResponses, publicContentCache } from "./middleware/security.js";
 import { ok, fail } from "./utils/api-response.js";
 
 export function createApp() {
@@ -147,7 +146,7 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true, limit: "1mb" }));
   app.use(hpp());
-  app.use(mongoSanitize());
+  app.use(mongoSanitizeRequest);
   app.use(
     "/uploads",
     express.static(path.resolve(env.UPLOAD_DIR), {

@@ -15,6 +15,7 @@
  * ================================================================
  */
 import type { NextFunction, Request, Response } from "express";
+import mongoSanitize from "express-mongo-sanitize";
 import { env } from "../config/env.js";
 import { fail } from "../utils/api-response.js";
 
@@ -63,4 +64,25 @@ export function mutationOriginGuard(req: Request, res: Response, next: NextFunct
   return fail(res, 403, "Request origin is not allowed for this WTS CMS action", "ORIGIN_DENIED", {
     origin
   });
+}
+
+export function mongoSanitizeRequest(req: Request, _res: Response, next: NextFunction) {
+  if (req.body && typeof req.body === "object") {
+    req.body = mongoSanitize.sanitize(req.body);
+  }
+
+  if (req.params && typeof req.params === "object") {
+    req.params = mongoSanitize.sanitize(req.params);
+  }
+
+  if (req.query && typeof req.query === "object") {
+    Object.defineProperty(req, "query", {
+      configurable: true,
+      enumerable: true,
+      value: mongoSanitize.sanitize({ ...req.query }),
+      writable: true
+    });
+  }
+
+  next();
 }
