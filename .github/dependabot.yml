@@ -12,9 +12,35 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - dependencies
+    groups:
+      nextjs-runtime:
+        patterns:
+          - next
+          - react
+          - react-dom
+      api-runtime:
+        patterns:
+          - express
+          - express-rate-limit
+          - mongoose
+          - pino
+          - dotenv
+      validation-and-editor:
+        patterns:
+          - zod
+          - quill
+          - lucide-react
+      test-and-tooling:
+        dependency-type: development
+        patterns:
+          - "*"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     labels:
       - dependencies
+    groups:
+      github-actions:
+        patterns:
+          - "*"
