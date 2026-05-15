@@ -57,6 +57,35 @@ const richToolbar: Array<{ label: string; command: EditorCommand; value?: string
   { label: "Image", command: "insertImage", prompt: "Enter an image URL" },
   { label: "Clear", command: "removeFormat" }
 ];
+const safeEditorTagNames = new Set([
+  "p",
+  "br",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "s",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "blockquote",
+  "ul",
+  "ol",
+  "li",
+  "a",
+  "img",
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
+  "pre",
+  "code"
+]);
+const blockEditorTagNames = new Set(["p", "h2", "h3", "h4", "h5", "blockquote", "pre"]);
 
 export function AdminTextEditor({
   id,
@@ -131,7 +160,7 @@ export function AdminTextEditor({
       }
     }
 
-    document.execCommand(item.command, false, commandValue);
+    applyEditorCommand(editorRef.current, item.command, commandValue);
     emitVisualChange();
   }
 
@@ -235,6 +264,166 @@ export function AdminTextEditor({
   );
 }
 
+function applyEditorCommand(editor: HTMLElement | null, command: EditorCommand, commandValue: string) {
+  if (!editor) {
+    return;
+  }
+
+  switch (command) {
+    case "formatBlock":
+      applyBlockFormat(editor, commandValue);
+      break;
+    case "bold":
+      wrapSelectedContent(editor, "strong");
+      break;
+    case "italic":
+      wrapSelectedContent(editor, "em");
+      break;
+    case "underline":
+      wrapSelectedContent(editor, "u");
+      break;
+    case "insertOrderedList":
+      insertList(editor, "ol");
+      break;
+    case "insertUnorderedList":
+      insertList(editor, "ul");
+      break;
+    case "createLink":
+      insertLink(editor, commandValue);
+      break;
+    case "insertImage":
+      insertImage(editor, commandValue);
+      break;
+    case "removeFormat":
+      removeSelectedFormatting(editor);
+      break;
+  }
+}
+
+function getEditorRange(editor: HTMLElement): Range | null {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return null;
+  }
+  const range = selection.getRangeAt(0);
+  return editor.contains(range.commonAncestorContainer) ? range : null;
+}
+
+function replaceEditorSelection(editor: HTMLElement, nodes: Node[]) {
+  const range = getEditorRange(editor);
+  const fragment = document.createDocumentFragment();
+  for (const node of nodes) {
+    fragment.append(node);
+  }
+
+  if (!range) {
+    editor.append(fragment);
+    return;
+  }
+
+  const lastNode = fragment.lastChild;
+  range.deleteContents();
+  range.insertNode(fragment);
+  if (lastNode) {
+    moveCaretAfter(lastNode);
+  }
+}
+
+function moveCaretAfter(node: Node) {
+  const selection = window.getSelection();
+  if (!selection) {
+    return;
+  }
+  const range = document.createRange();
+  range.setStartAfter(node);
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+function wrapSelectedContent(editor: HTMLElement, tagName: "strong" | "em" | "u") {
+  const range = getEditorRange(editor);
+  if (!range || range.collapsed) {
+    return;
+  }
+
+  const wrapper = document.createElement(tagName);
+  wrapper.append(range.extractContents());
+  range.insertNode(wrapper);
+  moveCaretAfter(wrapper);
+}
+
+function applyBlockFormat(editor: HTMLElement, tagName: string) {
+  const safeTagName = blockEditorTagNames.has(tagName) ? tagName : "p";
+  const range = getEditorRange(editor);
+  const block = range ? findNearestBlock(range.commonAncestorContainer, editor) : null;
+
+  if (block) {
+    const replacement = document.createElement(safeTagName);
+    replacement.append(...Array.from(block.childNodes));
+    block.replaceWith(replacement);
+    moveCaretAfter(replacement);
+    return;
+  }
+
+  const element = document.createElement(safeTagName);
+  if (range && !range.collapsed) {
+    element.append(range.extractContents());
+  } else {
+    element.append(document.createElement("br"));
+  }
+  replaceEditorSelection(editor, [element]);
+}
+
+function findNearestBlock(node: Node, editor: HTMLElement): HTMLElement | null {
+  let current: Node | null = node.nodeType === Node.ELEMENT_NODE ? node : node.parentNode;
+  while (current && current !== editor) {
+    if (current instanceof HTMLElement && blockEditorTagNames.has(current.tagName.toLowerCase())) {
+      return current;
+    }
+    current = current.parentNode;
+  }
+  return null;
+}
+
+function insertList(editor: HTMLElement, listTagName: "ol" | "ul") {
+  const range = getEditorRange(editor);
+  const selectedText = range?.toString().trim();
+  const items = selectedText ? selectedText.split("\n").map((line) => line.trim()).filter(Boolean) : ["List item"];
+  const list = document.createElement(listTagName);
+  for (const item of items) {
+    const listItem = document.createElement("li");
+    listItem.textContent = item;
+    list.append(listItem);
+  }
+  replaceEditorSelection(editor, [list]);
+}
+
+function insertLink(editor: HTMLElement, href: string) {
+  const range = getEditorRange(editor);
+  const anchor = document.createElement("a");
+  anchor.href = href;
+  anchor.rel = "noopener";
+  anchor.textContent = range?.toString() || href;
+  replaceEditorSelection(editor, [anchor]);
+}
+
+function insertImage(editor: HTMLElement, src: string) {
+  const image = document.createElement("img");
+  image.src = src;
+  image.alt = "";
+  image.loading = "lazy";
+  replaceEditorSelection(editor, [image]);
+}
+
+function removeSelectedFormatting(editor: HTMLElement) {
+  const range = getEditorRange(editor);
+  if (!range || range.collapsed) {
+    return;
+  }
+  replaceEditorSelection(editor, [document.createTextNode(range.toString())]);
+}
+
 function isSafeEditorLinkUrl(value: string) {
   try {
     const url = new URL(value, window.location.origin);
@@ -314,7 +503,11 @@ function handleEditorTag(rawTag: string, stack: HTMLElement[], fragment: Documen
   }
 
   const element = document.createElement(tagName);
-  for (const attribute of safeAttributesFromTag(tag, tagName)) {
+  const attributes = safeAttributesFromTag(tag, tagName);
+  if (tagName === "img" && !attributes.some((attribute) => attribute.name === "src")) {
+    return;
+  }
+  for (const attribute of attributes) {
     element.setAttribute(attribute.name, attribute.value);
   }
 
@@ -326,15 +519,13 @@ function handleEditorTag(rawTag: string, stack: HTMLElement[], fragment: Documen
 }
 
 function safeTagName(tagName: string) {
-  return new Set(["p", "br", "strong", "b", "em", "i", "u", "s", "h2", "h3", "h4", "h5", "blockquote", "ul", "ol", "li", "a", "img", "table", "thead", "tbody", "tr", "th", "td", "pre", "code"]).has(tagName)
-    ? tagName
-    : "";
+  return safeEditorTagNames.has(tagName) ? tagName : "";
 }
 
 function safeAttributesFromTag(tag: string, tagName: string) {
   const attributes: Array<{ name: string; value: string }> = [];
   const id = readAttribute(tag, "id");
-  if (id && /^[a-z0-9_-]{1,80}$/i.test(id)) {
+  if (isSafeEditorId(id)) {
     attributes.push({ name: "id", value: id });
   }
 
@@ -360,7 +551,7 @@ function safeAttributesFromTag(tag: string, tagName: string) {
 
 function readTagName(tag: string) {
   let name = "";
-  for (const char of tag.trim()) {
+  for (const char of tag.trim().toLowerCase()) {
     const code = char.charCodeAt(0);
     const isLetter = code >= 97 && code <= 122;
     const isDigit = code >= 48 && code <= 57;
@@ -398,6 +589,21 @@ function readAttribute(tag: string, attributeName: string) {
     return "";
   }
   return decodeBasicEntities(tag.slice(valueStart + 1, valueEnd));
+}
+
+function isSafeEditorId(value: string) {
+  if (!value || value.length > 80) {
+    return false;
+  }
+  for (const char of value) {
+    const code = char.charCodeAt(0);
+    const isLetter = (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+    const isDigit = code >= 48 && code <= 57;
+    if (!isLetter && !isDigit && char !== "_" && char !== "-") {
+      return false;
+    }
+  }
+  return true;
 }
 
 function decodeBasicEntities(value: string) {

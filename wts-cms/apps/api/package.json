@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@wts-cms/shared": "workspace:*",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
@@ -32,13 +32,12 @@
     "mongoose": "^9.6.2",
     "multer": "^2.1.1",
     "pino": "^10.3.1",
-    "pino-http": "^10.4.0",
+    "pino-http": "^11.0.0",
     "sanitize-html": "^2.17.4",
     "sharp": "^0.34.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",

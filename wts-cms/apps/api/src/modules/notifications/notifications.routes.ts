@@ -26,10 +26,11 @@ import { safeObjectId } from "../../utils/safe-query.js";
 import { idParamSchema } from "../../validators/cms.js";
 
 export const notificationsRouter = Router();
+type NotificationStatus = "read" | "unread";
 
 notificationsRouter.use(authenticate);
 
-function parseNotificationStatus(value: unknown): "read" | "unread" | undefined {
+function parseNotificationStatus(value: unknown): NotificationStatus | undefined {
   return value === "read" || value === "unread" ? value : undefined;
 }
 
@@ -38,27 +39,7 @@ notificationsRouter.get(
   requirePermission("notifications:read"),
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
-    const status = parseNotificationStatus(req.query.status);
-    if (status === "read") {
-      const [items, total] = await Promise.all([
-        NotificationModel.find({ status: "read" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
-        NotificationModel.countDocuments({ status: "read" })
-      ]);
-      return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
-    }
-
-    if (status === "unread") {
-      const [items, total] = await Promise.all([
-        NotificationModel.find({ status: "unread" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
-        NotificationModel.countDocuments({ status: "unread" })
-      ]);
-      return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
-    }
-
-    const [items, total] = await Promise.all([
-      NotificationModel.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      NotificationModel.countDocuments({})
-    ]);
+    const [items, total] = await getNotificationList(parseNotificationStatus(req.query.status), skip, limit);
     return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
   })
 );
@@ -78,3 +59,24 @@ notificationsRouter.post(
     return ok(res, { updated: true });
   })
 );
+
+function getNotificationList(status: NotificationStatus | undefined, skip: number, limit: number) {
+  if (status === "read") {
+    return Promise.all([
+      NotificationModel.find({ status: "read" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      NotificationModel.countDocuments({ status: "read" })
+    ]);
+  }
+
+  if (status === "unread") {
+    return Promise.all([
+      NotificationModel.find({ status: "unread" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      NotificationModel.countDocuments({ status: "unread" })
+    ]);
+  }
+
+  return Promise.all([
+    NotificationModel.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    NotificationModel.countDocuments({})
+  ]);
+}
