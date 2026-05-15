@@ -39,10 +39,25 @@ notificationsRouter.get(
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
     const status = parseNotificationStatus(req.query.status);
-    const query = status ? { status } : {};
+    if (status === "read") {
+      const [items, total] = await Promise.all([
+        NotificationModel.find({ status: "read" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        NotificationModel.countDocuments({ status: "read" })
+      ]);
+      return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
+    }
+
+    if (status === "unread") {
+      const [items, total] = await Promise.all([
+        NotificationModel.find({ status: "unread" }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        NotificationModel.countDocuments({ status: "unread" })
+      ]);
+      return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
+    }
+
     const [items, total] = await Promise.all([
-      NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      NotificationModel.countDocuments(query)
+      NotificationModel.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      NotificationModel.countDocuments({})
     ]);
     return ok(res, items, "Operation completed successfully", paginationMeta(page, limit, total));
   })
