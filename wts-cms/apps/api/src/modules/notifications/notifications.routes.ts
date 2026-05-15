@@ -22,6 +22,7 @@ import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { ok } from "../../utils/api-response.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
+import { safeObjectId } from "../../utils/safe-query.js";
 import { idParamSchema } from "../../validators/cms.js";
 
 export const notificationsRouter = Router();
@@ -51,7 +52,7 @@ notificationsRouter.patch(
   "/:id/read",
   requirePermission("notifications:update"),
   validate(idParamSchema, "params"),
-  asyncHandler(async (req, res) => ok(res, await NotificationModel.findByIdAndUpdate(req.params.id, { status: "read" }, { returnDocument: "after" })))
+  asyncHandler(async (req, res) => ok(res, await NotificationModel.findByIdAndUpdate(safeObjectId(req.params.id), { status: "read" }, { returnDocument: "after" })))
 );
 
 notificationsRouter.post(

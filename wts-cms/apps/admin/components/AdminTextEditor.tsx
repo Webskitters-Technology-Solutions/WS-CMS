@@ -30,29 +30,32 @@ interface AdminTextEditorProps {
   onChange: (value: string) => void;
 }
 
-interface QuillInstance {
-  root: HTMLElement;
-  clipboard: {
-    dangerouslyPasteHTML: (html: string) => void;
-  };
-  on: (eventName: "text-change", handler: () => void) => void;
-}
+type EditorCommand =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "formatBlock"
+  | "insertOrderedList"
+  | "insertUnorderedList"
+  | "createLink"
+  | "insertImage"
+  | "removeFormat";
 
-type QuillConstructor = new (
-  element: HTMLElement,
-  options: {
-    modules: { toolbar: unknown[] };
-    placeholder?: string;
-    theme: string;
-  }
-) => QuillInstance;
-
-const toolbarOptions = [
-  [{ header: [2, 3, 4, 5, false] }],
-  ["bold", "italic", "underline", "blockquote", "code-block"],
-  [{ list: "ordered" }, { list: "bullet" }],
-  ["link", "image"],
-  ["clean"]
+const richToolbar: Array<{ label: string; command: EditorCommand; value?: string; prompt?: string }> = [
+  { label: "P", command: "formatBlock", value: "p" },
+  { label: "H2", command: "formatBlock", value: "h2" },
+  { label: "H3", command: "formatBlock", value: "h3" },
+  { label: "H4", command: "formatBlock", value: "h4" },
+  { label: "B", command: "bold" },
+  { label: "I", command: "italic" },
+  { label: "U", command: "underline" },
+  { label: "OL", command: "insertOrderedList" },
+  { label: "UL", command: "insertUnorderedList" },
+  { label: "Quote", command: "formatBlock", value: "blockquote" },
+  { label: "Code", command: "formatBlock", value: "pre" },
+  { label: "Link", command: "createLink", prompt: "Enter a safe URL" },
+  { label: "Image", command: "insertImage", prompt: "Enter an image URL" },
+  { label: "Clear", command: "removeFormat" }
 ];
 
 export function AdminTextEditor({
@@ -64,12 +67,13 @@ export function AdminTextEditor({
   value,
   onChange
 }: AdminTextEditorProps) {
-  const hostRef = useRef<HTMLDivElement | null>(null);
-  const quillRef = useRef<QuillInstance | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
   const lastValueRef = useRef(value);
   const onChangeRef = useRef(onChange);
+  const selfChangeValueRef = useRef<string | null>(null);
   const [richView, setRichView] = useState<"visual" | "html">("visual");
-  const [editorError, setEditorError] = useState("");
+  const [isEditorEmpty, setIsEditorEmpty] = useState(true);
+  const labelId = label && id ? `${id}-label` : undefined;
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -77,72 +81,74 @@ export function AdminTextEditor({
 
   useEffect(() => {
     lastValueRef.current = value;
-    if (mode === "rich" && richView === "visual" && quillRef.current && quillRef.current.root.innerHTML !== value) {
-      quillRef.current.clipboard.dangerouslyPasteHTML(value || "");
+    if (selfChangeValueRef.current === value) {
+      selfChangeValueRef.current = null;
+      return;
+    }
+    if (mode === "rich" && richView === "visual" && editorRef.current && editorRef.current.innerHTML !== value) {
+      renderEditorHtml(editorRef.current, value);
+      syncEditorEmpty();
     }
   }, [mode, richView, value]);
 
   useEffect(() => {
-    if (mode !== "rich" || !hostRef.current || quillRef.current) {
+    if (mode !== "rich" || !editorRef.current) {
       return;
     }
-
-    let mounted = true;
-    const host = hostRef.current;
-    host.innerHTML = "";
-
-    void import("quill")
-      .then((module) => {
-        if (!mounted || !hostRef.current) {
-          return;
-        }
-        const Quill = (module.default || (module as unknown as { Quill?: QuillConstructor }).Quill) as QuillConstructor | undefined;
-        if (!Quill) {
-          throw new Error("Quill editor failed to load");
-        }
-        hostRef.current.innerHTML = "";
-        const quill = new Quill(hostRef.current, {
-          modules: { toolbar: toolbarOptions },
-          placeholder,
-          theme: "snow"
-        });
-        quill.clipboard.dangerouslyPasteHTML(lastValueRef.current || "");
-        quill.on("text-change", () => {
-          const nextValue = quill.root.innerHTML;
-          lastValueRef.current = nextValue;
-          onChangeRef.current(nextValue);
-        });
-        quillRef.current = quill;
-        setEditorError("");
-      })
-      .catch((error: unknown) => {
-        if (!mounted) {
-          return;
-        }
-        setEditorError(error instanceof Error ? error.message : "Rich text editor failed to load");
-        setRichView("html");
-      });
-
-    return () => {
-      mounted = false;
-      quillRef.current = null;
-      host.innerHTML = "";
-    };
-  }, [mode, placeholder]);
+    renderEditorHtml(editorRef.current, lastValueRef.current);
+    syncEditorEmpty();
+  }, [mode]);
 
   function switchRichView(nextView: "visual" | "html") {
-    if (nextView === "visual" && quillRef.current) {
-      quillRef.current.clipboard.dangerouslyPasteHTML(lastValueRef.current || "");
+    if (nextView === "visual" && editorRef.current) {
+      renderEditorHtml(editorRef.current, lastValueRef.current);
+      syncEditorEmpty();
     }
     setRichView(nextView);
+  }
+
+  function emitVisualChange() {
+    const nextValue = editorRef.current?.innerHTML || "";
+    lastValueRef.current = nextValue;
+    selfChangeValueRef.current = nextValue;
+    syncEditorEmpty();
+    onChangeRef.current(nextValue);
+  }
+
+  function runCommand(item: { command: EditorCommand; value?: string; prompt?: string }) {
+    editorRef.current?.focus();
+    let commandValue = item.value || "";
+
+    if (item.prompt) {
+      const response = window.prompt(item.prompt);
+      if (!response) {
+        return;
+      }
+      commandValue = response.trim();
+      const isSafeUrl = item.command === "insertImage" ? isSafeEditorImageUrl(commandValue) : isSafeEditorLinkUrl(commandValue);
+      if (!isSafeUrl) {
+        return;
+      }
+    }
+
+    document.execCommand(item.command, false, commandValue);
+    emitVisualChange();
+  }
+
+  function syncEditorEmpty() {
+    const text = editorRef.current?.textContent?.replace(/\u00a0/g, " ").trim() || "";
+    const hasMedia = Boolean(editorRef.current?.querySelector("img, table"));
+    setIsEditorEmpty(!text && !hasMedia);
   }
 
   if (mode !== "rich") {
     return (
       <div className={`admin-editor admin-editor-${mode}`}>
-        {label ? <span className="admin-editor-label">{label}</span> : null}
+        {label ? <span className="admin-editor-label" id={labelId}>{label}</span> : null}
         <textarea
           id={id}
+          aria-label={labelId ? undefined : label}
+          aria-labelledby={labelId}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
@@ -156,11 +162,13 @@ export function AdminTextEditor({
   return (
     <div className="admin-editor admin-editor-rich">
       <div className="admin-editor-topline">
-        {label ? <span className="admin-editor-label">{label}</span> : <span />}
-        <div className="admin-editor-view-toggle" aria-label="Editor view">
+        {label ? <span className="admin-editor-label" id={labelId}>{label}</span> : <span />}
+        <div className="admin-editor-view-toggle" aria-label="Editor view" role="tablist">
           <button
             className={richView === "visual" ? "active" : ""}
             type="button"
+            aria-pressed={richView === "visual"}
+            role="tab"
             onClick={() => switchRichView("visual")}
           >
             Visual
@@ -168,6 +176,8 @@ export function AdminTextEditor({
           <button
             className={richView === "html" ? "active" : ""}
             type="button"
+            aria-pressed={richView === "html"}
+            role="tab"
             onClick={() => switchRichView("html")}
           >
             HTML
@@ -178,6 +188,8 @@ export function AdminTextEditor({
         <textarea
           className="admin-html-editor"
           id={id}
+          aria-label={labelId ? undefined : label}
+          aria-labelledby={labelId}
           value={value}
           onChange={(event) => {
             lastValueRef.current = event.target.value;
@@ -188,10 +200,211 @@ export function AdminTextEditor({
           spellCheck={false}
         />
       ) : null}
-      {editorError ? <span className="admin-editor-error">{editorError}. HTML view is still available.</span> : null}
-      <div className="admin-quill-shell" style={{ display: richView === "visual" ? "block" : "none", minHeight }}>
-        <div ref={hostRef} />
+      <div className="admin-rich-shell" style={{ display: richView === "visual" ? "block" : "none" }}>
+        <div className="admin-rich-toolbar" aria-label="Rich text formatting toolbar">
+          {richToolbar.map((item) => (
+            <button
+              key={`${item.command}-${item.label}`}
+              type="button"
+              aria-label={`${item.label} formatting`}
+              title={`${item.label} formatting`}
+              onClick={() => runCommand(item)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <div
+          id={id}
+          ref={editorRef}
+          className={`admin-rich-canvas${isEditorEmpty ? " is-empty" : ""}`}
+          contentEditable
+          data-placeholder={placeholder || "Start writing content..."}
+          onBlur={emitVisualChange}
+          onInput={emitVisualChange}
+          onKeyUp={syncEditorEmpty}
+          role="textbox"
+          aria-multiline="true"
+          aria-label={labelId ? undefined : label}
+          aria-labelledby={labelId}
+          suppressContentEditableWarning
+          style={{ minHeight }}
+        />
       </div>
     </div>
   );
+}
+
+function isSafeEditorLinkUrl(value: string) {
+  try {
+    const url = new URL(value, window.location.origin);
+    return ["http:", "https:", "mailto:", "tel:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function isSafeEditorImageUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function renderEditorHtml(target: HTMLElement, html: string) {
+  target.replaceChildren(...sanitizeEditorNodes(html));
+}
+
+function sanitizeEditorNodes(html: string): Node[] {
+  const fragment = document.createDocumentFragment();
+  const stack: HTMLElement[] = [];
+  let cursor = 0;
+
+  while (cursor < html.length) {
+    const nextTagStart = html.indexOf("<", cursor);
+    if (nextTagStart === -1) {
+      appendEditorText(stack, fragment, html.slice(cursor));
+      break;
+    }
+
+    appendEditorText(stack, fragment, html.slice(cursor, nextTagStart));
+    const nextTagEnd = html.indexOf(">", nextTagStart + 1);
+    if (nextTagEnd === -1) {
+      appendEditorText(stack, fragment, html.slice(nextTagStart));
+      break;
+    }
+
+    handleEditorTag(html.slice(nextTagStart + 1, nextTagEnd), stack, fragment);
+    cursor = nextTagEnd + 1;
+  }
+
+  return Array.from(fragment.childNodes);
+}
+
+function appendEditorText(stack: HTMLElement[], fragment: DocumentFragment, text: string) {
+  if (!text) {
+    return;
+  }
+  const parent = stack.at(-1) || fragment;
+  parent.append(document.createTextNode(decodeBasicEntities(text)));
+}
+
+function handleEditorTag(rawTag: string, stack: HTMLElement[], fragment: DocumentFragment) {
+  const tag = rawTag.trim();
+  if (!tag || tag.startsWith("!") || tag.startsWith("?")) {
+    return;
+  }
+
+  if (tag.startsWith("/")) {
+    const closingTag = safeTagName(readTagName(tag.slice(1)));
+    while (closingTag && stack.length) {
+      const current = stack.pop();
+      if (current?.tagName.toLowerCase() === closingTag) {
+        break;
+      }
+    }
+    return;
+  }
+
+  const tagName = safeTagName(readTagName(tag));
+  if (!tagName) {
+    return;
+  }
+
+  const element = document.createElement(tagName);
+  for (const attribute of safeAttributesFromTag(tag, tagName)) {
+    element.setAttribute(attribute.name, attribute.value);
+  }
+
+  const parent = stack.at(-1) || fragment;
+  parent.append(element);
+  if (!tag.endsWith("/") && tagName !== "br" && tagName !== "img") {
+    stack.push(element);
+  }
+}
+
+function safeTagName(tagName: string) {
+  return new Set(["p", "br", "strong", "b", "em", "i", "u", "s", "h2", "h3", "h4", "h5", "blockquote", "ul", "ol", "li", "a", "img", "table", "thead", "tbody", "tr", "th", "td", "pre", "code"]).has(tagName)
+    ? tagName
+    : "";
+}
+
+function safeAttributesFromTag(tag: string, tagName: string) {
+  const attributes: Array<{ name: string; value: string }> = [];
+  const id = readAttribute(tag, "id");
+  if (id && /^[a-z0-9_-]{1,80}$/i.test(id)) {
+    attributes.push({ name: "id", value: id });
+  }
+
+  if (tagName === "a") {
+    const href = readAttribute(tag, "href");
+    if (href && isSafeEditorLinkUrl(href)) {
+      attributes.push({ name: "href", value: href });
+      attributes.push({ name: "rel", value: "noopener" });
+    }
+  }
+
+  if (tagName === "img") {
+    const src = readAttribute(tag, "src");
+    if (src && isSafeEditorImageUrl(src)) {
+      attributes.push({ name: "src", value: src });
+      attributes.push({ name: "alt", value: (readAttribute(tag, "alt") || "").slice(0, 180) });
+      attributes.push({ name: "loading", value: "lazy" });
+    }
+  }
+
+  return attributes;
+}
+
+function readTagName(tag: string) {
+  let name = "";
+  for (const char of tag.trim()) {
+    const code = char.charCodeAt(0);
+    const isLetter = code >= 97 && code <= 122;
+    const isDigit = code >= 48 && code <= 57;
+    if (isLetter || isDigit) {
+      name += char;
+      continue;
+    }
+    break;
+  }
+  return name;
+}
+
+function readAttribute(tag: string, attributeName: string) {
+  const lowerTag = tag.toLowerCase();
+  const needle = `${attributeName}=`;
+  let index = lowerTag.indexOf(needle);
+  while (index > -1) {
+    const previous = index > 0 ? lowerTag[index - 1] : " ";
+    if (previous === " " || previous === "\t" || previous === "\n") {
+      break;
+    }
+    index = lowerTag.indexOf(needle, index + needle.length);
+  }
+  if (index === -1) {
+    return "";
+  }
+
+  const valueStart = index + needle.length;
+  const quote = tag[valueStart];
+  if (quote !== "\"" && quote !== "'") {
+    return "";
+  }
+  const valueEnd = tag.indexOf(quote, valueStart + 1);
+  if (valueEnd === -1) {
+    return "";
+  }
+  return decodeBasicEntities(tag.slice(valueStart + 1, valueEnd));
+}
+
+function decodeBasicEntities(value: string) {
+  return value
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", "\"")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&amp;", "&");
 }

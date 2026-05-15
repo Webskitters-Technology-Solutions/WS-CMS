@@ -21,6 +21,7 @@ import { authenticate, signAccessToken, signRefreshToken, verifyRefreshToken } f
 import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { fail, ok } from "../../utils/api-response.js";
+import { safeMongoUpdate, safeObjectId } from "../../utils/safe-query.js";
 import { audit } from "../audit-logs/audit.service.js";
 import { changePasswordSchema, loginSchema, refreshSchema } from "./auth.validators.js";
 
@@ -59,21 +60,22 @@ authRouter.post(
   "/login",
   validate(loginSchema),
   asyncHandler(async (req, res) => {
-    const user = await UserModel.findOne({ email: req.body.email }).select("+passwordHash");
+    const credentials = loginSchema.parse(req.body);
+    const user = await UserModel.findOne({ email: credentials.email }).select("+passwordHash");
     if (!user || user.status !== "active") {
       return fail(res, 401, "Invalid credentials", "INVALID_CREDENTIALS");
     }
-    const valid = await bcrypt.compare(req.body.password, user.passwordHash);
+    const valid = await bcrypt.compare(credentials.password, user.passwordHash);
     if (!valid) {
       return fail(res, 401, "Invalid credentials", "INVALID_CREDENTIALS");
     }
-    const role = await RoleModel.findById(user.role);
+    const role = await RoleModel.findById(safeObjectId(user.role?.toString()));
     const tokens = await issueTokens(user, role);
     const lastLoginAt = new Date();
     await UserModel.updateOne(
       { _id: user._id },
       {
-        $set: { lastLoginAt },
+        $set: safeMongoUpdate({ lastLoginAt }),
         $push: { refreshTokenHashes: { $each: [tokens.refreshTokenHash], $slice: -10 } }
       }
     );
@@ -93,7 +95,7 @@ authRouter.post(
   validate(refreshSchema),
   asyncHandler(async (req, res) => {
     const payload = verifyRefreshToken(req.body.refreshToken);
-    const user = await UserModel.findById(payload.sub);
+    const user = await UserModel.findById(safeObjectId(payload.sub));
     if (!user || user.status !== "active") {
       return fail(res, 401, "Invalid refresh token", "INVALID_REFRESH_TOKEN");
     }
@@ -104,7 +106,7 @@ authRouter.post(
     if (matchedIndex === -1) {
       return fail(res, 401, "Invalid refresh token", "INVALID_REFRESH_TOKEN");
     }
-    const role = await RoleModel.findById(user.role);
+    const role = await RoleModel.findById(safeObjectId(user.role?.toString()));
     const tokens = await issueTokens(user, role);
     await UserModel.updateOne(
       { _id: user._id },
