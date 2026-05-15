@@ -31,6 +31,7 @@ describe("WTS CMS core utilities", () => {
     expect(createSlug("Best Web Development Services in Kolkata!")).toBe(
       "best-web-development-services-in-kolkata"
     );
+    expect(createSlug("R&D + SEO / Web.Dev")).toBe("r-d-seo-web-dev");
     expect(() => createSlug("api")).toThrow(/reserved/);
   });
 

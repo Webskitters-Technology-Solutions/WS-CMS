@@ -28,7 +28,6 @@ updates:
       validation-and-editor:
         patterns:
           - zod
-          - quill
           - lucide-react
       test-and-tooling:
         dependency-type: development

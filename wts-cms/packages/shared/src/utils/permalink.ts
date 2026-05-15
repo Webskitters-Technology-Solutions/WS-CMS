@@ -14,9 +14,9 @@
  *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
  * ================================================================
  */
-import { createSlug, normalizePath } from "./slug.js";
+import { createSlug, normalizePath, trimSlashes } from "./slug.js";
 
 export function buildPermalink(slug: string, parents: string[] = [], prefix = ""): string {
   const cleanSegments = [...parents, slug].filter(Boolean).map((segment) => createSlug(segment));
-  return normalizePath([prefix.replace(/^\/+|\/+$/g, ""), ...cleanSegments].filter(Boolean).join("/"));
+  return normalizePath([trimSlashes(prefix), ...cleanSegments].filter(Boolean).join("/"));
 }

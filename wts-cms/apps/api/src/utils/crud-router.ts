@@ -26,6 +26,7 @@ import { asyncHandler } from "./async-handler.js";
 import { created, fail, ok } from "./api-response.js";
 import { createChangeSet } from "./diff.js";
 import { getPagination, paginationMeta } from "./pagination.js";
+import { safeObjectId, safeSearchRegex, safeSlugLike } from "./safe-query.js";
 import type { PermissionKey } from "@wts-cms/shared";
 
 interface CrudOptions {
@@ -56,14 +57,16 @@ export function createCrudRouter(options: CrudOptions) {
     asyncHandler(async (req, res) => {
       const { page, limit, skip } = getPagination(req.query);
       const query: Record<string, unknown> = {};
-      if (req.query.search && options.searchFields?.length) {
+      const search = safeSearchRegex(req.query.search);
+      if (search && options.searchFields?.length) {
         query.$or = options.searchFields.map((field) => ({
-          [field]: { $regex: String(req.query.search), $options: "i" }
+          [field]: search
         }));
       }
       for (const key of ["status", "role", "location"]) {
-        if (req.query[key]) {
-          query[key] = req.query[key];
+        const value = safeSlugLike(req.query[key]);
+        if (value) {
+          query[key] = value;
         }
       }
       const [items, total] = await Promise.all([
@@ -91,7 +94,7 @@ export function createCrudRouter(options: CrudOptions) {
     requirePermission(options.permissions.read),
     validate(idSchema, "params"),
     asyncHandler(async (req, res) => {
-      const document = await options.model.findById(req.params.id);
+      const document = await options.model.findById(safeObjectId(req.params.id));
       if (!document) {
         return fail(res, 404, "Resource not found", "RESOURCE_NOT_FOUND");
       }
@@ -105,7 +108,7 @@ export function createCrudRouter(options: CrudOptions) {
     validate(idSchema, "params"),
     options.schema ? validate((options.schema as any).partial ? (options.schema as any).partial() : options.schema) : (_req, _res, next) => next(),
     asyncHandler(async (req, res) => {
-      const document = await options.model.findById(req.params.id);
+      const document = await options.model.findById(safeObjectId(req.params.id));
       if (!document) {
         return fail(res, 404, "Resource not found", "RESOURCE_NOT_FOUND");
       }
@@ -125,7 +128,7 @@ export function createCrudRouter(options: CrudOptions) {
     requirePermission(options.permissions.delete),
     validate(idSchema, "params"),
     asyncHandler(async (req, res) => {
-      const document = await options.model.findById(req.params.id);
+      const document = await options.model.findById(safeObjectId(req.params.id));
       if (!document) {
         return fail(res, 404, "Resource not found", "RESOURCE_NOT_FOUND");
       }

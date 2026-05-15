@@ -30,15 +30,37 @@ export const RESERVED_PATHS = new Set([
 ]);
 
 export function createSlug(input: string): string {
-  const slug = input
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+  let slug = "";
+  let previousWasHyphen = false;
+  const normalized = input.trim().toLowerCase().normalize("NFKD");
+
+  for (const char of normalized) {
+    const code = char.charCodeAt(0);
+    const isAsciiLetter = code >= 97 && code <= 122;
+    const isDigit = code >= 48 && code <= 57;
+    const isCombiningMark = code >= 0x0300 && code <= 0x036f;
+
+    if (isAsciiLetter || isDigit) {
+      slug += char;
+      previousWasHyphen = false;
+      continue;
+    }
+
+    if (isCombiningMark) {
+      continue;
+    }
+
+    if (!slug || previousWasHyphen) {
+      continue;
+    }
+
+    slug += "-";
+    previousWasHyphen = true;
+  }
+
+  if (slug.endsWith("-")) {
+    slug = slug.slice(0, -1);
+  }
 
   validateSlug(slug);
   return slug;
@@ -57,6 +79,19 @@ export function validateSlug(slug: string): void {
 }
 
 export function normalizePath(path: string): string {
-  const normalized = `/${path.trim().replace(/^\/+|\/+$/g, "")}`;
+  const trimmed = trimSlashes(path.trim());
+  const normalized = `/${trimmed}`;
   return normalized === "/" ? "/" : normalized.toLowerCase();
+}
+
+export function trimSlashes(value: string): string {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value[start] === "/") {
+    start += 1;
+  }
+  while (end > start && value[end - 1] === "/") {
+    end -= 1;
+  }
+  return value.slice(start, end);
 }

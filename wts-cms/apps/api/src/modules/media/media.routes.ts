@@ -27,10 +27,13 @@ import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { created, fail, ok } from "../../utils/api-response.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
+import { safeObjectId, safeSearchRegex, safeSlugLike } from "../../utils/safe-query.js";
 import { idParamSchema, mediaUpdateSchema } from "../../validators/cms.js";
 
 export const mediaRouter = Router();
 mediaRouter.use(authenticate);
+
+const uploadRoot = path.resolve(env.UPLOAD_DIR);
 
 async function detectImageMime(filePath: string) {
   const buffer = await fs.readFile(filePath);
@@ -63,7 +66,7 @@ async function optimizeImage(filePath: string, filename: string, mimeType: strin
   }
 
   const optimizedFilename = `${path.parse(filename).name}.webp`;
-  const optimizedPath = path.resolve(env.UPLOAD_DIR, optimizedFilename);
+  const optimizedPath = safeUploadPath(optimizedFilename);
   const image = sharp(filePath).rotate().resize({ width: 1920, withoutEnlargement: true });
   await image.webp({ quality: 82 }).toFile(optimizedPath);
   const metadata = await sharp(optimizedPath).metadata();
@@ -84,15 +87,17 @@ mediaRouter.get(
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
     const query: Record<string, unknown> = {};
-    if (req.query.search) {
+    const search = safeSearchRegex(req.query.search);
+    if (search) {
       query.$or = [
-        { originalName: { $regex: String(req.query.search), $options: "i" } },
-        { altText: { $regex: String(req.query.search), $options: "i" } },
-        { folder: { $regex: String(req.query.search), $options: "i" } }
+        { originalName: search },
+        { altText: search },
+        { folder: search }
       ];
     }
-    if (req.query.folder) {
-      query.folder = req.query.folder;
+    const folder = safeSlugLike(req.query.folder);
+    if (folder) {
+      query.folder = folder;
     }
     const [items, total] = await Promise.all([
       MediaModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
@@ -110,12 +115,13 @@ mediaRouter.post(
     if (!req.file) {
       return fail(res, 400, "A valid image file is required", "INVALID_UPLOAD");
     }
-    const detectedMimeType = await detectImageMime(req.file.path);
+    const uploadedPath = safeUploadPath(req.file.filename);
+    const detectedMimeType = await detectImageMime(uploadedPath);
     if (!detectedMimeType || detectedMimeType !== req.file.mimetype) {
-      await fs.unlink(req.file.path).catch(() => undefined);
+      await fs.unlink(uploadedPath).catch(() => undefined);
       return fail(res, 400, "Uploaded file content does not match an allowed image type", "INVALID_UPLOAD_SIGNATURE");
     }
-    const optimized = await optimizeImage(req.file.path, req.file.filename, detectedMimeType);
+    const optimized = await optimizeImage(uploadedPath, safeUploadFilename(req.file.filename), detectedMimeType);
     const media = await MediaModel.create({
       filename: optimized.filename,
       originalName: req.file.originalname,
@@ -123,7 +129,7 @@ mediaRouter.post(
       size: optimized.size,
       width: optimized.width,
       height: optimized.height,
-      folder: req.body.folder || "Library",
+      folder: safeSlugLike(req.body.folder) || "Library",
       url: `/uploads/${optimized.filename}`,
       altText: req.body.altText || "",
       caption: req.body.caption || "",
@@ -137,7 +143,7 @@ mediaRouter.get(
   "/:id",
   requirePermission("media:read"),
   validate(idParamSchema, "params"),
-  asyncHandler(async (req, res) => ok(res, await MediaModel.findById(req.params.id)))
+  asyncHandler(async (req, res) => ok(res, await MediaModel.findById(safeObjectId(req.params.id))))
 );
 
 mediaRouter.patch(
@@ -145,9 +151,24 @@ mediaRouter.patch(
   requirePermission("media:update"),
   validate(idParamSchema, "params"),
   validate(mediaUpdateSchema),
-  asyncHandler(async (req, res) =>
-    ok(res, await MediaModel.findByIdAndUpdate(req.params.id, req.body, { returnDocument: "after" }))
-  )
+  asyncHandler(async (req, res) => {
+    const media = await MediaModel.findById(safeObjectId(req.params.id));
+    if (!media) {
+      return fail(res, 404, "Media not found", "MEDIA_NOT_FOUND");
+    }
+    if (typeof req.body.altText === "string") {
+      media.altText = req.body.altText;
+    }
+    if (typeof req.body.caption === "string") {
+      media.caption = req.body.caption;
+    }
+    const folder = safeSlugLike(req.body.folder);
+    if (folder) {
+      media.folder = folder;
+    }
+    await media.save();
+    return ok(res, media);
+  })
 );
 
 mediaRouter.delete(
@@ -155,10 +176,27 @@ mediaRouter.delete(
   requirePermission("media:delete"),
   validate(idParamSchema, "params"),
   asyncHandler(async (req, res) => {
-    const media = await MediaModel.findByIdAndDelete(req.params.id);
+    const media = await MediaModel.findByIdAndDelete(safeObjectId(req.params.id));
     if (media?.filename) {
-      await fs.unlink(path.resolve(env.UPLOAD_DIR, media.filename)).catch(() => undefined);
+      await fs.unlink(safeUploadPath(media.filename)).catch(() => undefined);
     }
     return ok(res, {});
   })
 );
+
+function safeUploadFilename(filename: string) {
+  const basename = path.basename(filename);
+  if (!basename || basename !== filename || !/^[a-z0-9][a-z0-9._-]{0,180}$/i.test(basename)) {
+    throw Object.assign(new Error("Invalid media filename"), { status: 400 });
+  }
+  return basename;
+}
+
+function safeUploadPath(filename: string) {
+  const basename = safeUploadFilename(filename);
+  const resolved = path.resolve(uploadRoot, basename);
+  if (resolved !== path.join(uploadRoot, basename)) {
+    throw Object.assign(new Error("Invalid media path"), { status: 400 });
+  }
+  return resolved;
+}

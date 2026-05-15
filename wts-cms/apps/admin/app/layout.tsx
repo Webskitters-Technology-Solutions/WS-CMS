@@ -15,7 +15,6 @@
  * ================================================================
  */
 import type { Metadata } from "next";
-import "quill/dist/quill.snow.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

@@ -2558,30 +2558,52 @@ pre {
   padding: 8px 10px;
 }
 
-.admin-quill-shell {
+.admin-rich-shell {
   border: 1px solid #d8e1ec;
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
 }
 
-.admin-quill-shell .ql-toolbar.ql-snow {
-  border: 0;
+.admin-rich-toolbar {
   border-bottom: 1px solid #d8e1ec;
   background: #f8fafc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
 }
 
-.admin-quill-shell .ql-container.ql-snow {
-  border: 0;
-  font-size: 14px;
+.admin-rich-toolbar button {
+  background: #ffffff;
+  border: 1px solid #d8e1ec;
+  border-radius: 6px;
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 30px;
+  padding: 5px 9px;
 }
 
-.admin-quill-shell .ql-editor {
+.admin-rich-toolbar button:hover {
+  background: #ecfdf5;
+  border-color: #99f6e4;
+  color: #0f766e;
+}
+
+.admin-rich-canvas {
   min-height: 180px;
   line-height: 1.65;
+  outline: none;
+  padding: 14px;
 }
 
-.admin-editor-rich .ql-editor h1 {
+.admin-rich-canvas.is-empty::before {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+}
+
+.admin-editor-rich .admin-rich-canvas h1 {
   font-size: 1.5rem;
 }
 
@@ -3145,12 +3167,12 @@ pre {
     -webkit-overflow-scrolling: touch;
   }
 
-  .admin-quill-shell .ql-toolbar.ql-snow {
+  .admin-rich-toolbar {
     overflow-x: auto;
-    white-space: nowrap;
+    flex-wrap: nowrap;
   }
 
-  .admin-quill-shell .ql-editor {
+  .admin-rich-canvas {
     min-height: 260px;
   }
 

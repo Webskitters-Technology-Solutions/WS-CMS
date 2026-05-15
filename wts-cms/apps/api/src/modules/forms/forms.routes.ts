@@ -24,6 +24,7 @@ import { audit } from "../audit-logs/audit.service.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import { created, fail, ok } from "../../utils/api-response.js";
 import { getPagination, paginationMeta } from "../../utils/pagination.js";
+import { safeObjectId, safeSearchRegex, safeSlugLike, safeStatus } from "../../utils/safe-query.js";
 import { formSchema, formSubmissionSchema, idParamSchema } from "../../validators/cms.js";
 
 export const formsRouter = Router();
@@ -35,9 +36,8 @@ formsRouter.get(
   requirePermission("forms:read"),
   asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
-    const query = req.query.search
-      ? { name: { $regex: String(req.query.search), $options: "i" } }
-      : {};
+    const search = safeSearchRegex(req.query.search);
+    const query = search ? { name: search } : {};
     const [items, total] = await Promise.all([
       FormModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       FormModel.countDocuments(query)
@@ -80,7 +80,8 @@ formsRouter.patch(
   requirePermission("forms:update"),
   validate(idParamSchema, "params"),
   asyncHandler(async (req, res) => {
-    const submission = await FormSubmissionModel.findByIdAndUpdate(req.params.id, { status: req.body.status || "read" }, { returnDocument: "after" });
+    const status = safeStatus(req.body.status, ["new", "read", "archived"] as const) || "read";
+    const submission = await FormSubmissionModel.findByIdAndUpdate(safeObjectId(req.params.id), { status }, { returnDocument: "after" });
     return submission ? ok(res, submission) : fail(res, 404, "Submission not found", "SUBMISSION_NOT_FOUND");
   })
 );
@@ -90,7 +91,7 @@ formsRouter.get(
   requirePermission("forms:read"),
   validate(idParamSchema, "params"),
   asyncHandler(async (req, res) => {
-    const form = await FormModel.findById(req.params.id);
+    const form = await FormModel.findById(safeObjectId(req.params.id));
     return form ? ok(res, form) : fail(res, 404, "Form not found", "FORM_NOT_FOUND");
   })
 );
@@ -101,26 +102,51 @@ formsRouter.patch(
   validate(idParamSchema, "params"),
   validate(formSchema.partial()),
   asyncHandler(async (req, res) => {
-    const body = {
-      ...req.body,
-      ...(req.body.slug ? { slug: createSlug(req.body.slug) } : {}),
-      updatedBy: req.user?.id
-    };
-    const form = await FormModel.findByIdAndUpdate(req.params.id, body, { returnDocument: "after" });
+    const form = await FormModel.findById(safeObjectId(req.params.id));
     if (!form) {
       return fail(res, 404, "Form not found", "FORM_NOT_FOUND");
     }
+    assignFormUpdates(form, req.body, req.user?.id);
+    await form.save();
     await audit(req, "update form", "form", form._id.toString());
     return ok(res, form);
   })
 );
+
+function assignFormUpdates(form: any, body: any, userId?: string) {
+  if (typeof body.name === "string") {
+    form.name = body.name;
+  }
+  if (typeof body.slug === "string" && body.slug) {
+    form.slug = createSlug(body.slug);
+  }
+  if (typeof body.description === "string") {
+    form.description = body.description;
+  }
+  if (Array.isArray(body.fields)) {
+    form.fields = body.fields;
+  }
+  if (body.status === "active" || body.status === "inactive") {
+    form.status = body.status;
+  }
+  if (typeof body.notificationEmail === "string") {
+    form.notificationEmail = body.notificationEmail;
+  }
+  if (typeof body.successMessage === "string") {
+    form.successMessage = body.successMessage;
+  }
+  if (typeof body.honeypotField === "string") {
+    form.honeypotField = body.honeypotField;
+  }
+  form.updatedBy = userId;
+}
 
 formsRouter.delete(
   "/:id",
   requirePermission("forms:delete"),
   validate(idParamSchema, "params"),
   asyncHandler(async (req, res) => {
-    const form = await FormModel.findByIdAndDelete(req.params.id);
+    const form = await FormModel.findByIdAndDelete(safeObjectId(req.params.id));
     if (!form) {
       return fail(res, 404, "Form not found", "FORM_NOT_FOUND");
     }
@@ -135,7 +161,8 @@ export const publicFormsRouter = Router();
 publicFormsRouter.get(
   "/:slug",
   asyncHandler(async (req, res) => {
-    const form = await FormModel.findOne({ slug: req.params.slug, status: "active" }).select("-notificationEmail");
+    const slug = safeSlugLike(req.params.slug);
+    const form = slug ? await FormModel.findOne({ slug, status: "active" }).select("-notificationEmail") : null;
     return form ? ok(res, form) : fail(res, 404, "Form not found", "FORM_NOT_FOUND");
   })
 );
@@ -144,7 +171,8 @@ publicFormsRouter.post(
   "/:slug/submit",
   validate(formSubmissionSchema),
   asyncHandler(async (req, res) => {
-    const form = await FormModel.findOne({ slug: req.params.slug, status: "active" });
+    const slug = safeSlugLike(req.params.slug);
+    const form = slug ? await FormModel.findOne({ slug, status: "active" }) : null;
     if (!form) {
       return fail(res, 404, "Form not found", "FORM_NOT_FOUND");
     }
