@@ -1,10 +1,10 @@
 /**
  * ================================================================
- *  __        __   _     ____  _  _______ _____ _____ _____ _____
- *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
- *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
- *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
- *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *  __        __ _____ ____  ____  _  _____ _____ _____ _____ ____  ____
+ *  \ \      / /| ____| __ )/ ___|| |/ /_ _|_   _|_   _| ____|  _ \/ ___|
+ *   \ \ /\ / / |  _| |  _ \\___ \| ' / | |  | |   | | |  _| | |_) \___ \
+ *    \ V  V /  | |___| |_) |___) | . \ | |  | |   | | | |___|  _ < ___) |
+ *     \_/\_/   |_____|____/|____/|_|\_\___| |_|   |_| |_____|_| \_\____/
  *
  *  Project      : WTS CMS
  *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
@@ -19,8 +19,10 @@ import path from "node:path";
 
 const root = process.cwd();
 const checkedExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".css", ".scss", ".md", ".yml", ".yaml", ".sh"]);
+const codeExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".css", ".scss"]);
 const ignored = new Set(["node_modules", ".next", "dist", ".git", "coverage"]);
 const ignoredFiles = new Set(["pnpm-lock.yaml", "next-env.d.ts"]);
+const requiredCodeHeaderNeedle = "__        __ _____ ____  ____  _  _____ _____ _____ _____ ____  ____";
 const failures: string[] = [];
 
 function walk(dir: string) {
@@ -40,7 +42,12 @@ function walk(dir: string) {
       continue;
     }
     const source = fs.readFileSync(full, "utf8").slice(0, 1400);
-    if (!source.includes("WTS CMS") || !source.includes("Webskitters")) {
+    const extension = path.extname(entry.name);
+    if (
+      !source.includes("WTS CMS") ||
+      !source.includes("Webskitters") ||
+      (codeExtensions.has(extension) && !source.includes(requiredCodeHeaderNeedle))
+    ) {
       failures.push(path.relative(root, full));
     }
   }
