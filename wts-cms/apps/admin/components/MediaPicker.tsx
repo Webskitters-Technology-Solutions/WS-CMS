@@ -17,8 +17,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Image, Search, X } from "lucide-react";
-import { adminApi } from "../lib/api";
+import type { FormEvent } from "react";
+import { Image, Search, Upload, X } from "lucide-react";
+import { adminApi, resolveApiAssetUrl } from "../lib/api";
 
 interface MediaItem {
   _id: string;
@@ -45,6 +46,8 @@ export function MediaPicker({
   const [items, setItems] = useState<MediaItem[]>([]);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
+  const [uploadMessage, setUploadMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   async function load() {
     const params = new URLSearchParams({ limit: "24" });
@@ -61,6 +64,36 @@ export function MediaPicker({
     }
   }, [open]);
 
+  async function upload(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const file = data.get("file");
+    if (!(file instanceof File) || !file.size) {
+      setUploadMessage("Choose an image before uploading.");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadMessage("");
+      const media = (await adminApi("/api/media/upload", {
+        method: "POST",
+        body: data
+      })) as MediaItem;
+      const mediaUrl = resolveApiAssetUrl(media.url);
+      onChange(mediaUrl);
+      onAltChange?.(media.altText || "");
+      form.reset();
+      setUploadMessage("Image uploaded and selected.");
+      await load();
+    } catch (error) {
+      setUploadMessage(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   return (
     <div className="media-picker">
       <label className="cms-field">
@@ -75,7 +108,7 @@ export function MediaPicker({
       </label>
       {value ? (
         <div className="media-picker-preview">
-          <img src={value} alt="" />
+          <img src={resolveApiAssetUrl(value)} alt="" />
           <span>{value}</span>
         </div>
       ) : null}
@@ -91,6 +124,27 @@ export function MediaPicker({
                 <X size={18} />
               </button>
             </div>
+            <form className="media-picker-upload" onSubmit={upload}>
+              <div>
+                <span className="cms-kicker">Upload while editing</span>
+                <strong>Add a new image</strong>
+                <p className="meta">JPEG, PNG, WebP, or GIF. Alt text is saved with the media record.</p>
+              </div>
+              <label className="cms-field">
+                <span>Image file</span>
+                <input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" />
+              </label>
+              <label className="cms-field">
+                <span>Alt text</span>
+                <input name="altText" placeholder="Describe the image for accessibility and SEO" />
+              </label>
+              <input name="folder" type="hidden" value="Editor uploads" />
+              <button className="cms-primary-button" type="submit" disabled={uploading}>
+                <Upload size={16} />
+                {uploading ? "Uploading..." : "Upload & select"}
+              </button>
+              {uploadMessage ? <p className="meta">{uploadMessage}</p> : null}
+            </form>
             <div className="media-picker-search">
               <div className="cms-inline-input">
                 <Search size={16} />
@@ -108,12 +162,12 @@ export function MediaPicker({
                   key={item._id}
                   type="button"
                   onClick={() => {
-                    onChange(item.url);
+                    onChange(resolveApiAssetUrl(item.url));
                     onAltChange?.(item.altText || "");
                     setOpen(false);
                   }}
                 >
-                  <img src={item.url} alt={item.altText || ""} />
+                  <img src={resolveApiAssetUrl(item.url)} alt={item.altText || ""} />
                   <strong>{item.originalName}</strong>
                   <span>{item.altText || "Alt text missing"}</span>
                   <small>
@@ -122,7 +176,7 @@ export function MediaPicker({
                 </button>
               ))}
             </div>
-            {!items.length ? <p className="meta">No media found. Upload images from the WTS CMS media section.</p> : null}
+            {!items.length ? <p className="meta">No media found. Upload an image above to start the library.</p> : null}
           </div>
         </div>
       ) : null}

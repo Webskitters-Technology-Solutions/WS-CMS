@@ -17,6 +17,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
+import { adminApi, resolveApiAssetUrl } from "../lib/api";
 
 type EditorMode = "rich" | "plain" | "code";
 
@@ -54,7 +56,7 @@ const richToolbar: Array<{ label: string; command: EditorCommand; value?: string
   { label: "Quote", command: "formatBlock", value: "blockquote" },
   { label: "Code", command: "formatBlock", value: "pre" },
   { label: "Link", command: "createLink", prompt: "Enter a safe URL" },
-  { label: "Image", command: "insertImage", prompt: "Enter an image URL" },
+  { label: "Image URL", command: "insertImage", prompt: "Enter an image URL" },
   { label: "Clear", command: "removeFormat" }
 ];
 const safeEditorTagNames = new Set([
@@ -100,8 +102,11 @@ export function AdminTextEditor({
   const lastValueRef = useRef(value);
   const onChangeRef = useRef(onChange);
   const selfChangeValueRef = useRef<string | null>(null);
+  const imageUploadInputRef = useRef<HTMLInputElement | null>(null);
   const [richView, setRichView] = useState<"visual" | "html">("visual");
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
+  const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const labelId = label && id ? `${id}-label` : undefined;
 
   useEffect(() => {
@@ -158,10 +163,47 @@ export function AdminTextEditor({
       if (!isSafeUrl) {
         return;
       }
+      if (item.command === "insertImage") {
+        commandValue = resolveApiAssetUrl(commandValue);
+      }
     }
 
     applyEditorCommand(editorRef.current, item.command, commandValue);
     emitVisualChange();
+  }
+
+  async function uploadEditorImage(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) {
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setUploadMessage("");
+      const altText = window.prompt("Image alt text for accessibility and SEO")?.trim() || "";
+      const data = new FormData();
+      data.set("file", file);
+      data.set("altText", altText);
+      data.set("folder", "Editor uploads");
+      const media = await adminApi("/api/media/upload", {
+        method: "POST",
+        body: data
+      });
+      const editor = editorRef.current;
+      if (!editor) {
+        return;
+      }
+      editor.focus();
+      insertImage(editor, resolveApiAssetUrl(media.url), media.altText || altText);
+      emitVisualChange();
+      setUploadMessage("Image uploaded and inserted.");
+    } catch (error) {
+      setUploadMessage(error instanceof Error ? error.message : "Image upload failed");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   function syncEditorEmpty() {
@@ -242,7 +284,24 @@ export function AdminTextEditor({
               {item.label}
             </button>
           ))}
+          <button
+            type="button"
+            aria-label="Upload image"
+            title="Upload image"
+            disabled={uploadingImage}
+            onClick={() => imageUploadInputRef.current?.click()}
+          >
+            {uploadingImage ? "Uploading..." : "Upload image"}
+          </button>
+          <input
+            ref={imageUploadInputRef}
+            className="admin-editor-file-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={uploadEditorImage}
+          />
         </div>
+        {uploadMessage ? <span className="admin-editor-message">{uploadMessage}</span> : null}
         <div
           id={id}
           ref={editorRef}
@@ -408,10 +467,10 @@ function insertLink(editor: HTMLElement, href: string) {
   replaceEditorSelection(editor, [anchor]);
 }
 
-function insertImage(editor: HTMLElement, src: string) {
+function insertImage(editor: HTMLElement, src: string, altText = "") {
   const image = document.createElement("img");
   image.src = src;
-  image.alt = "";
+  image.alt = altText;
   image.loading = "lazy";
   replaceEditorSelection(editor, [image]);
 }
@@ -435,7 +494,7 @@ function isSafeEditorLinkUrl(value: string) {
 
 function isSafeEditorImageUrl(value: string) {
   try {
-    const url = new URL(value);
+    const url = new URL(value, window.location.origin);
     return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;

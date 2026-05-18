@@ -237,6 +237,19 @@ textarea {
   gap: 16px;
 }
 
+.eyebrow {
+  color: #0f766e;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: #657287;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -841,6 +854,48 @@ pre {
   overflow-wrap: anywhere;
 }
 
+.media-upload-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.media-upload-panel h2 {
+  margin: 4px 0;
+}
+
+.media-upload-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 1fr) minmax(160px, 0.7fr);
+}
+
+.media-library-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.media-library-card img {
+  aspect-ratio: 16 / 10;
+  background: #eef4fb;
+  border-radius: 7px;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.media-library-card code {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #475569;
+  display: block;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  padding: 7px;
+}
+
 .media-picker-overlay {
   align-items: center;
   background: rgba(15, 23, 42, 0.46);
@@ -874,6 +929,25 @@ pre {
 
 .media-picker-header h2 {
   margin: 4px 0 0;
+}
+
+.media-picker-upload {
+  background: #f8fafc;
+  border: 1px solid #d8e1ec;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(190px, 1fr) minmax(190px, 1fr) auto;
+  padding: 12px;
+}
+
+.media-picker-upload strong {
+  display: block;
+  margin-top: 3px;
+}
+
+.media-picker-upload .cms-field {
+  margin: 0;
 }
 
 .media-picker-search .cms-inline-input {
@@ -2558,6 +2632,19 @@ pre {
   padding: 8px 10px;
 }
 
+.admin-editor-message {
+  background: #ecfdf5;
+  border-bottom: 1px solid #d8e1ec;
+  color: #0f766e;
+  display: block;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.admin-editor-file-input {
+  display: none;
+}
+
 .admin-rich-shell {
   border: 1px solid #d8e1ec;
   border-radius: 8px;
@@ -3147,9 +3234,15 @@ pre {
 
   .media-picker-header,
   .media-picker-search,
+  .media-picker-upload,
   .block-row-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .media-upload-grid,
+  .media-picker-upload {
+    grid-template-columns: 1fr;
   }
 
   .role-matrix {

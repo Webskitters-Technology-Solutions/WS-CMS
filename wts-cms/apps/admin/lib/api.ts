@@ -14,7 +14,7 @@
  *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
  * ================================================================
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 class AdminAuthError extends Error {
   constructor(message = "Authentication required") {
@@ -125,4 +125,14 @@ export async function adminApi(path: string, init: RequestInit = {}, retried = f
     throw new Error(body.message || "WTS CMS admin request failed");
   }
   return body.data;
+}
+
+export function resolveApiAssetUrl(value: string) {
+  if (!value) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+  return `${API_BASE_URL}${value.startsWith("/") ? value : `/${value}`}`;
 }

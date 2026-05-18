@@ -17,15 +17,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { Search, Upload } from "lucide-react";
 import { AdminShell } from "../../components/AdminShell";
-import { adminApi } from "../../lib/api";
+import { adminApi, resolveApiAssetUrl } from "../../lib/api";
 
 export default function MediaAdmin() {
   const [items, setItems] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [folder, setFolder] = useState("");
   const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   async function load() {
     const params = new URLSearchParams();
@@ -52,28 +54,45 @@ export default function MediaAdmin() {
     return "good alt";
   }
 
-  async function upload(event: React.FormEvent<HTMLFormElement>) {
+  async function upload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const file = data.get("file");
+    if (!(file instanceof File) || !file.size) {
+      setMessage("Choose an image before uploading.");
+      return;
+    }
+
     try {
-      const data = new FormData(event.currentTarget);
+      setUploading(true);
       await adminApi("/api/media/upload", {
         method: "POST",
         body: data
       });
-      setMessage("Uploaded");
+      setMessage("Image uploaded to the WTS CMS media library.");
       await load();
-      event.currentTarget.reset();
+      form.reset();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setUploading(false);
     }
   }
   return (
     <AdminShell title="Media">
-      <form className="panel" onSubmit={upload}>
-        <label className="field">Image file<input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
-        <label className="field">Alt text<input name="altText" /></label>
-        <label className="field">Folder<input name="folder" placeholder="Library, Case Studies, Team" /></label>
-        <button type="submit"><Upload size={18} /> Upload</button>
+      <form className="panel media-upload-panel" onSubmit={upload}>
+        <div>
+          <span className="eyebrow">Media library</span>
+          <h2>Upload images directly</h2>
+          <p className="muted">Add reusable images for pages, blogs, articles, menus, and visual content blocks.</p>
+        </div>
+        <div className="media-upload-grid">
+          <label className="field">Image file<input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" /></label>
+          <label className="field">Alt text<input name="altText" placeholder="Short, descriptive image alt text" /></label>
+          <label className="field">Folder<input name="folder" placeholder="Library, Case Studies, Team" /></label>
+        </div>
+        <button type="submit" disabled={uploading}><Upload size={18} /> {uploading ? "Uploading..." : "Upload image"}</button>
         {message ? <p>{message}</p> : null}
       </form>
       <section className="panel" style={{ marginTop: 16 }}>
@@ -85,10 +104,12 @@ export default function MediaAdmin() {
       </section>
       <section className="grid" style={{ marginTop: 16 }}>
         {items.map((item) => (
-          <div className="card" key={item._id}>
+          <div className="card media-library-card" key={item._id}>
+            <img src={resolveApiAssetUrl(item.url)} alt={item.altText || ""} />
             <strong>{item.originalName}</strong>
             <p>{item.altText || "Missing alt text"}</p>
             <p className="meta">{item.folder || "Library"} · {item.mimeType} · {item.width || "?"}x{item.height || "?"} · {altScore(item)}</p>
+            <code>{item.url}</code>
           </div>
         ))}
       </section>
