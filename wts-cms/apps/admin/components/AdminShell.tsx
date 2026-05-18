@@ -44,6 +44,8 @@ import {
 } from "lucide-react";
 import { adminApi, clearAdminSession, hasAdminSession, isAdminAuthError } from "../lib/api";
 
+const NAV_PERMISSIONS_CACHE_KEY = "wts_cms_admin_permissions";
+
 const navGroups = [
   {
     id: "workspace",
@@ -116,13 +118,28 @@ export function AdminShell({ title, children }: { title: string; children: React
       router.replace("/login");
       return;
     }
+    const cachedPermissions = window.localStorage.getItem(NAV_PERMISSIONS_CACHE_KEY);
+    if (cachedPermissions) {
+      try {
+        const parsedPermissions = JSON.parse(cachedPermissions);
+        if (Array.isArray(parsedPermissions)) {
+          setPermissions(parsedPermissions.filter((permission) => typeof permission === "string"));
+        }
+      } catch {
+        window.localStorage.removeItem(NAV_PERMISSIONS_CACHE_KEY);
+      }
+    }
     adminApi("/api/auth/me")
       .then((me) => {
+        const nextPermissions = Array.isArray(me.permissions) ? me.permissions : [];
         setUser(me);
-        setPermissions(me.permissions || []);
+        setPermissions(nextPermissions);
+        window.localStorage.setItem(NAV_PERMISSIONS_CACHE_KEY, JSON.stringify(nextPermissions));
+        setSessionMessage("");
       })
       .catch((error) => {
         if (isAdminAuthError(error)) {
+          window.localStorage.removeItem(NAV_PERMISSIONS_CACHE_KEY);
           router.replace("/login");
           return;
         }

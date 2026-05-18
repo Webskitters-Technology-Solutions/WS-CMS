@@ -11,5 +11,10 @@ WORKDIR /app
 RUN corepack enable
 COPY . .
 RUN pnpm install --frozen-lockfile=false
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+RUN pnpm --filter @wts-cms/shared build && pnpm --filter @wts-cms/web build
 EXPOSE 3000
-CMD ["pnpm", "dev:web"]
+CMD ["pnpm", "--filter", "@wts-cms/web", "start"]

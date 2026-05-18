@@ -54,6 +54,8 @@ import { ok, fail } from "./utils/api-response.js";
 
 export function createApp() {
   const app = express();
+  const useHttpsHeaders =
+    env.API_BASE_URL.startsWith("https://") && env.PUBLIC_SITE_URL.startsWith("https://") && env.ADMIN_SITE_URL.startsWith("https://");
 
   app.disable("x-powered-by");
   if (env.TRUST_PROXY > 0) {
@@ -91,14 +93,14 @@ export function createApp() {
           objectSrc: ["'none'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          upgradeInsecureRequests: env.NODE_ENV === "production" ? [] : null
+          upgradeInsecureRequests: useHttpsHeaders ? [] : null
         }
       },
       crossOriginEmbedderPolicy: false,
-      crossOriginOpenerPolicy: { policy: "same-origin" },
+      crossOriginOpenerPolicy: useHttpsHeaders ? { policy: "same-origin" } : false,
       crossOriginResourcePolicy: { policy: "cross-origin" },
       dnsPrefetchControl: { allow: false },
-      hsts: env.NODE_ENV === "production" ? { maxAge: 15552000, includeSubDomains: true, preload: true } : false,
+      hsts: useHttpsHeaders ? { maxAge: 15552000, includeSubDomains: true, preload: true } : false,
       frameguard: { action: "deny" },
       referrerPolicy: { policy: "strict-origin-when-cross-origin" }
     })
@@ -174,14 +176,24 @@ export function createApp() {
     isDatabaseReady() ? ok(res, { status: "ready", mongo: "connected" }) : fail(res, 503, "MongoDB is not ready", "NOT_READY")
   );
 
-  const authLimiter = rateLimit({
+  const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: env.NODE_ENV === "development" ? 500 : 20,
+    limit: env.NODE_ENV === "development" ? 500 : 25,
     standardHeaders: true,
     legacyHeaders: false,
+    skipSuccessfulRequests: true,
     handler: (_req, res) => fail(res, 429, "Too many login attempts, please wait and try again.", "AUTH_RATE_LIMITED")
   });
-  app.use("/api/auth", authLimiter, authRouter);
+  const refreshLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: env.NODE_ENV === "development" ? 1000 : 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => fail(res, 429, "Too many token refresh attempts, please wait and try again.", "AUTH_REFRESH_RATE_LIMITED")
+  });
+  app.use("/api/auth/login", loginLimiter);
+  app.use("/api/auth/refresh", refreshLimiter);
+  app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/roles", rolesRouter);
   app.use("/api/permissions", permissionsRouter);

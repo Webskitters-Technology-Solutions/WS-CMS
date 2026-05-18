@@ -17,8 +17,9 @@
 const isProduction = process.env.NODE_ENV === "production";
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 const apiOrigin = new URL(apiBaseUrl).origin;
+const useHttpsHeaders = apiBaseUrl.startsWith("https://");
 
-const csp = [
+const cspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   `connect-src 'self' ${apiOrigin}`,
@@ -28,19 +29,24 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "object-src 'none'",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
-  "style-src 'self' 'unsafe-inline'",
-  "upgrade-insecure-requests"
-].join("; ");
+  "style-src 'self' 'unsafe-inline'"
+];
+
+if (useHttpsHeaders) {
+  cspDirectives.push("upgrade-insecure-requests");
+}
+
+const csp = cspDirectives.join("; ");
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: csp },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
   { key: "X-Robots-Tag", value: "noindex, nofollow" },
-  ...(isProduction ? [{ key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains; preload" }] : [])
+  ...(useHttpsHeaders ? [{ key: "Cross-Origin-Opener-Policy", value: "same-origin" }] : []),
+  ...(useHttpsHeaders ? [{ key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains; preload" }] : [])
 ];
 
 const nextConfig = {
