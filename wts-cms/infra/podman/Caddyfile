@@ -4,28 +4,54 @@
 # Website: https://www.webskitters.com
 # ================================================================
 
-{$PUBLIC_DOMAIN:localhost} {
-  encode zstd gzip
+{
+  default_sni {$PUBLIC_DOMAIN}
+}
+
+(secure_headers) {
   header {
     X-Content-Type-Options nosniff
     Referrer-Policy strict-origin-when-cross-origin
     Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
   }
+}
+
+(ip_tls) {
+  tls /etc/letsencrypt/live/{$PUBLIC_DOMAIN}/fullchain.pem /etc/letsencrypt/live/{$PUBLIC_DOMAIN}/privkey.pem
+}
+
+http://{$PUBLIC_DOMAIN:localhost} {
+  redir https://{$PUBLIC_DOMAIN}{uri} permanent
+}
+
+https://{$PUBLIC_DOMAIN:localhost} {
+  import ip_tls
+  encode zstd gzip
+  import secure_headers
   reverse_proxy web:3000
 }
 
-admin.{$PUBLIC_DOMAIN:localhost} {
+https://{$PUBLIC_DOMAIN:localhost}:3000 {
+  import ip_tls
   encode zstd gzip
+  import secure_headers
+  reverse_proxy web:3000
+}
+
+https://{$PUBLIC_DOMAIN:localhost}:3001 {
+  import ip_tls
+  encode zstd gzip
+  import secure_headers
   header {
-    X-Content-Type-Options nosniff
-    Referrer-Policy strict-origin-when-cross-origin
     X-Frame-Options DENY
-    Permissions-Policy "camera=(), microphone=(), geolocation=()"
   }
   reverse_proxy admin:3001
 }
 
-api.{$PUBLIC_DOMAIN:localhost} {
+https://{$PUBLIC_DOMAIN:localhost}:4000 {
+  import ip_tls
   encode zstd gzip
+  import secure_headers
   reverse_proxy api:4000
 }

@@ -17,6 +17,8 @@
 const isProduction = process.env.NODE_ENV === "production";
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 const apiOrigin = new URL(apiBaseUrl).origin;
+const adminSiteUrl = process.env.ADMIN_SITE_URL || "";
+const useHttpsOnlyHeaders = adminSiteUrl.startsWith("https://") || process.env.FORCE_HTTPS_HEADERS === "true";
 
 const csp = [
   "default-src 'self'",
@@ -29,7 +31,7 @@ const csp = [
   "object-src 'none'",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  "upgrade-insecure-requests"
+  ...(useHttpsOnlyHeaders ? ["upgrade-insecure-requests"] : [])
 ].join("; ");
 
 const securityHeaders = [
@@ -40,7 +42,9 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
   { key: "X-Robots-Tag", value: "noindex, nofollow" },
-  ...(isProduction ? [{ key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains; preload" }] : [])
+  ...(isProduction && useHttpsOnlyHeaders
+    ? [{ key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains; preload" }]
+    : [])
 ];
 
 const nextConfig = {
