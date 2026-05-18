@@ -1,10 +1,10 @@
 /**
  * ================================================================
- *  __        __   _     ____  _  _______ _____ _____ _____ _____
- *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
- *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
- *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
- *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *  __        __ _____ ____  ____  _  _____ _____ _____ _____ ____  ____
+ *  \ \      / /| ____| __ )/ ___|| |/ /_ _|_   _|_   _| ____|  _ \/ ___|
+ *   \ \ /\ / / |  _| |  _ \\___ \| ' / | |  | |   | | |  _| | |_) \___ \
+ *    \ V  V /  | |___| |_) |___) | . \ | |  | |   | | | |___|  _ < ___) |
+ *     \_/\_/   |_____|____/|____/|_|\_\___| |_|   |_| |_____|_| \_\____/
  *
  *  Project      : WTS CMS
  *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
@@ -555,32 +555,13 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
             <div className={`builder-canvas-wrap device-${device}`}>
               <span className="builder-device-label">{device} preview</span>
               <article className="builder-canvas">
-                <header className="builder-canvas-nav">
-                  <strong>WS CMS</strong>
-                  <nav aria-label="Preview navigation">
-                    <span>Home</span>
-                    <span>Pages</span>
-                    <span>Blog</span>
-                    <span>Contact</span>
-                  </nav>
-                </header>
-                <section className="builder-canvas-hero" onClick={() => setSelectedBlockId("")}>
-                  <span className="cms-kicker">{entityLabel}</span>
-                  <h1>{h1 || title || `Untitled ${entityLabel}`}</h1>
-                  <p>{permalink}</p>
-                </section>
-                <section className="builder-canvas-content is-selectable" onClick={() => setSelectedBlockId("")}>
-                  <span className="builder-section-label">HTML body</span>
-                  {content ? (
-                    <div className="builder-rich-output" dangerouslySetInnerHTML={{ __html: content }} />
-                  ) : (
-                    <div className="builder-empty-state">
-                      <FileText size={28} />
-                      <strong>Start with content or a visual block</strong>
-                      <p>Add structured text, images, lists, CTAs, FAQs, or gallery sections.</p>
-                    </div>
-                  )}
-                </section>
+                {!blocks.length ? (
+                  <section className="builder-canvas-hero" onClick={() => setSelectedBlockId("")}>
+                    <span className="cms-kicker">{entityLabel}</span>
+                    <h1>{h1 || title || `Untitled ${entityLabel}`}</h1>
+                    <p>{permalink}</p>
+                  </section>
+                ) : null}
                 {blocks.map((block) => (
                   <section
                     className={`builder-block-preview builder-block-${block.type} ${selectedBlockId === block.id ? "selected" : ""} tone-${
@@ -619,6 +600,21 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                     <BlockPreview block={block} />
                   </section>
                 ))}
+                {content ? (
+                  <section className="builder-canvas-content is-selectable" onClick={() => setSelectedBlockId("")}>
+                    <span className="builder-section-label">Editorial HTML</span>
+                    <div className="builder-rich-output" dangerouslySetInnerHTML={{ __html: content }} />
+                  </section>
+                ) : null}
+                {!blocks.length && !content ? (
+                  <section className="builder-canvas-content is-selectable" onClick={() => setSelectedBlockId("")}>
+                    <div className="builder-empty-state">
+                      <FileText size={28} />
+                      <strong>Start with content or a visual block</strong>
+                      <p>Add structured text, images, lists, CTAs, FAQs, or gallery sections.</p>
+                    </div>
+                  </section>
+                ) : null}
               </article>
             </div>
           </section>

@@ -1,10 +1,10 @@
 /**
  * ================================================================
- *  __        __   _     ____  _  _______ _____ _____ _____ _____
- *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
- *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
- *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
- *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *  __        __ _____ ____  ____  _  _____ _____ _____ _____ ____  ____
+ *  \ \      / /| ____| __ )/ ___|| |/ /_ _|_   _|_   _| ____|  _ \/ ___|
+ *   \ \ /\ / / |  _| |  _ \\___ \| ' / | |  | |   | | |  _| | |_) \___ \
+ *    \ V  V /  | |___| |_) |___) | . \ | |  | |   | | | |___|  _ < ___) |
+ *     \_/\_/   |_____|____/|____/|_|\_\___| |_|   |_| |_____|_| \_\____/
  *
  *  Project      : WTS CMS
  *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
@@ -211,6 +211,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
   const [scheduleAt, setScheduleAt] = useState(initialPage?.publishedAt ? initialPage.publishedAt.slice(0, 16) : "");
   const [activePanel, setActivePanel] = useState<PanelKey>("content");
   const [savedId, setSavedId] = useState(initialPage?._id || "");
+  const [currentStatus, setCurrentStatus] = useState<PublishStatus>(initialPage?.status || "draft");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -581,6 +582,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
     setSaving(true);
     setMessage("");
     try {
+      const nextStatus = status === "draft" && currentStatus === "published" ? "published" : status;
       const body = {
         title: title || "Untitled Page",
         h1: h1 || title || "Untitled Page",
@@ -589,12 +591,12 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         excerpt,
         content: content || "<p></p>",
         blocks: normalizeVisualBlocks(blocks).map(({ collapsed: _collapsed, ...block }) => block),
-        status,
+        status: nextStatus,
         template,
         order: Number(order || 0),
         featuredImageAlt,
         bannerImageAlt,
-        publishedAt: status === "scheduled" && scheduleAt ? new Date(scheduleAt).toISOString() : undefined,
+        publishedAt: nextStatus === "scheduled" && scheduleAt ? new Date(scheduleAt).toISOString() : undefined,
         ...(parentPage ? { parentPage } : {}),
         seo: {
           metaTitle,
@@ -614,12 +616,13 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
         ? await adminApi(`/api/pages/${savedId}`, { method: "PATCH", body: JSON.stringify(body) })
         : await adminApi("/api/pages", { method: "POST", body: JSON.stringify(body) });
       setSavedId(page._id);
-      if (status === "published") {
+      if (nextStatus === "published") {
         await adminApi(`/api/pages/${page._id}/publish`, { method: "POST", body: JSON.stringify({}) });
       }
-      if (status === "archived") {
+      if (nextStatus === "archived") {
         await adminApi(`/api/pages/${page._id}/archive`, { method: "POST", body: JSON.stringify({}) });
       }
+      setCurrentStatus(nextStatus);
       setMessage(
         {
           draft: "Draft saved",
@@ -628,7 +631,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
           published: "Page published",
           scheduled: "Page scheduled",
           archived: "Page archived"
-        }[status]
+        }[nextStatus]
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save page");
@@ -663,7 +666,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
             <Eye size={16} /> Preview
           </button>
           <button className="cms-ghost-button" type="button" disabled={saving} onClick={() => void persist("draft")}>
-            <Save size={16} /> Save draft
+            <Save size={16} /> {currentStatus === "published" ? "Save changes" : "Save draft"}
           </button>
           <button className="cms-primary-button" type="button" disabled={saving} onClick={() => void persist("published")}>
             <Send size={16} /> Publish
@@ -706,7 +709,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
           <div className="cms-editor-card hero-card">
             <div className="cms-card-header">
               <span className="cms-kicker">Page identity</span>
-              <span className="cms-status-pill">Draft</span>
+              <span className="cms-status-pill">{labelForStatus(currentStatus)}</span>
             </div>
             <input
               className="cms-title-field"
@@ -1072,7 +1075,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
           {activePanel === "publish" ? (
             <PanelCard title="Publishing" icon={ShieldCheck}>
               <button className="cms-panel-action" type="button" disabled={saving} onClick={() => void persist("draft")}>
-                <Save size={16} /> Save draft
+                <Save size={16} /> {currentStatus === "published" ? "Save published changes" : "Save draft"}
               </button>
               <button className="cms-panel-action" type="button" disabled={saving} onClick={() => void persist("pending_review")}>
                 <ShieldCheck size={16} /> Submit for review
@@ -1226,6 +1229,13 @@ function CheckItem({ done, label }: { done: boolean; label: string }) {
       <span>{label}</span>
     </div>
   );
+}
+
+function labelForStatus(status: PublishStatus) {
+  return status
+    .split("_")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
 }
 
 function AnalysisItem({ done, label, help }: { done: boolean; label: string; help: string }) {
