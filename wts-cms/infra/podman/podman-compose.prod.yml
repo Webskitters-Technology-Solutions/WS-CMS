@@ -37,6 +37,7 @@ services:
     environment:
       NODE_ENV: production
       API_PORT: 4000
+      TRUST_PROXY: ${TRUST_PROXY:-1}
       MONGO_URI: mongodb://mongo:27017/wts-cms
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}

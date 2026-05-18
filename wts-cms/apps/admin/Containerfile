@@ -10,6 +10,10 @@ LABEL org.opencontainers.image.title="WTS CMS Admin" \
 WORKDIR /app
 RUN corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile=false
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG ADMIN_SITE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV ADMIN_SITE_URL=${ADMIN_SITE_URL}
+RUN pnpm install --frozen-lockfile=false && pnpm build:admin
 EXPOSE 3001
-CMD ["pnpm", "dev:admin"]
+CMD ["pnpm", "--filter", "@wts-cms/admin", "start"]

@@ -10,6 +10,12 @@ LABEL org.opencontainers.image.title="WTS CMS Web" \
 WORKDIR /app
 RUN corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile=false
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_SITE_URL
+ARG PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ENV PUBLIC_SITE_URL=${PUBLIC_SITE_URL}
+RUN pnpm install --frozen-lockfile=false && pnpm build:web
 EXPOSE 3000
-CMD ["pnpm", "dev:web"]
+CMD ["pnpm", "--filter", "@wts-cms/web", "start"]

@@ -10,6 +10,6 @@ LABEL org.opencontainers.image.title="WTS CMS API" \
 WORKDIR /app
 RUN corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile=false
+RUN pnpm install --frozen-lockfile=false && pnpm build:api
 EXPOSE 4000
-CMD ["pnpm", "dev:api"]
+CMD ["pnpm", "--filter", "@wts-cms/api", "start"]
