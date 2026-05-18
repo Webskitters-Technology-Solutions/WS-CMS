@@ -174,6 +174,65 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
     } as Partial<TBlock>);
   }
 
+  function updateSelectedItem(index: number, patch: BuilderBlockItem) {
+    if (!selectedBlock) {
+      return;
+    }
+
+    const items = [...(selectedBlock.items || [])];
+    items[index] = {
+      ...(items[index] || {}),
+      ...patch
+    };
+    updateSelectedBlock({ items } as Partial<TBlock>);
+  }
+
+  function addSelectedItem() {
+    if (!selectedBlock) {
+      return;
+    }
+
+    const nextItemNumber = (selectedBlock.items?.length || 0) + 1;
+    updateSelectedBlock({
+      items: [
+        ...(selectedBlock.items || []),
+        {
+          title: `${labelForBlock(selectedBlock.type)} item ${nextItemNumber}`,
+          body: "Add a short, useful description for this item.",
+          image: "",
+          imageAlt: ""
+        }
+      ]
+    } as Partial<TBlock>);
+  }
+
+  function removeSelectedItem(index: number) {
+    if (!selectedBlock) {
+      return;
+    }
+
+    updateSelectedBlock({ items: (selectedBlock.items || []).filter((_, itemIndex) => itemIndex !== index) } as Partial<TBlock>);
+  }
+
+  function moveSelectedItem(index: number, direction: -1 | 1) {
+    if (!selectedBlock?.items?.length) {
+      return;
+    }
+
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= selectedBlock.items.length) {
+      return;
+    }
+
+    const items = [...selectedBlock.items];
+    const [item] = items.splice(index, 1);
+    if (!item) {
+      return;
+    }
+    items.splice(targetIndex, 0, item);
+    updateSelectedBlock({ items } as Partial<TBlock>);
+  }
+
   return (
     <div className={shellClassName}>
       <div className="builder-studio-topbar">
@@ -288,6 +347,61 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                         />
                       </label>
                     )}
+                    {isRepeatableBlock(selectedBlock.type) ? (
+                      <div className="builder-item-editor">
+                        <div className="builder-item-editor-header">
+                          <div>
+                            <span className="cms-kicker">Nested items</span>
+                            <strong>{labelForBlock(selectedBlock.type)} content</strong>
+                          </div>
+                          <button type="button" onClick={addSelectedItem}>
+                            <Plus size={15} /> Add item
+                          </button>
+                        </div>
+                        {(selectedBlock.items?.length ? selectedBlock.items : []).map((item, index) => (
+                          <article className="builder-item-card" key={`${selectedBlock.id}-item-editor-${index}`}>
+                            <div className="builder-item-card-header">
+                              <span>{index + 1}</span>
+                              <strong>{item.title || `Item ${index + 1}`}</strong>
+                              <div>
+                                <button type="button" aria-label="Move item up" onClick={() => moveSelectedItem(index, -1)}>
+                                  <ArrowUp size={13} />
+                                </button>
+                                <button type="button" aria-label="Move item down" onClick={() => moveSelectedItem(index, 1)}>
+                                  <ArrowDown size={13} />
+                                </button>
+                                <button type="button" aria-label="Remove item" onClick={() => removeSelectedItem(index)}>
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
+                            <label className="cms-field">
+                              <span>Item title</span>
+                              <input value={item.title || ""} onChange={(event) => updateSelectedItem(index, { title: event.target.value })} />
+                            </label>
+                            <label className="cms-field">
+                              <span>Item body</span>
+                              <textarea value={item.body || ""} onChange={(event) => updateSelectedItem(index, { body: event.target.value })} />
+                            </label>
+                            <MediaPicker
+                              label="Item image"
+                              value={item.image || ""}
+                              onChange={(url) => updateSelectedItem(index, { image: url })}
+                            />
+                            <label className="cms-field">
+                              <span>Image alt text</span>
+                              <input value={item.imageAlt || ""} onChange={(event) => updateSelectedItem(index, { imageAlt: event.target.value })} />
+                            </label>
+                          </article>
+                        ))}
+                        {!selectedBlock.items?.length ? (
+                          <div className="builder-item-empty">
+                            <Box size={20} />
+                            <span>Add the first item to edit card, FAQ, or gallery content.</span>
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </>
                 ) : (
                   <>
@@ -624,4 +738,8 @@ function labelForBlock(type: string) {
     .split("-")
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ");
+}
+
+function isRepeatableBlock(type: string) {
+  return type === "cards" || type === "gallery" || type === "faq";
 }
