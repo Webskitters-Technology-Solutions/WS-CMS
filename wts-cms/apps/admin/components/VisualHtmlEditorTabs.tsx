@@ -1,0 +1,501 @@
+/**
+ * ================================================================
+ *  __        __   _     ____  _  _______ _____ _____ _____ _____
+ *  \ \      / /__| |__ / ___|| |/ /_   _|_   _| ____|_   _/ ____|
+ *   \ \ /\ / / _ \ '_ \\___ \| ' /  | |   | | |  _|   | | \___ \
+ *    \ V  V /  __/ |_) |___) | . \  | |   | | | |___  | |  ___) |
+ *     \_/\_/ \___|_.__/|____/|_|\_\ |_|   |_| |_____| |_| |____/
+ *
+ *  Project      : WTS CMS
+ *  Powered By   : Webskitters Technology Solutions Pvt. Ltd.
+ *  Website      : https://www.webskitters.com
+ *  Description  : Enterprise-ready lightweight CMS starter platform
+ *
+ *  Copyright © Webskitters Technology Solutions Pvt. Ltd.
+ * ================================================================
+ */
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  AlignLeft,
+  ArrowDown,
+  ArrowUp,
+  Box,
+  Code2,
+  Columns3,
+  Copy,
+  Eye,
+  FileText,
+  Image,
+  Layers,
+  Monitor,
+  MousePointer2,
+  Paintbrush,
+  PanelLeft,
+  Plus,
+  Search,
+  Settings2,
+  Smartphone,
+  Tablet,
+  Trash2,
+  Type
+} from "lucide-react";
+import { resolveApiAssetUrl } from "../lib/api";
+import { AdminTextEditor } from "./AdminTextEditor";
+import { MediaPicker } from "./MediaPicker";
+
+type InsertKind = "h2" | "h3" | "p" | "blockquote" | "ul" | "image" | "code";
+type DeviceMode = "desktop" | "tablet" | "mobile";
+type InspectorTab = "content" | "style" | "advanced";
+type BuilderMode = "visual" | "html";
+
+export interface BuilderBlockItem {
+  title?: string;
+  body?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+export interface BuilderBlock {
+  id: string;
+  type: string;
+  title?: string;
+  body?: string;
+  mediaUrl?: string;
+  formSlug?: string;
+  items?: BuilderBlockItem[];
+  collapsed?: boolean;
+  settings?: {
+    align?: "left" | "center" | "right";
+    spacing?: string;
+    background?: string;
+    anchor?: string;
+    customClass?: string;
+  };
+}
+
+interface VisualHtmlEditorTabsProps<TBlock extends BuilderBlock> {
+  entityLabel: "page" | "blog" | "article";
+  title: string;
+  h1: string;
+  permalink: string;
+  content: string;
+  onContentChange: (value: string) => void;
+  blocks: TBlock[];
+  onInsertContentBlock: (kind: InsertKind) => void;
+  blockTemplates: Array<{ label: string; value: TBlock["type"] }>;
+  onAddVisualBlock: (type: TBlock["type"]) => void;
+  onUpdateVisualBlock: (id: string, patch: Partial<TBlock>) => void;
+  onMoveVisualBlock: (id: string, direction: -1 | 1) => void;
+  onDuplicateVisualBlock: (block: TBlock) => void;
+  onRemoveVisualBlock: (id: string) => void;
+  seoScore: number;
+  seoTotal: number;
+  readabilityScore: number;
+  readabilityTotal: number;
+  wordCount: number;
+  auxiliaryLabel?: string;
+  auxiliaryValue?: string;
+  onAuxiliaryChange?: (value: string) => void;
+}
+
+export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
+  entityLabel,
+  title,
+  h1,
+  permalink,
+  content,
+  onContentChange,
+  blocks,
+  onInsertContentBlock,
+  blockTemplates,
+  onAddVisualBlock,
+  onUpdateVisualBlock,
+  onMoveVisualBlock,
+  onDuplicateVisualBlock,
+  onRemoveVisualBlock,
+  seoScore,
+  seoTotal,
+  readabilityScore,
+  readabilityTotal,
+  wordCount,
+  auxiliaryLabel,
+  auxiliaryValue,
+  onAuxiliaryChange
+}: VisualHtmlEditorTabsProps<TBlock>) {
+  const [mode, setMode] = useState<BuilderMode>("visual");
+  const [device, setDevice] = useState<DeviceMode>("desktop");
+  const [inspectorTab, setInspectorTab] = useState<InspectorTab>("content");
+  const [selectedBlockId, setSelectedBlockId] = useState<string>(blocks[0]?.id || "");
+  const selectedBlock = useMemo(() => blocks.find((block) => block.id === selectedBlockId), [blocks, selectedBlockId]);
+
+  function updateSelectedBlock(patch: Partial<TBlock>) {
+    if (!selectedBlock) {
+      return;
+    }
+    onUpdateVisualBlock(selectedBlock.id, patch);
+  }
+
+  function updateSelectedSettings(settings: NonNullable<BuilderBlock["settings"]>) {
+    if (!selectedBlock) {
+      return;
+    }
+    onUpdateVisualBlock(selectedBlock.id, {
+      settings: {
+        ...(selectedBlock.settings || {}),
+        ...settings
+      }
+    } as Partial<TBlock>);
+  }
+
+  return (
+    <div className="builder-editor-shell">
+      <div className="builder-mode-tabs" role="tablist" aria-label={`${entityLabel} editing mode`}>
+        <button className={mode === "visual" ? "active" : ""} type="button" role="tab" onClick={() => setMode("visual")}>
+          <MousePointer2 size={16} /> Visual editor
+        </button>
+        <button className={mode === "html" ? "active" : ""} type="button" role="tab" onClick={() => setMode("html")}>
+          <Code2 size={16} /> HTML editor
+        </button>
+      </div>
+
+      {mode === "html" ? (
+        <div className="builder-html-panel">
+          <div className="cms-card-header">
+            <div>
+              <span className="cms-kicker">Canonical HTML</span>
+              <h2>Edit source markup</h2>
+            </div>
+            <span className="cms-status-pill">{wordCount} words</span>
+          </div>
+          <AdminTextEditor
+            mode="code"
+            minHeight={520}
+            value={content}
+            onChange={onContentChange}
+            placeholder="<h2>Section heading</h2>&#10;<p>Write semantic HTML here...</p>"
+          />
+          <div className="cms-editor-metrics">
+            <span>Visual blocks remain editable in the Visual editor tab</span>
+            <span>Use H2-H5 inside body content</span>
+            <span>Keep the H1 in the dedicated field</span>
+          </div>
+        </div>
+      ) : (
+        <div className="builder-workbench">
+          <aside className="builder-inspector" aria-label="Visual editor inspector">
+            <div className="builder-inspector-title">
+              <div>
+                <span className="cms-kicker">Inspector</span>
+                <h2>{selectedBlock ? `Edit ${labelForBlock(selectedBlock.type)}` : `Edit ${entityLabel}`}</h2>
+              </div>
+              <PanelLeft size={18} />
+            </div>
+            <div className="builder-inspector-tabs" role="tablist" aria-label="Inspector panels">
+              <button className={inspectorTab === "content" ? "active" : ""} type="button" onClick={() => setInspectorTab("content")}>
+                <FileText size={15} /> Content
+              </button>
+              <button className={inspectorTab === "style" ? "active" : ""} type="button" onClick={() => setInspectorTab("style")}>
+                <Paintbrush size={15} /> Style
+              </button>
+              <button className={inspectorTab === "advanced" ? "active" : ""} type="button" onClick={() => setInspectorTab("advanced")}>
+                <Settings2 size={15} /> Advanced
+              </button>
+            </div>
+            {inspectorTab === "content" ? (
+              <div className="builder-inspector-panel">
+                {selectedBlock ? (
+                  <>
+                    <label className="cms-field">
+                      <span>Block title</span>
+                      <input value={selectedBlock.title || ""} onChange={(event) => updateSelectedBlock({ title: event.target.value } as Partial<TBlock>)} />
+                    </label>
+                    <label className="cms-field">
+                      <span>Block body</span>
+                      <textarea value={selectedBlock.body || ""} onChange={(event) => updateSelectedBlock({ body: event.target.value } as Partial<TBlock>)} />
+                    </label>
+                    {selectedBlock.type !== "form" ? (
+                      <MediaPicker
+                        label="Image"
+                        value={selectedBlock.mediaUrl || ""}
+                        onChange={(url) => updateSelectedBlock({ mediaUrl: url } as Partial<TBlock>)}
+                      />
+                    ) : (
+                      <label className="cms-field">
+                        <span>Form slug</span>
+                        <input
+                          value={selectedBlock.formSlug || ""}
+                          onChange={(event) => updateSelectedBlock({ formSlug: event.target.value } as Partial<TBlock>)}
+                        />
+                      </label>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="builder-add-grid">
+                      <button type="button" onClick={() => onInsertContentBlock("p")}>
+                        <AlignLeft size={16} /> Paragraph
+                      </button>
+                      <button type="button" onClick={() => onInsertContentBlock("h2")}>
+                        <Type size={16} /> Heading
+                      </button>
+                      <button type="button" onClick={() => onInsertContentBlock("image")}>
+                        <Image size={16} /> Image
+                      </button>
+                      <button type="button" onClick={() => onInsertContentBlock("ul")}>
+                        <Columns3 size={16} /> List
+                      </button>
+                    </div>
+                    {auxiliaryLabel && onAuxiliaryChange ? (
+                      <label className="cms-field">
+                        <span>{auxiliaryLabel}</span>
+                        <input value={auxiliaryValue || ""} onChange={(event) => onAuxiliaryChange(event.target.value)} />
+                      </label>
+                    ) : null}
+                  </>
+                )}
+                <div className="builder-template-list">
+                  <span className="cms-kicker">Add visual block</span>
+                  {blockTemplates.map((template) => (
+                    <button
+                      key={String(template.value)}
+                      type="button"
+                      onClick={() => onAddVisualBlock(template.value)}
+                    >
+                      <Plus size={15} /> {template.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {inspectorTab === "style" ? (
+              <div className="builder-inspector-panel">
+                <label className="cms-field">
+                  <span>Alignment</span>
+                  <select
+                    value={selectedBlock?.settings?.align || "left"}
+                    onChange={(event) => updateSelectedSettings({ align: event.target.value as "left" | "center" | "right" })}
+                    disabled={!selectedBlock}
+                  >
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </label>
+                <label className="cms-field">
+                  <span>Section spacing</span>
+                  <select
+                    value={selectedBlock?.settings?.spacing || "comfortable"}
+                    onChange={(event) => updateSelectedSettings({ spacing: event.target.value })}
+                    disabled={!selectedBlock}
+                  >
+                    <option value="compact">Compact</option>
+                    <option value="comfortable">Comfortable</option>
+                    <option value="spacious">Spacious</option>
+                  </select>
+                </label>
+                <label className="cms-field">
+                  <span>Background tone</span>
+                  <select
+                    value={selectedBlock?.settings?.background || "white"}
+                    onChange={(event) => updateSelectedSettings({ background: event.target.value })}
+                    disabled={!selectedBlock}
+                  >
+                    <option value="white">White</option>
+                    <option value="soft">Soft neutral</option>
+                    <option value="brand">Brand tint</option>
+                    <option value="dark">Dark contrast</option>
+                  </select>
+                </label>
+                {!selectedBlock ? <p className="meta">Select a canvas block to edit style controls.</p> : null}
+              </div>
+            ) : null}
+            {inspectorTab === "advanced" ? (
+              <div className="builder-inspector-panel">
+                <label className="cms-field">
+                  <span>Anchor ID</span>
+                  <input
+                    value={selectedBlock?.settings?.anchor || ""}
+                    onChange={(event) => updateSelectedSettings({ anchor: event.target.value })}
+                    disabled={!selectedBlock}
+                    placeholder="section-anchor"
+                  />
+                </label>
+                <label className="cms-field">
+                  <span>CSS class</span>
+                  <input
+                    value={selectedBlock?.settings?.customClass || ""}
+                    onChange={(event) => updateSelectedSettings({ customClass: event.target.value })}
+                    disabled={!selectedBlock}
+                    placeholder="optional-class-name"
+                  />
+                </label>
+                <p className="meta">Advanced values are stored with the visual block and can be used by custom public templates.</p>
+              </div>
+            ) : null}
+          </aside>
+
+          <section className="builder-stage">
+            <div className="builder-toolbar">
+              <div className="builder-toolbar-group">
+                <button type="button" onClick={() => setSelectedBlockId("")}>
+                  <Layers size={16} /> Layers
+                </button>
+                <button type="button" onClick={() => onInsertContentBlock("h2")}>
+                  <Plus size={16} /> Add heading
+                </button>
+                <button type="button" onClick={() => onInsertContentBlock(entityLabel === "blog" || entityLabel === "article" ? "code" : "blockquote")}>
+                  <Box size={16} /> Insert block
+                </button>
+              </div>
+              <div className="builder-device-toggle" aria-label="Preview device">
+                <button className={device === "desktop" ? "active" : ""} type="button" onClick={() => setDevice("desktop")} aria-label="Desktop preview">
+                  <Monitor size={16} />
+                </button>
+                <button className={device === "tablet" ? "active" : ""} type="button" onClick={() => setDevice("tablet")} aria-label="Tablet preview">
+                  <Tablet size={16} />
+                </button>
+                <button className={device === "mobile" ? "active" : ""} type="button" onClick={() => setDevice("mobile")} aria-label="Mobile preview">
+                  <Smartphone size={16} />
+                </button>
+              </div>
+              <div className="builder-score-group">
+                <span>{seoTotal ? Math.round((seoScore / seoTotal) * 100) : 0}/100 SEO</span>
+                <span>{readabilityTotal ? Math.round((readabilityScore / readabilityTotal) * 100) : 0}/100 Read</span>
+                <button type="button" aria-label="Preview canvas">
+                  <Eye size={16} />
+                </button>
+                <button type="button" aria-label="Search canvas">
+                  <Search size={16} />
+                </button>
+              </div>
+            </div>
+            <div className={`builder-canvas-wrap device-${device}`}>
+              <article className="builder-canvas">
+                <header className="builder-canvas-nav">
+                  <strong>WS CMS</strong>
+                  <nav aria-label="Preview navigation">
+                    <span>Home</span>
+                    <span>Pages</span>
+                    <span>Blog</span>
+                    <span>Contact</span>
+                  </nav>
+                </header>
+                <section className="builder-canvas-hero" onClick={() => setSelectedBlockId("")}>
+                  <span className="cms-kicker">{entityLabel}</span>
+                  <h1>{h1 || title || `Untitled ${entityLabel}`}</h1>
+                  <p>{permalink}</p>
+                </section>
+                <section className="builder-canvas-content is-selectable" onClick={() => setSelectedBlockId("")}>
+                  <span className="builder-section-label">HTML body</span>
+                  {content ? (
+                    <div className="builder-rich-output" dangerouslySetInnerHTML={{ __html: content }} />
+                  ) : (
+                    <div className="builder-empty-state">
+                      <FileText size={28} />
+                      <strong>Start with content or a visual block</strong>
+                      <p>Add structured text, images, lists, CTAs, FAQs, or gallery sections.</p>
+                    </div>
+                  )}
+                </section>
+                {blocks.map((block) => (
+                  <section
+                    className={`builder-block-preview builder-block-${block.type} ${selectedBlockId === block.id ? "selected" : ""} tone-${
+                      block.settings?.background || "white"
+                    } align-${block.settings?.align || "left"} space-${block.settings?.spacing || "comfortable"}`}
+                    id={block.settings?.anchor || undefined}
+                    key={block.id}
+                    onClick={() => setSelectedBlockId(block.id)}
+                  >
+                    <div className="builder-block-controls">
+                      <button type="button" aria-label="Move block up" onClick={() => onMoveVisualBlock(block.id, -1)}>
+                        <ArrowUp size={14} />
+                      </button>
+                      <button type="button" aria-label="Move block down" onClick={() => onMoveVisualBlock(block.id, 1)}>
+                        <ArrowDown size={14} />
+                      </button>
+                      <button type="button" aria-label="Duplicate block" onClick={() => onDuplicateVisualBlock(block)}>
+                        <Copy size={14} />
+                      </button>
+                      <button type="button" aria-label="Delete block" onClick={() => onRemoveVisualBlock(block.id)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <BlockPreview block={block} />
+                  </section>
+                ))}
+              </article>
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BlockPreview({ block }: { block: BuilderBlock }) {
+  const imageUrl = block.mediaUrl ? resolveApiAssetUrl(block.mediaUrl) : "";
+  if (block.type === "hero" || block.type === "cta") {
+    return (
+      <div className="builder-hero-block" style={imageUrl ? { backgroundImage: `linear-gradient(90deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.2)), url(${imageUrl})` } : undefined}>
+        <span className="cms-kicker">{labelForBlock(block.type)}</span>
+        <h2>{block.title || "Hero section"}</h2>
+        <p>{block.body || "Add a strong message for this section."}</p>
+        <button type="button">Primary action</button>
+      </div>
+    );
+  }
+
+  if (block.type === "cards" || block.type === "gallery" || block.type === "faq") {
+    return (
+      <div className="builder-card-block">
+        <div>
+          <span className="cms-kicker">{labelForBlock(block.type)}</span>
+          <h2>{block.title || "Content group"}</h2>
+          <p>{block.body || "Use nested items for repeatable content."}</p>
+        </div>
+        <div className="builder-card-grid">
+          {(block.items?.length ? block.items : [{ title: "Item title", body: "Item description" }]).map((item, index) => (
+            <article key={`${block.id}-${index}`}>
+              {item.image ? <img src={resolveApiAssetUrl(item.image)} alt={item.imageAlt || ""} /> : <Box size={28} />}
+              <strong>{item.title || "Item title"}</strong>
+              <p>{item.body || "Item description"}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (block.type === "form") {
+    return (
+      <div className="builder-form-block">
+        <div>
+          <span className="cms-kicker">Form block</span>
+          <h2>{block.title || "Contact form"}</h2>
+          <p>{block.body || "Connect this visual block to a WTS CMS form slug."}</p>
+        </div>
+        <div className="builder-form-placeholder">
+          <FileText size={24} />
+          <span>{block.formSlug || "form-slug"}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="builder-card-block">
+      {imageUrl ? <img src={imageUrl} alt="" /> : null}
+      <h2>{block.title || labelForBlock(block.type)}</h2>
+      <p>{block.body || "Edit this visual block from the inspector."}</p>
+    </div>
+  );
+}
+
+function labelForBlock(type: string) {
+  return type
+    .split("-")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}

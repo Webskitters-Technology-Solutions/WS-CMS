@@ -41,7 +41,6 @@ import {
   MoreHorizontal,
   PanelRight,
   Plus,
-  Quote,
   RotateCcw,
   Save,
   Search,
@@ -53,6 +52,7 @@ import {
 import { adminApi, hasAdminSession, resolveApiAssetUrl } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
 import { MediaPicker } from "./MediaPicker";
+import { VisualHtmlEditorTabs } from "./VisualHtmlEditorTabs";
 
 type PanelKey = "content" | "seo" | "publish" | "media" | "history";
 type PublishStatus = "draft" | "pending_review" | "approved" | "published" | "scheduled" | "archived";
@@ -67,6 +67,13 @@ type VisualBlock = {
   mediaUrl?: string;
   formSlug?: string;
   items?: VisualBlockItem[];
+  settings?: {
+    align?: "left" | "center" | "right";
+    spacing?: string;
+    background?: string;
+    anchor?: string;
+    customClass?: string;
+  };
 };
 
 export interface EditablePage {
@@ -732,39 +739,38 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
             </div>
           </div>
 
-          <div className="cms-editor-card">
-            <div className="cms-card-header">
-              <div>
-                <span className="cms-kicker">Content editor</span>
-                <h2>Build the page body</h2>
-              </div>
-              <div className="cms-block-actions">
-                <button type="button" onClick={() => insertBlock("p")}>
-                  <Plus size={15} /> Paragraph
-                </button>
-                <button type="button" onClick={() => insertBlock("h2")}>
-                  <Heading2 size={15} /> H2
-                </button>
-                <button type="button" onClick={() => insertBlock("blockquote")}>
-                  <Quote size={15} /> Quote
-                </button>
-                <button type="button" onClick={() => insertBlock("ul")}>
-                  <ListPlus size={15} /> List
-                </button>
-              </div>
-            </div>
-            <AdminTextEditor
-              mode="rich"
-              minHeight={360}
-              value={content}
-              onChange={setContent}
-              placeholder="<h2>Section heading</h2>&#10;<p>Write your CMS content here...</p>"
+          <div className="cms-editor-card builder-editor-card">
+            <VisualHtmlEditorTabs
+              entityLabel="page"
+              title={title}
+              h1={h1 || title}
+              permalink={permalink}
+              content={content}
+              onContentChange={setContent}
+              blocks={blocks}
+              onInsertContentBlock={(kind) => insertBlock(kind === "code" ? "p" : kind)}
+              blockTemplates={[
+                { label: "Hero section", value: "hero" },
+                { label: "Card grid", value: "cards" },
+                { label: "CTA band", value: "cta" },
+                { label: "FAQ list", value: "faq" },
+                { label: "Gallery", value: "gallery" },
+                { label: "Form embed", value: "form" }
+              ]}
+              onAddVisualBlock={addVisualBlock}
+              onUpdateVisualBlock={updateVisualBlock}
+              onMoveVisualBlock={moveVisualBlock}
+              onDuplicateVisualBlock={duplicateVisualBlock}
+              onRemoveVisualBlock={removeVisualBlock}
+              seoScore={seoScore}
+              seoTotal={seoChecks.length}
+              readabilityScore={readabilityChecks.filter((check) => check.done).length}
+              readabilityTotal={readabilityChecks.length}
+              wordCount={wordCount}
+              auxiliaryLabel="Template"
+              auxiliaryValue={template}
+              onAuxiliaryChange={setTemplate}
             />
-            <div className="cms-editor-metrics">
-              <span>{wordCount} words</span>
-              <span>Semantic headings H2-H5</span>
-              <span>No second H1 in content</span>
-            </div>
           </div>
 
           <div className="cms-editor-card">
