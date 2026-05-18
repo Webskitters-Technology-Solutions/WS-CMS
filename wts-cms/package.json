@@ -38,18 +38,18 @@
     "clean": "rimraf node_modules apps/*/.next apps/*/dist packages/*/dist coverage"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
-    "@types/node": "^22.19.19",
+    "@types/node": "^25.8.0",
     "@types/supertest": "7.2.0",
     "@wts-cms/shared": "workspace:*",
     "bcryptjs": "^3.0.3",
-    "eslint": "^9.39.2",
+    "eslint": "^10.4.0",
     "eslint-config-next": "^16.2.6",
     "globals": "^17.6.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "tsx": "^4.22.0",
+    "tsx": "^4.22.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.3"
   },
