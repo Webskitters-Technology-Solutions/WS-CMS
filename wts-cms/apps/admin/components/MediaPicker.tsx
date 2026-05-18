@@ -81,8 +81,7 @@ export function MediaPicker({
         method: "POST",
         body: data
       })) as MediaItem;
-      const mediaUrl = resolveApiAssetUrl(media.url);
-      onChange(mediaUrl);
+      onChange(media.url);
       onAltChange?.(media.altText || "");
       form.reset();
       setUploadMessage("Image uploaded and selected.");
@@ -162,7 +161,7 @@ export function MediaPicker({
                   key={item._id}
                   type="button"
                   onClick={() => {
-                    onChange(resolveApiAssetUrl(item.url));
+                    onChange(item.url);
                     onAltChange?.(item.altText || "");
                     setOpen(false);
                   }}
