@@ -7,6 +7,7 @@ services:
   proxy:
     image: docker.io/library/caddy:2-alpine
     container_name: wts-cms-proxy
+    restart: unless-stopped
     depends_on:
       - web
       - admin
@@ -14,10 +15,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "3000:3000"
+      - "3001:3001"
+      - "4000:4000"
     environment:
       PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:-localhost}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - caddy-data:/data
       - caddy-config:/config
     labels:
@@ -28,6 +33,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Containerfile
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       API_PORT: 4000
@@ -47,10 +53,15 @@ services:
     build:
       context: ../..
       dockerfile: apps/web/Containerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
+        NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
       NEXT_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
     depends_on:
       - api
 
@@ -58,14 +69,20 @@ services:
     build:
       context: ../..
       dockerfile: apps/admin/Containerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
+        ADMIN_SITE_URL: ${ADMIN_SITE_URL}
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_BASE_URL: ${API_BASE_URL}
+      ADMIN_SITE_URL: ${ADMIN_SITE_URL}
     depends_on:
       - api
 
   mongo:
     image: docker.io/library/mongo:7
+    restart: unless-stopped
     volumes:
       - mongo-data:/data/db
 
