@@ -16,7 +16,7 @@
  */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlignLeft,
   ArrowDown,
@@ -29,6 +29,8 @@ import {
   FileText,
   Image,
   Layers,
+  Maximize2,
+  Minimize2,
   Monitor,
   MousePointer2,
   Paintbrush,
@@ -39,7 +41,8 @@ import {
   Smartphone,
   Tablet,
   Trash2,
-  Type
+  Type,
+  X
 } from "lucide-react";
 import { resolveApiAssetUrl } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
@@ -125,10 +128,18 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   onAuxiliaryChange
 }: VisualHtmlEditorTabsProps<TBlock>) {
   const [mode, setMode] = useState<BuilderMode>("visual");
+  const [isStudioOpen, setIsStudioOpen] = useState(true);
   const [device, setDevice] = useState<DeviceMode>("desktop");
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("content");
   const [selectedBlockId, setSelectedBlockId] = useState<string>(blocks[0]?.id || "");
   const selectedBlock = useMemo(() => blocks.find((block) => block.id === selectedBlockId), [blocks, selectedBlockId]);
+  const shellClassName = `builder-editor-shell ${mode === "visual" && isStudioOpen ? "is-fullscreen" : ""}`;
+
+  useEffect(() => {
+    if (selectedBlockId && !blocks.some((block) => block.id === selectedBlockId)) {
+      setSelectedBlockId(blocks[0]?.id || "");
+    }
+  }, [blocks, selectedBlockId]);
 
   function updateSelectedBlock(patch: Partial<TBlock>) {
     if (!selectedBlock) {
@@ -150,14 +161,47 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   }
 
   return (
-    <div className="builder-editor-shell">
-      <div className="builder-mode-tabs" role="tablist" aria-label={`${entityLabel} editing mode`}>
-        <button className={mode === "visual" ? "active" : ""} type="button" role="tab" onClick={() => setMode("visual")}>
-          <MousePointer2 size={16} /> Visual editor
-        </button>
-        <button className={mode === "html" ? "active" : ""} type="button" role="tab" onClick={() => setMode("html")}>
-          <Code2 size={16} /> HTML editor
-        </button>
+    <div className={shellClassName}>
+      <div className="builder-studio-topbar">
+        <div className="builder-studio-title">
+          <strong>{entityLabel === "article" ? "Article visual studio" : `${labelForBlock(entityLabel)} visual studio`}</strong>
+          <span>{h1 || title || `Untitled ${entityLabel}`} · {permalink || "/"}</span>
+        </div>
+        <div className="builder-mode-tabs" role="tablist" aria-label={`${entityLabel} editing mode`}>
+          <button
+            className={mode === "visual" ? "active" : ""}
+            type="button"
+            role="tab"
+            onClick={() => {
+              setMode("visual");
+              setIsStudioOpen(true);
+            }}
+          >
+            <MousePointer2 size={16} /> Visual editor
+          </button>
+          <button
+            className={mode === "html" ? "active" : ""}
+            type="button"
+            role="tab"
+            onClick={() => {
+              setMode("html");
+              setIsStudioOpen(false);
+            }}
+          >
+            <Code2 size={16} /> HTML editor
+          </button>
+        </div>
+        <div className="builder-studio-actions">
+          <span>{wordCount} words</span>
+          <button
+            type="button"
+            onClick={() => setIsStudioOpen((value) => !value)}
+            aria-label={isStudioOpen ? "Exit full screen editor" : "Open full screen editor"}
+          >
+            {isStudioOpen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            {isStudioOpen ? "Exit studio" : "Full screen"}
+          </button>
+        </div>
       </div>
 
       {mode === "html" ? (
@@ -255,18 +299,6 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                     ) : null}
                   </>
                 )}
-                <div className="builder-template-list">
-                  <span className="cms-kicker">Add visual block</span>
-                  {blockTemplates.map((template) => (
-                    <button
-                      key={String(template.value)}
-                      type="button"
-                      onClick={() => onAddVisualBlock(template.value)}
-                    >
-                      <Plus size={15} /> {template.label}
-                    </button>
-                  ))}
-                </div>
               </div>
             ) : null}
             {inspectorTab === "style" ? (
@@ -409,16 +441,28 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                     onClick={() => setSelectedBlockId(block.id)}
                   >
                     <div className="builder-block-controls">
-                      <button type="button" aria-label="Move block up" onClick={() => onMoveVisualBlock(block.id, -1)}>
+                      <button type="button" aria-label="Move block up" onClick={(event) => {
+                        event.stopPropagation();
+                        onMoveVisualBlock(block.id, -1);
+                      }}>
                         <ArrowUp size={14} />
                       </button>
-                      <button type="button" aria-label="Move block down" onClick={() => onMoveVisualBlock(block.id, 1)}>
+                      <button type="button" aria-label="Move block down" onClick={(event) => {
+                        event.stopPropagation();
+                        onMoveVisualBlock(block.id, 1);
+                      }}>
                         <ArrowDown size={14} />
                       </button>
-                      <button type="button" aria-label="Duplicate block" onClick={() => onDuplicateVisualBlock(block)}>
+                      <button type="button" aria-label="Duplicate block" onClick={(event) => {
+                        event.stopPropagation();
+                        onDuplicateVisualBlock(block);
+                      }}>
                         <Copy size={14} />
                       </button>
-                      <button type="button" aria-label="Delete block" onClick={() => onRemoveVisualBlock(block.id)}>
+                      <button type="button" aria-label="Delete block" onClick={(event) => {
+                        event.stopPropagation();
+                        onRemoveVisualBlock(block.id);
+                      }}>
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -428,6 +472,52 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
               </article>
             </div>
           </section>
+
+          <aside className="builder-outline" aria-label="Visual blocks and layers">
+            <div className="builder-outline-card">
+              <div className="builder-outline-header">
+                <span className="cms-kicker">Add blocks</span>
+                <Plus size={17} />
+              </div>
+              <div className="builder-template-list">
+                {blockTemplates.map((template) => (
+                  <button key={String(template.value)} type="button" onClick={() => onAddVisualBlock(template.value)}>
+                    <Plus size={15} /> {template.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="builder-outline-card">
+              <div className="builder-outline-header">
+                <span className="cms-kicker">Layers</span>
+                <Layers size={17} />
+              </div>
+              <div className="builder-layer-list">
+                {blocks.length ? (
+                  blocks.map((block, index) => (
+                    <button
+                      className={selectedBlockId === block.id ? "active" : ""}
+                      key={block.id}
+                      type="button"
+                      onClick={() => setSelectedBlockId(block.id)}
+                    >
+                      <span>{index + 1}</span>
+                      <strong>{block.title || labelForBlock(block.type)}</strong>
+                      <small>{labelForBlock(block.type)}</small>
+                    </button>
+                  ))
+                ) : (
+                  <div className="builder-outline-empty">
+                    <Box size={22} />
+                    <span>No visual blocks yet</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <button className="builder-outline-close" type="button" onClick={() => setIsStudioOpen(false)}>
+              <X size={16} /> Return to page settings
+            </button>
+          </aside>
         </div>
       )}
     </div>

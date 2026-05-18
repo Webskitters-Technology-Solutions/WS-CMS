@@ -3029,14 +3029,78 @@ pre {
   background: #f8fbff;
   display: grid;
   gap: 0;
+  grid-template-rows: auto 1fr;
+}
+
+.builder-editor-shell.is-fullscreen {
+  background: #eaf1f8;
+  height: 100vh;
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+  width: 100vw;
+  z-index: 1000;
+}
+
+.builder-studio-topbar {
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #d8e1ec;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  min-height: 72px;
+  padding: 12px 18px;
+}
+
+.builder-studio-title {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.builder-studio-title strong {
+  color: #172033;
+  font-size: 18px;
+}
+
+.builder-studio-title span {
+  color: #657287;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.builder-studio-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.builder-studio-actions span {
+  color: #657287;
+  font-size: 13px;
+}
+
+.builder-studio-actions button {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #d8e1ec;
+  border-radius: 8px;
+  color: #172033;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
 }
 
 .builder-mode-tabs {
-  background: #ffffff;
-  border-bottom: 1px solid #d8e1ec;
   display: flex;
   gap: 8px;
-  padding: 12px;
+  justify-content: center;
 }
 
 .builder-mode-tabs button,
@@ -3078,8 +3142,22 @@ pre {
 
 .builder-workbench {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 340px minmax(0, 1fr) 300px;
   min-height: 720px;
+  min-width: 0;
+}
+
+.builder-editor-shell.is-fullscreen .builder-workbench {
+  height: calc(100vh - 72px);
+  min-height: 0;
+}
+
+.builder-editor-shell:not(.is-fullscreen) .builder-workbench {
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.builder-editor-shell:not(.is-fullscreen) .builder-outline {
+  display: none;
 }
 
 .builder-inspector {
@@ -3123,9 +3201,13 @@ pre {
   align-content: start;
   display: grid;
   gap: 14px;
-  max-height: 650px;
+  min-height: 0;
   overflow-y: auto;
   padding: 16px;
+}
+
+.builder-editor-shell:not(.is-fullscreen) .builder-inspector-panel {
+  max-height: 650px;
 }
 
 .builder-inspector-panel textarea {
@@ -3162,11 +3244,12 @@ pre {
   display: grid;
   grid-template-rows: auto 1fr;
   min-width: 0;
+  min-height: 0;
 }
 
 .builder-toolbar {
   align-items: center;
-  background: #14213d;
+  background: #13223b;
   color: #ffffff;
   display: flex;
   gap: 12px;
@@ -3224,9 +3307,10 @@ pre {
     linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px);
   background-color: #eef3f8;
   background-size: 24px 24px;
+  height: 100%;
   min-width: 0;
   overflow: auto;
-  padding: 22px;
+  padding: 34px;
 }
 
 .builder-canvas-wrap.device-tablet .builder-canvas {
@@ -3248,6 +3332,7 @@ pre {
   min-height: 620px;
   overflow: hidden;
   transition: max-width 180ms ease;
+  width: min(1180px, 100%);
 }
 
 .builder-canvas-nav {
@@ -3518,6 +3603,114 @@ pre {
   padding-top: 72px;
 }
 
+.builder-outline {
+  background: #f8fafc;
+  border-left: 1px solid #d8e1ec;
+  display: grid;
+  gap: 14px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px;
+}
+
+.builder-outline-card {
+  background: #ffffff;
+  border: 1px solid #d8e1ec;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  min-height: 0;
+  padding: 14px;
+}
+
+.builder-outline-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.builder-layer-list {
+  display: grid;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.builder-layer-list button {
+  background: #ffffff;
+  border: 1px solid #d8e1ec;
+  border-radius: 8px;
+  color: #172033;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: auto 1fr;
+  padding: 11px;
+  text-align: left;
+}
+
+.builder-layer-list button.active {
+  background: #e8f6f4;
+  border-color: #9bd5cc;
+}
+
+.builder-layer-list button span {
+  align-items: center;
+  background: #eef3f8;
+  border-radius: 999px;
+  color: #657287;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  grid-row: span 2;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.builder-layer-list button strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.builder-layer-list button small {
+  color: #657287;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.builder-outline-empty {
+  align-items: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #657287;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-height: 120px;
+  padding: 18px;
+  text-align: center;
+}
+
+.builder-outline-close {
+  align-items: center;
+  background: #172033;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  width: 100%;
+}
+
 @media (max-width: 1180px) {
   .dashboard-layout,
   .roles-layout,
@@ -3526,7 +3719,7 @@ pre {
   }
 
   .builder-workbench {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 280px minmax(0, 1fr) 260px;
   }
 
   .builder-toolbar {
@@ -3783,8 +3976,25 @@ pre {
     flex-direction: column;
   }
 
+  .builder-editor-shell.is-fullscreen {
+    overflow: auto;
+  }
+
+  .builder-editor-shell.is-fullscreen .builder-workbench {
+    height: auto;
+  }
+
+  .builder-studio-topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-studio-actions {
+    justify-content: stretch;
+  }
+
   .builder-mode-tabs button,
-  .builder-toolbar button {
+  .builder-toolbar button,
+  .builder-studio-actions button {
     width: 100%;
   }
 
@@ -3796,6 +4006,11 @@ pre {
   .builder-inspector {
     border-right: 0;
     border-bottom: 1px solid #d8e1ec;
+  }
+
+  .builder-outline {
+    border-left: 0;
+    border-top: 1px solid #d8e1ec;
   }
 
   .builder-inspector-panel {
