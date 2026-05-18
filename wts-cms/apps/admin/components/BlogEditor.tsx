@@ -35,12 +35,9 @@ import {
   Image,
   Link2,
   ListChecks,
-  ListPlus,
   Monitor,
   MoreHorizontal,
   PanelRight,
-  Plus,
-  Quote,
   RotateCcw,
   Save,
   Search,
@@ -53,6 +50,7 @@ import {
 import { adminApi, hasAdminSession } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
 import { MediaPicker } from "./MediaPicker";
+import { VisualHtmlEditorTabs } from "./VisualHtmlEditorTabs";
 import type { BlogPost } from "./BlogsWorkspace";
 
 type PanelKey = "content" | "seo" | "publish" | "taxonomy" | "social";
@@ -65,6 +63,13 @@ type BlogBlock = {
   title?: string;
   body?: string;
   mediaUrl?: string;
+  settings?: {
+    align?: "left" | "center" | "right";
+    spacing?: string;
+    background?: string;
+    anchor?: string;
+    customClass?: string;
+  };
 };
 
 function FacebookIcon(props: { className?: string }) {
@@ -677,39 +682,35 @@ export function BlogEditor({ initialBlog, onBack }: { initialBlog?: BlogPost | n
             </div>
           </div>
 
-          <div className="cms-editor-card">
-            <div className="cms-card-header">
-              <div>
-                <span className="cms-kicker">Article editor</span>
-                <h2>Write the blog body</h2>
-              </div>
-              <div className="cms-block-actions">
-                <button type="button" onClick={() => insertBlock("p")}>
-                  <Plus size={15} /> Paragraph
-                </button>
-                <button type="button" onClick={() => insertBlock("h2")}>
-                  <Heading2 size={15} /> H2
-                </button>
-                <button type="button" onClick={() => insertBlock("blockquote")}>
-                  <Quote size={15} /> Quote
-                </button>
-                <button type="button" onClick={() => insertBlock("ul")}>
-                  <ListPlus size={15} /> List
-                </button>
-              </div>
-            </div>
-            <AdminTextEditor
-              mode="rich"
-              minHeight={380}
-              value={content}
-              onChange={setContent}
-              placeholder="<h2>Article section heading</h2>&#10;<p>Write your blog content here...</p>"
+          <div className="cms-editor-card builder-editor-card">
+            <VisualHtmlEditorTabs
+              entityLabel="article"
+              title={title}
+              h1={h1 || title}
+              permalink={permalink}
+              content={content}
+              onContentChange={setContent}
+              blocks={blocks}
+              onInsertContentBlock={insertBlock}
+              blockTemplates={[
+                { label: "CTA block", value: "cta" },
+                { label: "FAQ block", value: "faq" },
+                { label: "Gallery block", value: "gallery" }
+              ]}
+              onAddVisualBlock={addBlogBlock}
+              onUpdateVisualBlock={updateBlogBlock}
+              onMoveVisualBlock={moveBlogBlock}
+              onDuplicateVisualBlock={duplicateBlogBlock}
+              onRemoveVisualBlock={removeBlogBlock}
+              seoScore={seoScore}
+              seoTotal={seoChecks.length}
+              readabilityScore={readabilityChecks.filter((check) => check.done).length}
+              readabilityTotal={readabilityChecks.length}
+              wordCount={wordCount}
+              auxiliaryLabel="Author name"
+              auxiliaryValue={authorName}
+              onAuxiliaryChange={setAuthorName}
             />
-            <div className="cms-editor-metrics">
-              <span>{readingTime} min read</span>
-              <span>H2/H3 used for table of contents</span>
-              <span>Visual and HTML editing enabled</span>
-            </div>
           </div>
 
           <div className="cms-editor-card">
