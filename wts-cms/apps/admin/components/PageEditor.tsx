@@ -50,7 +50,7 @@ import {
   Smartphone,
   X
 } from "lucide-react";
-import { adminApi, hasAdminSession } from "../lib/api";
+import { adminApi, hasAdminSession, resolveApiAssetUrl } from "../lib/api";
 import { AdminTextEditor } from "./AdminTextEditor";
 import { MediaPicker } from "./MediaPicker";
 
@@ -1274,7 +1274,7 @@ function DraftPagePreview({
       </header>
       {blocks.map((block) => (
         <section className={`draft-block draft-block-${block.type}`} key={block.id}>
-          {block.mediaUrl ? <img src={block.mediaUrl} alt="" /> : null}
+          {block.mediaUrl ? <img src={resolveApiAssetUrl(block.mediaUrl)} alt="" /> : null}
           <div>
             <span className="cms-kicker">{block.type}</span>
             <h2>{block.title || "Untitled block"}</h2>
@@ -1285,7 +1285,7 @@ function DraftPagePreview({
             <div className="draft-block-items">
               {block.items.map((item, index) => (
                 <article key={`${block.id}-preview-${index}`}>
-                  {item.image ? <img src={item.image} alt={item.imageAlt || ""} /> : null}
+                  {item.image ? <img src={resolveApiAssetUrl(item.image)} alt={item.imageAlt || ""} /> : null}
                   <strong>{item.title || "Item title"}</strong>
                   <p>{item.body || "Item description"}</p>
                 </article>

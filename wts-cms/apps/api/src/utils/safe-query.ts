@@ -16,22 +16,20 @@
  */
 import { Types } from "mongoose";
 
-const objectIdPattern = /^[a-f\d]{24}$/i;
-const textPattern = /^[\p{L}\p{N}\s.,'@:_/-]{0,160}$/u;
-const slugLikePattern = /^[a-z0-9][a-z0-9_-]{0,79}$/i;
-const unsafeMongoKeyPattern = /[$.]/;
+const maxSearchLength = 160;
+const maxSlugLikeLength = 80;
 
 export function safeObjectId(value: unknown): Types.ObjectId {
   const id = typeof value === "string" ? value.trim() : "";
-  if (!objectIdPattern.test(id)) {
+  if (!isHexObjectId(id)) {
     throw Object.assign(new Error("Invalid resource identifier"), { status: 400 });
   }
   return new Types.ObjectId(id);
 }
 
 export function safeSearchRegex(value: unknown): RegExp | null {
-  const text = typeof value === "string" ? value.trim().slice(0, 160) : "";
-  if (!text || !textPattern.test(text)) {
+  const text = typeof value === "string" ? value.trim().slice(0, maxSearchLength) : "";
+  if (!text || !isSafeSearchText(text)) {
     return null;
   }
   return new RegExp(escapeRegExp(text), "i");
@@ -39,7 +37,7 @@ export function safeSearchRegex(value: unknown): RegExp | null {
 
 export function safeSlugLike(value: unknown): string | null {
   const text = typeof value === "string" ? value.trim() : "";
-  return slugLikePattern.test(text) ? text : null;
+  return isSafeSlugLike(text) ? text : null;
 }
 
 export function safeStatus<T extends readonly string[]>(value: unknown, allowed: T): T[number] | null {
@@ -73,9 +71,79 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isSafeMongoKey(key: string): boolean {
-  return key !== "__proto__" && key !== "constructor" && key !== "prototype" && !unsafeMongoKeyPattern.test(key);
+  return key !== "__proto__" && key !== "constructor" && key !== "prototype" && !key.includes("$") && !key.includes(".");
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
+  let escaped = "";
+  for (const char of value) {
+    escaped += isRegexMetaCharacter(char) ? `\\${char}` : char;
+  }
+  return escaped;
+}
+
+function isHexObjectId(value: string): boolean {
+  if (value.length !== 24) {
+    return false;
+  }
+  for (const char of value) {
+    const code = char.charCodeAt(0);
+    const isDigit = code >= 48 && code <= 57;
+    const isLowerHex = code >= 97 && code <= 102;
+    const isUpperHex = code >= 65 && code <= 70;
+    if (!isDigit && !isLowerHex && !isUpperHex) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isSafeSearchText(value: string): boolean {
+  if (value.length > maxSearchLength) {
+    return false;
+  }
+  for (const char of value) {
+    if (char.trim() === "") {
+      continue;
+    }
+    if (isSearchPunctuation(char) || isLetterOrNumber(char)) {
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+function isSafeSlugLike(value: string): boolean {
+  if (!value || value.length > maxSlugLikeLength || !isAsciiLetterOrDigit(value.charAt(0))) {
+    return false;
+  }
+  for (const char of value) {
+    if (!isAsciiLetterOrDigit(char) && char !== "_" && char !== "-") {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isLetterOrNumber(char: string): boolean {
+  return char.toLocaleLowerCase() !== char.toLocaleUpperCase() || isAsciiDigit(char);
+}
+
+function isAsciiLetterOrDigit(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return (code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
+
+function isAsciiDigit(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return code >= 48 && code <= 57;
+}
+
+function isSearchPunctuation(char: string): boolean {
+  return char === "." || char === "," || char === "'" || char === "@" || char === ":" || char === "_" || char === "/" || char === "-";
+}
+
+function isRegexMetaCharacter(char: string): boolean {
+  return char === "\\" || char === "^" || char === "$" || char === "*" || char === "+" || char === "?" || char === "." || char === "(" || char === ")" || char === "|" || char === "[" || char === "]" || char === "{" || char === "}";
 }

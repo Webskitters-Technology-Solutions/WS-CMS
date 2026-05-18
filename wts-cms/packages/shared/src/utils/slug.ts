@@ -73,7 +73,7 @@ export function validateSlug(slug: string): void {
   if (RESERVED_PATHS.has(slug)) {
     throw new Error(`Slug "${slug}" is reserved.`);
   }
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+  if (!isLowercaseHyphenSlug(slug)) {
     throw new Error("Slug must be lowercase, hyphenated, and URL safe.");
   }
 }
@@ -94,4 +94,26 @@ export function trimSlashes(value: string): string {
     end -= 1;
   }
   return value.slice(start, end);
+}
+
+function isLowercaseHyphenSlug(value: string): boolean {
+  let previousWasHyphen = false;
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value.charAt(index);
+    const code = char.charCodeAt(0);
+    const isLowercaseLetter = code >= 97 && code <= 122;
+    const isDigit = code >= 48 && code <= 57;
+    const isHyphen = char === "-";
+
+    if (isHyphen && (index === 0 || index === value.length - 1 || previousWasHyphen)) {
+      return false;
+    }
+
+    if (!isLowercaseLetter && !isDigit && !isHyphen) {
+      return false;
+    }
+
+    previousWasHyphen = isHyphen;
+  }
+  return true;
 }
