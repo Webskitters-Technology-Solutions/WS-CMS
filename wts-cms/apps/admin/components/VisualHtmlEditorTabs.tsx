@@ -134,12 +134,26 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   const [selectedBlockId, setSelectedBlockId] = useState<string>(blocks[0]?.id || "");
   const selectedBlock = useMemo(() => blocks.find((block) => block.id === selectedBlockId), [blocks, selectedBlockId]);
   const shellClassName = `builder-editor-shell ${mode === "visual" && isStudioOpen ? "is-fullscreen" : ""}`;
+  const isFullscreenVisualMode = mode === "visual" && isStudioOpen;
 
   useEffect(() => {
     if (selectedBlockId && !blocks.some((block) => block.id === selectedBlockId)) {
       setSelectedBlockId(blocks[0]?.id || "");
     }
   }, [blocks, selectedBlockId]);
+
+  useEffect(() => {
+    if (!isFullscreenVisualMode) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFullscreenVisualMode]);
 
   function updateSelectedBlock(patch: Partial<TBlock>) {
     if (!selectedBlock) {
@@ -382,13 +396,34 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                 </button>
               </div>
               <div className="builder-device-toggle" aria-label="Preview device">
-                <button className={device === "desktop" ? "active" : ""} type="button" onClick={() => setDevice("desktop")} aria-label="Desktop preview">
+                <button
+                  className={device === "desktop" ? "active" : ""}
+                  type="button"
+                  onClick={() => setDevice("desktop")}
+                  aria-label="Desktop preview"
+                  aria-pressed={device === "desktop"}
+                  title="Desktop preview"
+                >
                   <Monitor size={16} />
                 </button>
-                <button className={device === "tablet" ? "active" : ""} type="button" onClick={() => setDevice("tablet")} aria-label="Tablet preview">
+                <button
+                  className={device === "tablet" ? "active" : ""}
+                  type="button"
+                  onClick={() => setDevice("tablet")}
+                  aria-label="Tablet preview"
+                  aria-pressed={device === "tablet"}
+                  title="Tablet preview"
+                >
                   <Tablet size={16} />
                 </button>
-                <button className={device === "mobile" ? "active" : ""} type="button" onClick={() => setDevice("mobile")} aria-label="Mobile preview">
+                <button
+                  className={device === "mobile" ? "active" : ""}
+                  type="button"
+                  onClick={() => setDevice("mobile")}
+                  aria-label="Mobile preview"
+                  aria-pressed={device === "mobile"}
+                  title="Mobile preview"
+                >
                   <Smartphone size={16} />
                 </button>
               </div>
@@ -404,6 +439,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
               </div>
             </div>
             <div className={`builder-canvas-wrap device-${device}`}>
+              <span className="builder-device-label">{device} preview</span>
               <article className="builder-canvas">
                 <header className="builder-canvas-nav">
                   <strong>WS CMS</strong>
