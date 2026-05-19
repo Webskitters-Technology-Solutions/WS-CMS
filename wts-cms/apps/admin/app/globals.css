@@ -3333,33 +3333,35 @@ pre {
   z-index: 2;
 }
 
-.builder-canvas-wrap.device-desktop .builder-canvas {
-  width: min(1180px, 100%);
-}
-
-.builder-canvas-wrap.device-tablet .builder-canvas {
-  width: min(768px, 100%);
-}
-
-.builder-canvas-wrap.device-mobile .builder-canvas {
-  border-radius: 22px;
-  min-height: 720px;
-  width: min(390px, 100%);
-}
-
 .builder-canvas {
   background: #ffffff;
   border: 1px solid #d8e1ec;
   border-radius: 8px;
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
   display: grid;
+  flex: 0 0 auto;
   margin: 0 auto;
   min-height: 620px;
   overflow: hidden;
-  transition:
-    border-radius 180ms ease,
-    width 180ms ease;
+  transition: border-radius 180ms ease;
   width: min(1180px, 100%);
+}
+
+.builder-canvas-wrap.device-desktop .builder-canvas {
+  max-width: none;
+  width: 1180px;
+}
+
+.builder-canvas-wrap.device-tablet .builder-canvas {
+  max-width: none;
+  width: 768px;
+}
+
+.builder-canvas-wrap.device-mobile .builder-canvas {
+  border-radius: 22px;
+  max-width: none;
+  min-height: 720px;
+  width: 390px;
 }
 
 .builder-canvas-nav {

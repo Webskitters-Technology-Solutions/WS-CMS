@@ -33,6 +33,32 @@ async function login(page: any) {
   await expect(page).toHaveURL(/\/dashboard/);
 }
 
+async function expectNoCriticalBrowserIssues(page: any, visit: () => Promise<void>) {
+  const issues: string[] = [];
+
+  page.on("pageerror", (error: Error) => {
+    issues.push(`pageerror: ${error.message}`);
+  });
+
+  page.on("console", (message: any) => {
+    if (message.type() === "error") {
+      issues.push(`console: ${message.text()}`);
+    }
+  });
+
+  page.on("requestfailed", (request: any) => {
+    const url = request.url();
+    if (url.includes("/_next/") || url.includes("favicon.ico") || url.includes(".css") || url.includes(".js")) {
+      issues.push(`requestfailed: ${url} ${request.failure()?.errorText || ""}`.trim());
+    }
+  });
+
+  await visit();
+  await page.waitForLoadState("networkidle");
+
+  expect(issues, "page should not emit critical console errors or fail core assets").toEqual([]);
+}
+
 test("public WTS CMS home renders Webskitters content", async ({ page }) => {
   await page.goto(webUrl);
   await expect(page.getByRole("heading", { name: /WTS CMS/i }).first()).toBeVisible();
@@ -48,7 +74,7 @@ test("admin login page renders Webskitters branding", async ({ page }) => {
 });
 
 test("public visual QA covers core WTS CMS content routes", async ({ page }) => {
-  for (const path of ["/", "/contact-us", "/gallery", "/blog/welcome-to-wts-cms"]) {
+  for (const path of ["/", "/about-us", "/contact-us", "/gallery", "/team", "/blog/welcome-to-wts-cms"]) {
     await page.goto(`${webUrl}${path}`);
     await expect(page.getByText(/Powered by Webskitters/i).first()).toBeVisible();
     await expectNoHorizontalOverflow(page, path);
@@ -71,6 +97,7 @@ test("API exposes health, readiness, and security headers", async ({ request }) 
   expect(health.headers()["content-security-policy"]).toContain("default-src 'self'");
   expect(health.headers()["x-content-type-options"]).toBe("nosniff");
   expect(health.headers()["x-frame-options"]).toBe("DENY");
+  expect(health.headers()["strict-transport-security"]).toBe("max-age=15552000; includeSubDomains; preload");
 
   const ready = await request.get(`${apiUrl}/ready`);
   expect(ready.ok()).toBe(true);
@@ -116,6 +143,66 @@ test("admin authenticated journey covers dashboard, pages, import export, and ed
   await page.getByRole("button", { name: /Generate export/i }).click();
   await expect(page.getByText(/Export generated/i)).toBeVisible();
   await expectNoHorizontalOverflow(page, "import export");
+});
+
+test("production pages load styled assets without critical runtime errors", async ({ page }) => {
+  await expectNoCriticalBrowserIssues(page, async () => {
+    await page.goto(`${adminUrl}/login`);
+    await expect(page.locator(".login-panel")).toBeVisible();
+    await expect(page.locator("link[rel='stylesheet']").first()).toBeAttached();
+  });
+
+  await expectNoCriticalBrowserIssues(page, async () => {
+    await page.goto(`${webUrl}/team`);
+    await expect(page.getByRole("heading", { name: /teams, roles/i }).first()).toBeVisible();
+    await expect(page.locator(".site-header")).toBeVisible();
+  });
+});
+
+test("visual editor supports fullscreen editing, card selection, and device previews", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Device preview controls are validated in the desktop visual studio.");
+
+  await login(page);
+  await page.goto(`${adminUrl}/pages`);
+  await expect(page.locator("main h1", { hasText: "Pages" })).toBeVisible();
+
+  const teamRow = page.locator("tr", { hasText: "Team" }).first();
+  await expect(teamRow).toBeVisible();
+  await teamRow.getByRole("button", { name: "Edit page" }).click();
+
+  await expect(page.getByText(/Page visual studio/i)).toBeVisible();
+  const shell = page.locator(".builder-editor-shell");
+  await expect(shell).toHaveClass(/is-fullscreen/);
+
+  const workbenchBox = await page.locator(".builder-workbench").boundingBox();
+  expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(620);
+
+  const cardBlock = page.locator(".builder-block-preview", { hasText: "Example CMS delivery roles" }).first();
+  await expect(cardBlock).toBeVisible();
+  await cardBlock.click();
+  await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
+  await expect(page.locator(".builder-item-card", { hasText: "Product Owner" })).toBeVisible();
+
+  const desktopButton = page.getByRole("button", { name: "Desktop preview" });
+  const tabletButton = page.getByRole("button", { name: "Tablet preview" });
+  const mobileButton = page.getByRole("button", { name: "Mobile preview" });
+  const canvas = page.locator(".builder-canvas");
+
+  await desktopButton.click();
+  const desktopWidth = (await canvas.boundingBox())?.width || 0;
+  await tabletButton.click();
+  await expect(page.locator(".builder-canvas-wrap")).toHaveClass(/device-tablet/);
+  const tabletWidth = (await canvas.boundingBox())?.width || 0;
+  await mobileButton.click();
+  await expect(page.locator(".builder-canvas-wrap")).toHaveClass(/device-mobile/);
+  const mobileWidth = (await canvas.boundingBox())?.width || 0;
+
+  expect(desktopWidth).toBeGreaterThan(tabletWidth);
+  expect(tabletWidth).toBeGreaterThan(mobileWidth);
+  expect(mobileWidth).toBeLessThanOrEqual(410);
+
+  await page.getByRole("button", { name: /Return to page settings/i }).click();
+  await expect(shell).not.toHaveClass(/is-fullscreen/);
 });
 
 test("admin mobile pages remain usable without horizontal overflow", async ({ page }) => {
