@@ -8,15 +8,6 @@
   default_sni {$PUBLIC_DOMAIN}
 }
 
-(secure_headers) {
-  header {
-    X-Content-Type-Options nosniff
-    Referrer-Policy strict-origin-when-cross-origin
-    Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
-  }
-}
-
 (ip_tls) {
   tls /etc/letsencrypt/live/{$PUBLIC_DOMAIN}/fullchain.pem /etc/letsencrypt/live/{$PUBLIC_DOMAIN}/privkey.pem
 }
@@ -28,21 +19,18 @@ http://{$PUBLIC_DOMAIN:localhost} {
 https://{$PUBLIC_DOMAIN:localhost} {
   import ip_tls
   encode zstd gzip
-  import secure_headers
   reverse_proxy web:3000
 }
 
 https://{$PUBLIC_DOMAIN:localhost}:3000 {
   import ip_tls
   encode zstd gzip
-  import secure_headers
   reverse_proxy web:3000
 }
 
 https://{$PUBLIC_DOMAIN:localhost}:3001 {
   import ip_tls
   encode zstd gzip
-  import secure_headers
   header {
     X-Frame-Options DENY
   }
@@ -52,6 +40,5 @@ https://{$PUBLIC_DOMAIN:localhost}:3001 {
 https://{$PUBLIC_DOMAIN:localhost}:4000 {
   import ip_tls
   encode zstd gzip
-  import secure_headers
   reverse_proxy api:4000
 }

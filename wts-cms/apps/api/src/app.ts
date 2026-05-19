@@ -177,11 +177,13 @@ export function createApp() {
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: env.NODE_ENV === "development" ? 500 : 20,
+    skipSuccessfulRequests: true,
     standardHeaders: true,
     legacyHeaders: false,
     handler: (_req, res) => fail(res, 429, "Too many login attempts, please wait and try again.", "AUTH_RATE_LIMITED")
   });
-  app.use("/api/auth", authLimiter, authRouter);
+  app.use("/api/auth/login", authLimiter);
+  app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/roles", rolesRouter);
   app.use("/api/permissions", permissionsRouter);
