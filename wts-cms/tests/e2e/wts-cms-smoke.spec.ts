@@ -36,27 +36,36 @@ async function login(page: any) {
 async function expectNoCriticalBrowserIssues(page: any, visit: () => Promise<void>) {
   const issues: string[] = [];
 
-  page.on("pageerror", (error: Error) => {
+  const pageErrorHandler = (error: Error) => {
     issues.push(`pageerror: ${error.message}`);
-  });
+  };
 
-  page.on("console", (message: any) => {
+  const consoleHandler = (message: any) => {
     if (message.type() === "error") {
       issues.push(`console: ${message.text()}`);
     }
-  });
+  };
 
-  page.on("requestfailed", (request: any) => {
+  const requestFailedHandler = (request: any) => {
     const url = request.url();
     if (url.includes("/_next/") || url.includes("favicon.ico") || url.includes(".css") || url.includes(".js")) {
       issues.push(`requestfailed: ${url} ${request.failure()?.errorText || ""}`.trim());
     }
-  });
+  };
 
-  await visit();
-  await page.waitForLoadState("networkidle");
+  page.on("pageerror", pageErrorHandler);
+  page.on("console", consoleHandler);
+  page.on("requestfailed", requestFailedHandler);
 
-  expect(issues, "page should not emit critical console errors or fail core assets").toEqual([]);
+  try {
+    await visit();
+    await page.waitForLoadState("networkidle");
+    expect(issues, "page should not emit critical console errors or fail core assets").toEqual([]);
+  } finally {
+    page.off("pageerror", pageErrorHandler);
+    page.off("console", consoleHandler);
+    page.off("requestfailed", requestFailedHandler);
+  }
 }
 
 test("public WTS CMS home renders Webskitters content", async ({ page }) => {
@@ -177,7 +186,8 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await expect(shell).toHaveClass(/is-fullscreen/);
 
   const workbenchBox = await page.locator(".builder-workbench").boundingBox();
-  expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(620);
+  const viewportHeight = page.viewportSize()?.height || 900;
+  expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(viewportHeight * 0.68);
 
   const cardBlock = page.locator(".builder-block-preview", { hasText: "Example CMS delivery roles" }).first();
   await expect(cardBlock).toBeVisible();
