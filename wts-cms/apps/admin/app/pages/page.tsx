@@ -15,7 +15,12 @@
  * ================================================================
  */
 import { PagesWorkspace } from "../../components/PagesWorkspace";
+import { Suspense } from "react";
 
 export default function PagesAdmin() {
-  return <PagesWorkspace />;
+  return (
+    <Suspense fallback={<div className="admin-route-loading">Loading WTS CMS pages...</div>}>
+      <PagesWorkspace />
+    </Suspense>
+  );
 }

@@ -181,9 +181,14 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await expect(teamRow).toBeVisible();
   await teamRow.getByRole("button", { name: "Edit page" }).click();
 
+  await expect(page).toHaveURL(/\/pages\?edit=/);
+  await expect(page.getByText(/Page visual studio/i)).toBeVisible();
+  await page.reload();
   await expect(page.getByText(/Page visual studio/i)).toBeVisible();
   const shell = page.locator(".builder-editor-shell");
   await expect(shell).toHaveClass(/is-fullscreen/);
+  await expect(page.locator(".builder-canvas-nav")).toBeVisible();
+  await expect(page.locator(".builder-canvas-footer")).toBeVisible();
 
   const workbenchBox = await page.locator(".builder-workbench").boundingBox();
   const viewportHeight = page.viewportSize()?.height || 900;
@@ -194,8 +199,18 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await cardBlock.click();
   await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
   await expect(page.locator(".builder-item-card", { hasText: "Product Owner" })).toBeVisible();
+  const nestedControlColor = await page.getByRole("button", { name: "Move item up" }).first().evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(nestedControlColor, "nested item controls should use the dark theme background").not.toBe("rgb(255, 255, 255)");
 
   const visualBlocksPanel = page.getByLabel("Visual blocks and layers");
+  const layersButton = page.getByRole("button", { name: "Layers" }).first();
+  await layersButton.click();
+  await layersButton.click();
+  await layersButton.click();
+  await expect(visualBlocksPanel.getByRole("button", { name: /Hero section/i })).toBeVisible();
+  await expect(page.locator(".builder-layer-list button").first()).toBeVisible();
+  await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
+
   await visualBlocksPanel.getByRole("button", { name: /CTA band/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /FAQ list/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /Gallery/i }).click();
@@ -233,6 +248,25 @@ test("visual editor supports fullscreen editing, card selection, and device prev
 
   await page.getByRole("button", { name: /Return to page settings/i }).click();
   await expect(shell).not.toHaveClass(/is-fullscreen/);
+});
+
+test("blog visual editor keeps edit context after refresh", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Editor refresh behavior is covered in the desktop visual studio.");
+
+  await login(page);
+  await page.goto(`${adminUrl}/blogs`);
+  await expect(page.locator("main h1", { hasText: "Blog Posts" })).toBeVisible();
+
+  const blogRow = page.locator("tbody tr").first();
+  await expect(blogRow).toBeVisible();
+  await blogRow.getByRole("button", { name: "Edit blog post" }).click();
+
+  await expect(page).toHaveURL(/\/blogs\?edit=/);
+  await expect(page.getByText(/Article visual studio/i)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(/Article visual studio/i)).toBeVisible();
+  await expect(page.locator(".builder-canvas-nav")).toBeVisible();
+  await expect(page.locator(".builder-canvas-footer")).toBeVisible();
 });
 
 test("admin mobile pages remain usable without horizontal overflow", async ({ page }) => {

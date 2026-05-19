@@ -17,6 +17,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Archive,
   BookOpen,
@@ -82,6 +83,10 @@ function seoHealth(blog: BlogPost) {
 }
 
 export function BlogsWorkspace() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editBlogId = searchParams.get("edit");
+  const wantsNewBlog = searchParams.get("new") === "1";
   const [mode, setMode] = useState<"list" | "editor">("list");
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
@@ -91,6 +96,7 @@ export function BlogsWorkspace() {
   const [bulkAction, setBulkAction] = useState("archive");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const counts = useMemo(() => {
     return {
@@ -120,6 +126,7 @@ export function BlogsWorkspace() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load blog posts");
     } finally {
+      setHasLoaded(true);
       setLoading(false);
     }
   }
@@ -131,7 +138,38 @@ export function BlogsWorkspace() {
   function openEditor(blog?: BlogPost) {
     setEditingBlog(blog || null);
     setMode("editor");
+    router.push(blog?._id ? `/blogs?edit=${encodeURIComponent(blog._id)}` : "/blogs?new=1");
   }
+
+  useEffect(() => {
+    if (wantsNewBlog) {
+      setEditingBlog(null);
+      setMode("editor");
+      return;
+    }
+
+    if (editBlogId) {
+      if (!hasLoaded) {
+        return;
+      }
+
+      const blog = blogs.find((item) => item._id === editBlogId);
+      if (blog) {
+        setEditingBlog(blog);
+        setMode("editor");
+        return;
+      }
+
+      setMessage("The selected blog post could not be found.");
+      setEditingBlog(null);
+      setMode("list");
+      router.replace("/blogs");
+      return;
+    }
+
+    setEditingBlog(null);
+    setMode("list");
+  }, [blogs, editBlogId, hasLoaded, router, wantsNewBlog]);
 
   function toggleSelected(id: string) {
     setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -189,6 +227,7 @@ export function BlogsWorkspace() {
         initialBlog={editingBlog}
         onBack={() => {
           setMode("list");
+          router.push("/blogs");
           void loadBlogs();
         }}
       />

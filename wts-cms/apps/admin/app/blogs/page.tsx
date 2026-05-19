@@ -15,7 +15,12 @@
  * ================================================================
  */
 import { BlogsWorkspace } from "../../components/BlogsWorkspace";
+import { Suspense } from "react";
 
 export default function BlogsAdmin() {
-  return <BlogsWorkspace />;
+  return (
+    <Suspense fallback={<div className="admin-route-loading">Loading WTS CMS blog posts...</div>}>
+      <BlogsWorkspace />
+    </Suspense>
+  );
 }

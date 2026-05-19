@@ -16,7 +16,7 @@
  */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlignLeft,
   ArrowDown,
@@ -132,6 +132,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   const [device, setDevice] = useState<DeviceMode>("desktop");
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("content");
   const [selectedBlockId, setSelectedBlockId] = useState<string>(blocks[0]?.id || "");
+  const layersPanelRef = useRef<HTMLDivElement | null>(null);
   const selectedBlock = useMemo(() => blocks.find((block) => block.id === selectedBlockId), [blocks, selectedBlockId]);
   const shellClassName = `builder-editor-shell ${mode === "visual" && isStudioOpen ? "is-fullscreen" : ""}`;
   const isFullscreenVisualMode = mode === "visual" && isStudioOpen;
@@ -231,6 +232,10 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
     }
     items.splice(targetIndex, 0, item);
     updateSelectedBlock({ items } as Partial<TBlock>);
+  }
+
+  function focusLayersPanel() {
+    layersPanelRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
   return (
@@ -499,7 +504,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
           <section className="builder-stage">
             <div className="builder-toolbar">
               <div className="builder-toolbar-group">
-                <button type="button" onClick={() => setSelectedBlockId("")}>
+                <button type="button" onClick={focusLayersPanel}>
                   <Layers size={16} /> Layers
                 </button>
                 <button type="button" onClick={() => onInsertContentBlock("h2")}>
@@ -555,6 +560,15 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
             <div className={`builder-canvas-wrap device-${device}`}>
               <span className="builder-device-label">{device} preview</span>
               <article className="builder-canvas">
+                <header className="builder-canvas-nav">
+                  <strong>WS CMS</strong>
+                  <nav aria-label="Preview navigation">
+                    <span>Home</span>
+                    <span>Pages</span>
+                    <span>Blog</span>
+                    <span>Contact</span>
+                  </nav>
+                </header>
                 {!blocks.length ? (
                   <section className="builder-canvas-hero" onClick={() => setSelectedBlockId("")}>
                     <span className="cms-kicker">{entityLabel}</span>
@@ -615,12 +629,15 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                     </div>
                   </section>
                 ) : null}
+                <footer className="builder-canvas-footer">
+                  Powered by Webskitters Technology Solutions Pvt. Ltd.
+                </footer>
               </article>
             </div>
           </section>
 
           <aside className="builder-outline" aria-label="Visual blocks and layers">
-            <div className="builder-outline-card">
+            <div className="builder-outline-card" ref={layersPanelRef}>
               <div className="builder-outline-header">
                 <span className="cms-kicker">Add blocks</span>
                 <Plus size={17} />
