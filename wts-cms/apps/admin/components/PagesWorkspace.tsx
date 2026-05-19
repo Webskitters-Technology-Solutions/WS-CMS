@@ -17,6 +17,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Archive,
   ChevronLeft,
@@ -78,6 +79,10 @@ function seoHealth(page: CmsPage) {
 }
 
 export function PagesWorkspace() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const editPageId = searchParams.get("edit");
+  const wantsNewPage = searchParams.get("new") === "1";
   const [mode, setMode] = useState<"list" | "editor">("list");
   const [pages, setPages] = useState<CmsPage[]>([]);
   const [editingPage, setEditingPage] = useState<CmsPage | null>(null);
@@ -86,6 +91,7 @@ export function PagesWorkspace() {
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const counts = useMemo(() => {
     return {
@@ -115,6 +121,7 @@ export function PagesWorkspace() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to load pages");
     } finally {
+      setHasLoaded(true);
       setLoading(false);
     }
   }
@@ -122,6 +129,36 @@ export function PagesWorkspace() {
   useEffect(() => {
     void loadPages();
   }, []);
+
+  useEffect(() => {
+    if (wantsNewPage) {
+      setEditingPage(null);
+      setMode("editor");
+      return;
+    }
+
+    if (editPageId) {
+      if (!hasLoaded) {
+        return;
+      }
+
+      const page = pages.find((item) => item._id === editPageId);
+      if (page) {
+        setEditingPage(page);
+        setMode("editor");
+        return;
+      }
+
+      setMessage("The selected page could not be found.");
+      setEditingPage(null);
+      setMode("list");
+      router.replace("/pages");
+      return;
+    }
+
+    setEditingPage(null);
+    setMode("list");
+  }, [editPageId, hasLoaded, pages, router, wantsNewPage]);
 
   function toggleSelected(id: string) {
     setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -136,6 +173,7 @@ export function PagesWorkspace() {
   function openEditor(page?: CmsPage | null) {
     setEditingPage(page || null);
     setMode("editor");
+    router.push(page?._id ? `/pages?edit=${encodeURIComponent(page._id)}` : "/pages?new=1");
   }
 
   async function removePage(id: string) {
@@ -158,7 +196,10 @@ export function PagesWorkspace() {
       <PageEditor
         initialPage={editingPage}
         onBack={() => {
+          window.history.pushState(null, "", "/pages");
+          setEditingPage(null);
           setMode("list");
+          router.replace("/pages");
           void loadPages();
         }}
       />

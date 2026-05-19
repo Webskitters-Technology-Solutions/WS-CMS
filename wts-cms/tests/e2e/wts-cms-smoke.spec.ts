@@ -145,8 +145,8 @@ test("admin authenticated journey covers dashboard, pages, import export, and ed
   await expect(page.locator("main h1", { hasText: "Pages" })).toBeVisible();
   await expect(page.getByText("Home").first()).toBeVisible();
   await page.getByRole("button", { name: "Edit page" }).first().click();
-  await expect(page.getByText(/WTS CMS Page Studio/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: /Draft preview/i })).toBeVisible();
+  await expect(page.getByText(/Page visual studio/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Exit full screen editor/i })).toBeVisible();
   await expectNoHorizontalOverflow(page, "page editor");
 
   await page.goto(`${adminUrl}/import-export`);
@@ -181,36 +181,84 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await expect(teamRow).toBeVisible();
   await teamRow.getByRole("button", { name: "Edit page" }).click();
 
+  await expect(page).toHaveURL(/\/pages\?edit=/);
+  await expect(page.getByText(/Page visual studio/i)).toBeVisible();
+  await page.reload();
   await expect(page.getByText(/Page visual studio/i)).toBeVisible();
   const shell = page.locator(".builder-editor-shell");
   await expect(shell).toHaveClass(/is-fullscreen/);
+  await expect(page.locator(".builder-canvas-nav")).toBeVisible();
+  await expect(page.locator(".builder-canvas-footer")).toBeVisible();
 
   const workbenchBox = await page.locator(".builder-workbench").boundingBox();
   const viewportHeight = page.viewportSize()?.height || 900;
   expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(viewportHeight * 0.68);
+  const studioViewportMetrics = await page.evaluate(() => ({
+    bodyHasStudioClass: document.body.classList.contains("wts-builder-studio-active"),
+    heroCardsVisible: Array.from(document.querySelectorAll(".cms-editor-main > .cms-editor-card:not(.builder-editor-card)")).filter((element) => {
+      const style = window.getComputedStyle(element);
+      return style.display !== "none" && (element as HTMLElement).offsetParent !== null;
+    }).length
+  }));
+  expect(studioViewportMetrics.bodyHasStudioClass, "visual studio should mark the page as studio-active").toBe(true);
+  expect(studioViewportMetrics.heroCardsVisible, "fullscreen studio should hide page settings behind the editor").toBe(0);
+  const initialCanvasFit = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth
+  }));
+  expect(initialCanvasFit.scrollWidth, "desktop canvas should fit within the editor lane without horizontal clipping").toBeLessThanOrEqual(
+    initialCanvasFit.clientWidth + 4
+  );
 
   const cardBlock = page.locator(".builder-block-preview", { hasText: "Example CMS delivery roles" }).first();
   await expect(cardBlock).toBeVisible();
   await cardBlock.click();
   await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
   await expect(page.locator(".builder-item-card", { hasText: "Product Owner" })).toBeVisible();
+  const nestedControlColor = await page.getByRole("button", { name: "Move item up" }).first().evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(nestedControlColor, "nested item controls should use the dark theme background").not.toBe("rgb(255, 255, 255)");
 
   const visualBlocksPanel = page.getByLabel("Visual blocks and layers");
+  const layersButton = page.getByRole("button", { name: "Layers" }).first();
+  await layersButton.click();
+  await expect(visualBlocksPanel).toHaveClass(/is-layers-focused/);
+  await layersButton.click();
+  await layersButton.click();
+  await expect(visualBlocksPanel.getByRole("button", { name: /Hero section/i })).toBeVisible();
+  await expect(page.locator(".builder-layer-list button").first()).toBeVisible();
+  await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
+
+  await page.getByRole("button", { name: /Collapse inspector/i }).click();
+  await expect(shell).toHaveClass(/is-inspector-collapsed/);
+  await page.getByRole("button", { name: /Expand inspector/i }).click();
+  await expect(shell).not.toHaveClass(/is-inspector-collapsed/);
+
+  await page.getByRole("button", { name: /Search canvas/i }).click();
+  await page.getByLabel("Search visual blocks").fill("roles");
+  await expect(page.getByText(/matches/i)).toBeVisible();
+  await page.getByRole("button", { name: /Close canvas search/i }).click();
+  await expect(page.getByLabel("Search visual blocks")).toBeHidden();
+
+  await page.getByRole("button", { name: /Preview canvas/i }).click();
+  await expect(shell).toHaveClass(/is-canvas-preview/);
+  await page.getByRole("button", { name: /Exit canvas preview/i }).click();
+  await expect(shell).not.toHaveClass(/is-canvas-preview/);
+
   await visualBlocksPanel.getByRole("button", { name: /CTA band/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /FAQ list/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /Gallery/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /Form embed/i }).click();
-  const canvasMetrics = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
-    clientHeight: element.clientHeight,
-    scrollHeight: element.scrollHeight
+  const documentMetrics = await page.evaluate(() => ({
+    viewportHeight: window.innerHeight,
+    scrollHeight: document.documentElement.scrollHeight
   }));
-  expect(canvasMetrics.scrollHeight, "visual studio canvas should expose the full page height").toBeGreaterThan(canvasMetrics.clientHeight);
+  expect(documentMetrics.scrollHeight, "visual studio should expose full page height through natural page scroll").toBeGreaterThan(
+    documentMetrics.viewportHeight
+  );
 
-  await page.locator(".builder-canvas-wrap").evaluate((element) => {
-    element.scrollTo({ top: element.scrollHeight, behavior: "instant" });
-  });
-  const scrolledCanvasTop = await page.locator(".builder-canvas-wrap").evaluate((element) => element.scrollTop);
-  expect(scrolledCanvasTop, "visual studio canvas should scroll to lower page sections").toBeGreaterThan(0);
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+  const scrolledPageTop = await page.evaluate(() => window.scrollY);
+  expect(scrolledPageTop, "visual studio page should scroll to lower sections").toBeGreaterThan(0);
   await expect(page.locator(".builder-block-preview").last()).toBeVisible();
 
   const desktopButton = page.getByRole("button", { name: "Desktop preview" });
@@ -233,6 +281,31 @@ test("visual editor supports fullscreen editing, card selection, and device prev
 
   await page.getByRole("button", { name: /Return to page settings/i }).click();
   await expect(shell).not.toHaveClass(/is-fullscreen/);
+  await page.getByRole("button", { name: /More actions/i }).click();
+  await expect(page.getByRole("menu", { name: /Page actions/i })).toBeVisible();
+  await page.getByRole("menuitem", { name: /Open action panel/i }).click();
+  await expect(page.getByText("Duplicate draft")).toBeVisible();
+  await page.getByRole("button", { name: /Back to pages list/i }).click();
+  await expect(page).toHaveURL(/\/pages$/);
+});
+
+test("blog visual editor keeps edit context after refresh", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Editor refresh behavior is covered in the desktop visual studio.");
+
+  await login(page);
+  await page.goto(`${adminUrl}/blogs`);
+  await expect(page.locator("main h1", { hasText: "Blog Posts" })).toBeVisible();
+
+  const blogRow = page.locator("tbody tr").first();
+  await expect(blogRow).toBeVisible();
+  await blogRow.getByRole("button", { name: "Edit blog post" }).click();
+
+  await expect(page).toHaveURL(/\/blogs\?edit=/);
+  await expect(page.getByText(/Article visual studio/i)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(/Article visual studio/i)).toBeVisible();
+  await expect(page.locator(".builder-canvas-nav")).toBeVisible();
+  await expect(page.locator(".builder-canvas-footer")).toBeVisible();
 });
 
 test("admin mobile pages remain usable without horizontal overflow", async ({ page }) => {

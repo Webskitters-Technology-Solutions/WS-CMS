@@ -218,6 +218,7 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
   const [draftPreviewOpen, setDraftPreviewOpen] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<"mobile" | "desktop">("mobile");
   const [revisions, setRevisions] = useState<RevisionItem[]>([]);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
 
   const slug = useMemo(() => slugify(slugValue || title || "untitled-page"), [slugValue, title]);
   const permalink = useMemo(() => {
@@ -671,9 +672,64 @@ export function PageEditor({ initialPage, onBack }: { initialPage?: EditablePage
           <button className="cms-primary-button" type="button" disabled={saving} onClick={() => void persist("published")}>
             <Send size={16} /> Publish
           </button>
-          <button className="cms-icon-button" type="button" aria-label="More actions">
-            <MoreHorizontal size={18} />
-          </button>
+          <div className="cms-actions-menu-wrap">
+            <button
+              className="cms-icon-button"
+              type="button"
+              aria-expanded={moreActionsOpen}
+              aria-haspopup="menu"
+              aria-label="More actions"
+              onClick={() => setMoreActionsOpen((value) => !value)}
+            >
+              <MoreHorizontal size={18} />
+            </button>
+            {moreActionsOpen ? (
+              <div className="cms-actions-menu" role="menu" aria-label="Page actions">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setActivePanel("history");
+                    setMoreActionsOpen(false);
+                  }}
+                >
+                  <ListChecks size={15} /> Open action panel
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    previewPage();
+                    setMoreActionsOpen(false);
+                  }}
+                >
+                  <Eye size={15} /> Preview page
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={saving}
+                  onClick={() => {
+                    setMoreActionsOpen(false);
+                    void persist("draft");
+                  }}
+                >
+                  <Save size={15} /> Save draft
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={saving}
+                  onClick={() => {
+                    setMoreActionsOpen(false);
+                    void persist("archived");
+                  }}
+                >
+                  <Archive size={15} /> Archive page
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
 
