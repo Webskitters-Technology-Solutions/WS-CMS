@@ -194,18 +194,14 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   const viewportHeight = page.viewportSize()?.height || 900;
   expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(viewportHeight * 0.68);
   const studioViewportMetrics = await page.evaluate(() => ({
-    bodyHasLockClass: document.body.classList.contains("wts-builder-studio-active"),
-    bodyOverflow: getComputedStyle(document.body).overflow,
-    htmlOverflow: getComputedStyle(document.documentElement).overflow,
-    scrollHeight: document.documentElement.scrollHeight,
-    viewportHeight: window.innerHeight
+    bodyHasStudioClass: document.body.classList.contains("wts-builder-studio-active"),
+    heroCardsVisible: Array.from(document.querySelectorAll(".cms-editor-main > .cms-editor-card:not(.builder-editor-card)")).filter((element) => {
+      const style = window.getComputedStyle(element);
+      return style.display !== "none" && (element as HTMLElement).offsetParent !== null;
+    }).length
   }));
-  expect(studioViewportMetrics.bodyHasLockClass, "visual studio should lock the page behind the editor").toBe(true);
-  expect(studioViewportMetrics.bodyOverflow).toBe("hidden");
-  expect(studioViewportMetrics.htmlOverflow).toBe("hidden");
-  expect(studioViewportMetrics.scrollHeight, "fullscreen studio should not expose the page settings below the editor").toBeLessThanOrEqual(
-    studioViewportMetrics.viewportHeight + 4
-  );
+  expect(studioViewportMetrics.bodyHasStudioClass, "visual studio should mark the page as studio-active").toBe(true);
+  expect(studioViewportMetrics.heroCardsVisible, "fullscreen studio should hide page settings behind the editor").toBe(0);
   const initialCanvasFit = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
     clientWidth: element.clientWidth,
     scrollWidth: element.scrollWidth
@@ -235,17 +231,17 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await visualBlocksPanel.getByRole("button", { name: /FAQ list/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /Gallery/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /Form embed/i }).click();
-  const canvasMetrics = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
-    clientHeight: element.clientHeight,
-    scrollHeight: element.scrollHeight
+  const documentMetrics = await page.evaluate(() => ({
+    viewportHeight: window.innerHeight,
+    scrollHeight: document.documentElement.scrollHeight
   }));
-  expect(canvasMetrics.scrollHeight, "visual studio canvas should expose the full page height").toBeGreaterThan(canvasMetrics.clientHeight);
+  expect(documentMetrics.scrollHeight, "visual studio should expose full page height through natural page scroll").toBeGreaterThan(
+    documentMetrics.viewportHeight
+  );
 
-  await page.locator(".builder-canvas-wrap").evaluate((element) => {
-    element.scrollTo({ top: element.scrollHeight, behavior: "instant" });
-  });
-  const scrolledCanvasTop = await page.locator(".builder-canvas-wrap").evaluate((element) => element.scrollTop);
-  expect(scrolledCanvasTop, "visual studio canvas should scroll to lower page sections").toBeGreaterThan(0);
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+  const scrolledPageTop = await page.evaluate(() => window.scrollY);
+  expect(scrolledPageTop, "visual studio page should scroll to lower sections").toBeGreaterThan(0);
   await expect(page.locator(".builder-block-preview").last()).toBeVisible();
 
   const desktopButton = page.getByRole("button", { name: "Desktop preview" });

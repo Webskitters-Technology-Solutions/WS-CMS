@@ -148,18 +148,9 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
       return undefined;
     }
 
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousOverflow = document.body.style.overflow;
-    const previousOverscrollBehavior = document.body.style.overscrollBehavior;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.overscrollBehavior = "none";
     document.body.classList.add("wts-builder-studio-active");
 
     return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousOverflow;
-      document.body.style.overscrollBehavior = previousOverscrollBehavior;
       document.body.classList.remove("wts-builder-studio-active");
     };
   }, [isFullscreenVisualMode]);
@@ -645,7 +636,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
           </section>
 
           <aside className="builder-outline" aria-label="Visual blocks and layers">
-            <div className="builder-outline-card" ref={layersPanelRef}>
+            <div className="builder-outline-card builder-add-blocks-card">
               <div className="builder-outline-header">
                 <span className="cms-kicker">Add blocks</span>
                 <Plus size={17} />
@@ -658,7 +649,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                 ))}
               </div>
             </div>
-            <div className="builder-outline-card">
+            <div className="builder-outline-card builder-layers-card" ref={layersPanelRef}>
               <div className="builder-outline-header">
                 <span className="cms-kicker">Layers</span>
                 <Layers size={17} />

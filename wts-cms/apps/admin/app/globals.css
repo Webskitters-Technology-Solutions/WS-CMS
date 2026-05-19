@@ -3040,27 +3040,15 @@ pre {
 
 .builder-editor-shell.is-fullscreen {
   background: #eaf1f8;
-  bottom: 0;
-  height: 100dvh;
-  inset: 0;
-  left: 0;
-  max-height: 100dvh;
   min-height: 100dvh;
-  overflow: hidden;
-  position: fixed;
-  right: 0;
-  top: 0;
+  overflow: visible;
+  position: relative;
   width: 100vw;
-  z-index: 1000;
-}
-
-body.wts-builder-studio-active {
-  overflow: hidden;
+  z-index: 20;
 }
 
 body.wts-builder-studio-active .cms-editor {
-  min-height: 100dvh;
-  overflow: hidden;
+  background: #eaf1f8;
 }
 
 body.wts-builder-studio-active .cms-editor-topbar,
@@ -3081,6 +3069,7 @@ body.wts-builder-studio-active .builder-editor-card {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  overflow: visible;
 }
 
 .builder-studio-topbar {
@@ -3092,6 +3081,12 @@ body.wts-builder-studio-active .builder-editor-card {
   grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
   min-height: 72px;
   padding: 12px 18px;
+}
+
+.builder-editor-shell.is-fullscreen .builder-studio-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 8;
 }
 
 .builder-studio-title {
@@ -3189,10 +3184,19 @@ body.wts-builder-studio-active .builder-editor-card {
 }
 
 .builder-editor-shell.is-fullscreen .builder-workbench {
-  height: calc(100dvh - 72px);
-  max-height: calc(100dvh - 72px);
+  align-items: start;
+  height: auto;
+  max-height: none;
   min-height: 0;
+  overflow: visible;
+}
+
+.builder-editor-shell.is-fullscreen .builder-inspector,
+.builder-editor-shell.is-fullscreen .builder-outline {
+  max-height: calc(100dvh - 72px);
   overflow: hidden;
+  position: sticky;
+  top: 72px;
 }
 
 .builder-editor-shell:not(.is-fullscreen) .builder-workbench {
@@ -3273,6 +3277,7 @@ body.wts-builder-studio-active .builder-editor-card {
   border-top: 1px solid #edf2f7;
   display: grid;
   gap: 8px;
+  overflow-y: auto;
   padding-top: 14px;
 }
 
@@ -3290,6 +3295,10 @@ body.wts-builder-studio-active .builder-editor-card {
   min-height: 0;
 }
 
+.builder-editor-shell.is-fullscreen .builder-stage {
+  grid-template-rows: auto auto;
+}
+
 .builder-toolbar {
   align-items: center;
   background: #13223b;
@@ -3299,6 +3308,12 @@ body.wts-builder-studio-active .builder-editor-card {
   justify-content: space-between;
   min-width: 0;
   padding: 10px 12px;
+}
+
+.builder-editor-shell.is-fullscreen .builder-toolbar {
+  position: sticky;
+  top: 72px;
+  z-index: 7;
 }
 
 .builder-toolbar-group,
@@ -3359,6 +3374,13 @@ body.wts-builder-studio-active .builder-editor-card {
   overflow: auto;
   padding: 34px;
   position: relative;
+}
+
+.builder-editor-shell.is-fullscreen .builder-canvas-wrap {
+  height: auto;
+  max-height: none;
+  min-height: calc(100dvh - 132px);
+  overflow: visible;
 }
 
 .builder-device-label {
@@ -3792,7 +3814,7 @@ body.wts-builder-studio-active .builder-editor-card {
   border-left: 1px solid #d8e1ec;
   display: grid;
   gap: 14px;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: max-content minmax(190px, 1fr) max-content;
   min-height: 0;
   overflow: hidden;
   padding: 14px;
@@ -3802,10 +3824,20 @@ body.wts-builder-studio-active .builder-editor-card {
   background: #ffffff;
   border: 1px solid #d8e1ec;
   border-radius: 8px;
+  align-content: start;
   display: grid;
   gap: 12px;
   min-height: 0;
+  overflow: hidden;
   padding: 14px;
+}
+
+.builder-add-blocks-card {
+  max-height: min(330px, 42vh);
+}
+
+.builder-layers-card {
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .builder-outline-header {
@@ -3815,8 +3847,10 @@ body.wts-builder-studio-active .builder-editor-card {
 }
 
 .builder-layer-list {
+  align-content: start;
   display: grid;
   gap: 10px;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
 }
