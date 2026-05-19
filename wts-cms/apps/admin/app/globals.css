@@ -3302,6 +3302,7 @@ pre {
 }
 
 .builder-canvas-wrap {
+  align-items: flex-start;
   background:
     linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
     linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px);
