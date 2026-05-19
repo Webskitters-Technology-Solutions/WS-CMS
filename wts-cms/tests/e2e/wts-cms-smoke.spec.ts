@@ -195,6 +195,24 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
   await expect(page.locator(".builder-item-card", { hasText: "Product Owner" })).toBeVisible();
 
+  const visualBlocksPanel = page.getByLabel("Visual blocks and layers");
+  await visualBlocksPanel.getByRole("button", { name: /CTA band/i }).click();
+  await visualBlocksPanel.getByRole("button", { name: /FAQ list/i }).click();
+  await visualBlocksPanel.getByRole("button", { name: /Gallery/i }).click();
+  await visualBlocksPanel.getByRole("button", { name: /Form embed/i }).click();
+  const canvasMetrics = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight
+  }));
+  expect(canvasMetrics.scrollHeight, "visual studio canvas should expose the full page height").toBeGreaterThan(canvasMetrics.clientHeight);
+
+  await page.locator(".builder-canvas-wrap").evaluate((element) => {
+    element.scrollTo({ top: element.scrollHeight, behavior: "instant" });
+  });
+  const scrolledCanvasTop = await page.locator(".builder-canvas-wrap").evaluate((element) => element.scrollTop);
+  expect(scrolledCanvasTop, "visual studio canvas should scroll to lower page sections").toBeGreaterThan(0);
+  await expect(page.locator(".builder-block-preview").last()).toBeVisible();
+
   const desktopButton = page.getByRole("button", { name: "Desktop preview" });
   const tabletButton = page.getByRole("button", { name: "Tablet preview" });
   const mobileButton = page.getByRole("button", { name: "Mobile preview" });
