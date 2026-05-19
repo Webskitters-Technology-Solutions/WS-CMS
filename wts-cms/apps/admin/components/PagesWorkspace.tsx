@@ -196,8 +196,10 @@ export function PagesWorkspace() {
       <PageEditor
         initialPage={editingPage}
         onBack={() => {
+          window.history.pushState(null, "", "/pages");
+          setEditingPage(null);
           setMode("list");
-          router.push("/pages");
+          router.replace("/pages");
           void loadPages();
         }}
       />

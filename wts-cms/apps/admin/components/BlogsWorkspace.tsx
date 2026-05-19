@@ -226,8 +226,10 @@ export function BlogsWorkspace() {
       <BlogEditor
         initialBlog={editingBlog}
         onBack={() => {
+          window.history.pushState(null, "", "/blogs");
+          setEditingBlog(null);
           setMode("list");
-          router.push("/blogs");
+          router.replace("/blogs");
           void loadBlogs();
         }}
       />
