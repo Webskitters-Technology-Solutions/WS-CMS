@@ -221,11 +221,28 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   const visualBlocksPanel = page.getByLabel("Visual blocks and layers");
   const layersButton = page.getByRole("button", { name: "Layers" }).first();
   await layersButton.click();
+  await expect(visualBlocksPanel).toHaveClass(/is-layers-focused/);
   await layersButton.click();
   await layersButton.click();
   await expect(visualBlocksPanel.getByRole("button", { name: /Hero section/i })).toBeVisible();
   await expect(page.locator(".builder-layer-list button").first()).toBeVisible();
   await expect(page.locator(".builder-inspector-title h2", { hasText: "Edit Cards" })).toBeVisible();
+
+  await page.getByRole("button", { name: /Collapse inspector/i }).click();
+  await expect(shell).toHaveClass(/is-inspector-collapsed/);
+  await page.getByRole("button", { name: /Expand inspector/i }).click();
+  await expect(shell).not.toHaveClass(/is-inspector-collapsed/);
+
+  await page.getByRole("button", { name: /Search canvas/i }).click();
+  await page.getByLabel("Search visual blocks").fill("roles");
+  await expect(page.getByText(/matches/i)).toBeVisible();
+  await page.getByRole("button", { name: /Close canvas search/i }).click();
+  await expect(page.getByLabel("Search visual blocks")).toBeHidden();
+
+  await page.getByRole("button", { name: /Preview canvas/i }).click();
+  await expect(shell).toHaveClass(/is-canvas-preview/);
+  await page.getByRole("button", { name: /Exit canvas preview/i }).click();
+  await expect(shell).not.toHaveClass(/is-canvas-preview/);
 
   await visualBlocksPanel.getByRole("button", { name: /CTA band/i }).click();
   await visualBlocksPanel.getByRole("button", { name: /FAQ list/i }).click();
@@ -264,6 +281,12 @@ test("visual editor supports fullscreen editing, card selection, and device prev
 
   await page.getByRole("button", { name: /Return to page settings/i }).click();
   await expect(shell).not.toHaveClass(/is-fullscreen/);
+  await page.getByRole("button", { name: /More actions/i }).click();
+  await expect(page.getByRole("menu", { name: /Page actions/i })).toBeVisible();
+  await page.getByRole("menuitem", { name: /Open action panel/i }).click();
+  await expect(page.getByText("Duplicate draft")).toBeVisible();
+  await page.getByRole("button", { name: /Back to pages list/i }).click();
+  await expect(page).toHaveURL(/\/pages$/);
 });
 
 test("blog visual editor keeps edit context after refresh", async ({ page, isMobile }) => {

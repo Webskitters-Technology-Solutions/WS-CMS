@@ -132,9 +132,28 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   const [device, setDevice] = useState<DeviceMode>("desktop");
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("content");
   const [selectedBlockId, setSelectedBlockId] = useState<string>(blocks[0]?.id || "");
+  const [isInspectorCollapsed, setIsInspectorCollapsed] = useState(false);
+  const [isCanvasPreview, setIsCanvasPreview] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [outlineMode, setOutlineMode] = useState<"blocks" | "layers">("blocks");
+  const [searchQuery, setSearchQuery] = useState("");
   const layersPanelRef = useRef<HTMLDivElement | null>(null);
   const selectedBlock = useMemo(() => blocks.find((block) => block.id === selectedBlockId), [blocks, selectedBlockId]);
-  const shellClassName = `builder-editor-shell ${mode === "visual" && isStudioOpen ? "is-fullscreen" : ""}`;
+  const searchMatches = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return 0;
+    }
+    return blocks.filter((block) => blockContainsQuery(block, query)).length;
+  }, [blocks, searchQuery]);
+  const shellClassName = [
+    "builder-editor-shell",
+    mode === "visual" && isStudioOpen ? "is-fullscreen" : "",
+    isInspectorCollapsed ? "is-inspector-collapsed" : "",
+    isCanvasPreview ? "is-canvas-preview" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
   const isFullscreenVisualMode = mode === "visual" && isStudioOpen;
 
   useEffect(() => {
@@ -234,6 +253,7 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
   }
 
   function focusLayersPanel() {
+    setOutlineMode("layers");
     layersPanelRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
@@ -311,7 +331,14 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
                 <span className="cms-kicker">Inspector</span>
                 <h2>{selectedBlock ? `Edit ${labelForBlock(selectedBlock.type)}` : `Edit ${entityLabel}`}</h2>
               </div>
-              <PanelLeft size={18} />
+              <button
+                className="builder-inspector-toggle"
+                type="button"
+                aria-label={isInspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
+                onClick={() => setIsInspectorCollapsed((value) => !value)}
+              >
+                <PanelLeft size={18} />
+              </button>
             </div>
             <div className="builder-inspector-tabs" role="tablist" aria-label="Inspector panels">
               <button className={inspectorTab === "content" ? "active" : ""} type="button" onClick={() => setInspectorTab("content")}>
@@ -548,14 +575,39 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
               <div className="builder-score-group">
                 <span>{seoTotal ? Math.round((seoScore / seoTotal) * 100) : 0}/100 SEO</span>
                 <span>{readabilityTotal ? Math.round((readabilityScore / readabilityTotal) * 100) : 0}/100 Read</span>
-                <button type="button" aria-label="Preview canvas">
+                <button
+                  className={isCanvasPreview ? "active" : ""}
+                  type="button"
+                  aria-label={isCanvasPreview ? "Exit canvas preview" : "Preview canvas"}
+                  aria-pressed={isCanvasPreview}
+                  onClick={() => setIsCanvasPreview((value) => !value)}
+                >
                   <Eye size={16} />
                 </button>
-                <button type="button" aria-label="Search canvas">
+                <button
+                  className={isSearchOpen ? "active" : ""}
+                  type="button"
+                  aria-label={isSearchOpen ? "Close canvas search" : "Search canvas"}
+                  aria-pressed={isSearchOpen}
+                  onClick={() => setIsSearchOpen((value) => !value)}
+                >
                   <Search size={16} />
                 </button>
               </div>
             </div>
+            {isSearchOpen ? (
+              <div className="builder-search-bar" role="search">
+                <Search size={15} />
+                <input
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search visual blocks"
+                  aria-label="Search visual blocks"
+                />
+                <span>{searchQuery.trim() ? `${searchMatches} matches` : "Type to search"}</span>
+              </div>
+            ) : null}
             <div className={`builder-canvas-wrap device-${device}`}>
               <span className="builder-device-label">{device} preview</span>
               <article className="builder-canvas">
@@ -635,11 +687,13 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
             </div>
           </section>
 
-          <aside className="builder-outline" aria-label="Visual blocks and layers">
+          <aside className={`builder-outline ${outlineMode === "layers" ? "is-layers-focused" : ""}`} aria-label="Visual blocks and layers">
             <div className="builder-outline-card builder-add-blocks-card">
               <div className="builder-outline-header">
                 <span className="cms-kicker">Add blocks</span>
-                <Plus size={17} />
+                <button type="button" aria-label="Focus add blocks" onClick={() => setOutlineMode("blocks")}>
+                  <Plus size={17} />
+                </button>
               </div>
               <div className="builder-template-list">
                 {blockTemplates.map((template) => (
@@ -652,7 +706,9 @@ export function VisualHtmlEditorTabs<TBlock extends BuilderBlock>({
             <div className="builder-outline-card builder-layers-card" ref={layersPanelRef}>
               <div className="builder-outline-header">
                 <span className="cms-kicker">Layers</span>
-                <Layers size={17} />
+                <button type="button" aria-label="Focus layers" onClick={() => setOutlineMode("layers")}>
+                  <Layers size={17} />
+                </button>
               </div>
               <div className="builder-layer-list">
                 {blocks.length ? (
@@ -750,6 +806,22 @@ function labelForBlock(type: string) {
     .split("-")
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ");
+}
+
+function blockContainsQuery(block: BuilderBlock, query: string) {
+  const searchableText = [
+    block.type,
+    block.title,
+    block.body,
+    block.mediaUrl,
+    block.formSlug,
+    ...(block.items || []).flatMap((item) => [item.title, item.body, item.image, item.imageAlt])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return searchableText.includes(query);
 }
 
 function isRepeatableBlock(type: string) {
