@@ -97,7 +97,9 @@ test("API exposes health, readiness, and security headers", async ({ request }) 
   expect(health.headers()["content-security-policy"]).toContain("default-src 'self'");
   expect(health.headers()["x-content-type-options"]).toBe("nosniff");
   expect(health.headers()["x-frame-options"]).toBe("DENY");
-  expect(health.headers()["strict-transport-security"]).toBe("max-age=15552000; includeSubDomains; preload");
+  if (apiUrl.startsWith("https://")) {
+    expect(health.headers()["strict-transport-security"]).toBe("max-age=15552000; includeSubDomains; preload");
+  }
 
   const ready = await request.get(`${apiUrl}/ready`);
   expect(ready.ok()).toBe(true);
