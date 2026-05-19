@@ -145,8 +145,8 @@ test("admin authenticated journey covers dashboard, pages, import export, and ed
   await expect(page.locator("main h1", { hasText: "Pages" })).toBeVisible();
   await expect(page.getByText("Home").first()).toBeVisible();
   await page.getByRole("button", { name: "Edit page" }).first().click();
-  await expect(page.getByText(/WTS CMS Page Studio/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: /Draft preview/i })).toBeVisible();
+  await expect(page.getByText(/Page visual studio/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Exit full screen editor/i })).toBeVisible();
   await expectNoHorizontalOverflow(page, "page editor");
 
   await page.goto(`${adminUrl}/import-export`);
@@ -193,6 +193,26 @@ test("visual editor supports fullscreen editing, card selection, and device prev
   const workbenchBox = await page.locator(".builder-workbench").boundingBox();
   const viewportHeight = page.viewportSize()?.height || 900;
   expect(workbenchBox?.height || 0, "visual studio should occupy most of the viewport").toBeGreaterThan(viewportHeight * 0.68);
+  const studioViewportMetrics = await page.evaluate(() => ({
+    bodyHasLockClass: document.body.classList.contains("wts-builder-studio-active"),
+    bodyOverflow: getComputedStyle(document.body).overflow,
+    htmlOverflow: getComputedStyle(document.documentElement).overflow,
+    scrollHeight: document.documentElement.scrollHeight,
+    viewportHeight: window.innerHeight
+  }));
+  expect(studioViewportMetrics.bodyHasLockClass, "visual studio should lock the page behind the editor").toBe(true);
+  expect(studioViewportMetrics.bodyOverflow).toBe("hidden");
+  expect(studioViewportMetrics.htmlOverflow).toBe("hidden");
+  expect(studioViewportMetrics.scrollHeight, "fullscreen studio should not expose the page settings below the editor").toBeLessThanOrEqual(
+    studioViewportMetrics.viewportHeight + 4
+  );
+  const initialCanvasFit = await page.locator(".builder-canvas-wrap").evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth
+  }));
+  expect(initialCanvasFit.scrollWidth, "desktop canvas should fit within the editor lane without horizontal clipping").toBeLessThanOrEqual(
+    initialCanvasFit.clientWidth + 4
+  );
 
   const cardBlock = page.locator(".builder-block-preview", { hasText: "Example CMS delivery roles" }).first();
   await expect(cardBlock).toBeVisible();
